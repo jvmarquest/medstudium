@@ -133,7 +133,8 @@ const App: React.FC = () => {
 
       // Handle existing preferences
       const completed = !!prefs.onboarding_completed;
-      console.log(`[init] onboarding_completed = ${completed}`);
+      console.log("Onboarding:", completed); // Requested Log
+
       setIsOnboardingCompleted(completed);
 
       if (completed) {
