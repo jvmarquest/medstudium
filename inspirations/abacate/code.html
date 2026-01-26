@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Plano de Estudo - MedStudium</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "card-dark": "#192233",
+                        "difficulty-easy": "#22c55e",
+                        "difficulty-medium": "#f59e0b",
+                        "difficulty-hard": "#ef4444",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white min-h-screen flex flex-col">
+<header class="sticky top-0 z-30 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center px-4 pt-6 pb-2 justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-2xl font-variation-settings-fill">menu_book</span>
+<h1 class="text-xl font-bold tracking-tight">Plano de Estudo</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</div>
+<div class="px-4 py-2">
+<label class="relative flex items-center w-full">
+<div class="absolute left-3 text-slate-400">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="w-full h-11 pl-10 pr-4 rounded-xl border-none bg-slate-100 dark:bg-card-dark focus:ring-2 focus:ring-primary text-base placeholder:text-slate-400 transition-all" placeholder="Pesquisar temas..." type="text"/>
+</label>
+</div>
+<div class="flex gap-2 px-4 py-3 overflow-x-auto hide-scrollbar">
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-1 rounded-full bg-primary text-white px-4 text-sm font-semibold">
+                Todas
+            </button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-1 rounded-full bg-slate-100 dark:bg-card-dark text-slate-600 dark:text-slate-300 px-4 text-sm font-medium border border-slate-200 dark:border-slate-700">
+                Pediatria <span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-1 rounded-full bg-slate-100 dark:bg-card-dark text-slate-600 dark:text-slate-300 px-4 text-sm font-medium border border-slate-200 dark:border-slate-700">
+                Cirurgia <span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-1 rounded-full bg-slate-100 dark:bg-card-dark text-slate-600 dark:text-slate-300 px-4 text-sm font-medium border border-slate-200 dark:border-slate-700">
+                Ginecologia <span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+</div>
+</header>
+<main class="flex-1 px-4 py-4 pb-32 space-y-8">
+<section class="space-y-4">
+<div class="flex items-center gap-2 px-1">
+<span class="w-1 h-5 bg-red-500 rounded-full"></span>
+<h2 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Atrasados</h2>
+</div>
+<div class="space-y-4">
+<div class="relative bg-white dark:bg-card-dark rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 transition-transform active:scale-[0.98]">
+<div class="flex">
+<div class="w-24 h-auto bg-cover bg-center shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuArV6v8YJT9WWQkgJlD9lYx5jva2Q6XB3GsUdNwcZ9NiBTxTOBg9VPra1UIPBi0_9yqUnRxMCaeCmQ1MEoiK2wVPN-FbWJPxPkDiEl7ZDitE027YX0gOSlRoQWsR3zoMz_4ffS3ySnZqhGiSNCDgE5e5DxtbrhYboaCoDeREPhe86TtdRAE1U3xNtAJSW3I5QsYarbb4KGDcH6eSfrL53FPC8Gk6nABT4u62Fm5WA7itg6Pbmgiykg7kxaO2AOO3EZh6eX3ERnEv1g')"></div>
+<div class="flex-1 p-4">
+<div class="flex justify-between items-start mb-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 uppercase">
+                                    ATRASADO
+                                </span>
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<h3 class="text-lg font-bold leading-tight mb-2">Diabetes Mellitus Tipo 2</h3>
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-slate-500 dark:text-slate-400 font-medium">Endocrinologia</span>
+<span class="text-xs px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded font-medium">Médio</span>
+</div>
+<div class="flex items-center justify-between mt-4">
+<div class="flex items-center gap-1.5 text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>Próxima: 25/10/2023</span>
+</div>
+<button class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg">Estudar</button>
+</div>
+</div>
+</div>
+</div>
+<div class="relative bg-white dark:bg-card-dark rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 transition-transform active:scale-[0.98]">
+<div class="flex">
+<div class="w-24 h-auto bg-cover bg-center shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAE2BroKw7jF4Ae6Ao-aaneRaxRy8vo8sAmEX3QlbVsnccoBszloftBfUnckQp6wC0ru7nO1nAwZm-q43pO8tkMoAs5CPsjaIxsugHq7LVXes3oP-N4HcH38SCBeX74yDko7PfQNXFLCpb2dChp0KgSyRH0KVj4ekjqX9B76LUMTBY9SLCQ_Ct4PTrvjgorZI7c7LGqLvdDa7BoO_ncq_d8UVJ3uzuh_zPfRvtHnOFY_vyzTR8ZzcxXtX6HusqZzA9dASAZeGBWa40')"></div>
+<div class="flex-1 p-4">
+<div class="flex justify-between items-start mb-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 uppercase">
+                                    ATRASADO
+                                </span>
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<h3 class="text-lg font-bold leading-tight mb-2">Trauma Abdominal</h3>
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-slate-500 dark:text-slate-400 font-medium">Cirurgia Geral</span>
+<span class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded font-medium">Difícil</span>
+</div>
+<div class="flex items-center justify-between mt-4">
+<div class="flex items-center gap-1.5 text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>Próxima: 24/10/2023</span>
+</div>
+<button class="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg">Estudar</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="space-y-4">
+<div class="flex items-center gap-2 px-1">
+<span class="w-1 h-5 bg-green-500 rounded-full"></span>
+<h2 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Em Dia</h2>
+</div>
+<div class="space-y-4">
+<div class="relative bg-white dark:bg-card-dark rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 transition-transform active:scale-[0.98]">
+<div class="flex">
+<div class="w-24 h-auto bg-cover bg-center shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCUfDvYpFJhLUPA5Z_SB5MDzb22r7Mi1_123ll5ZDkO9A-O72NUfXiEA6PGXq0W1aiOWkHnJy-kGqvxApM8gpCgjpM8wDMaCYn43ZzuCbNGvVUvtyUSl4P0l-_lQIX-0mw66HGvCduKqgf_xCvN4yM1i9JYiRNFWFma_LV--W-o6dBxokreH4fKXiLmFkdFg5RMhtm85HyMoFmVxGxcRDSpUrNUY4iTWsoj3EYBBq5OBoDy6M1_QWoyXnUUIe1PINvaXRgo6SY4YrU')"></div>
+<div class="flex-1 p-4">
+<div class="flex justify-between items-start mb-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase">
+                                    EM DIA
+                                </span>
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<h3 class="text-lg font-bold leading-tight mb-2">Icterícia Neonatal</h3>
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-slate-500 dark:text-slate-400 font-medium">Pediatria</span>
+<span class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded font-medium">Fácil</span>
+</div>
+<div class="flex items-center justify-between mt-4">
+<div class="flex items-center gap-1.5 text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>Próxima: 02/11/2023</span>
+</div>
+<button class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold px-4 py-2 rounded-lg">Revisar</button>
+</div>
+</div>
+</div>
+</div>
+<div class="relative bg-white dark:bg-card-dark rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 transition-transform active:scale-[0.98]">
+<div class="flex">
+<div class="w-24 h-auto bg-cover bg-center shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBiGs7WyUl_KiXe4nOmDzLQf-7GkDF_PhpIJPhsYUqPwPKO_3xnQlPZqkM-P16HpEf6HZcpnZuaihgXSPJRlrxKJHFBekxOAeuydbDvybCwzc_rdqYEaEnkkDQevN2n7XaeAVf0gz9BUx65aQJwGs02qPiLmykSDw5xiXs-tdjiEMQZ51fr9dvmvoap--zoyf0v_6dqY-oR9ZEUHYQDaERZgzYqqmdG8qRGLLUNNEw7uMnrMFTySx_d-wdSfPmJVuxnx6q1l9yxqxg')"></div>
+<div class="flex-1 p-4">
+<div class="flex justify-between items-start mb-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase">
+                                    EM DIA
+                                </span>
+<button class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<h3 class="text-lg font-bold leading-tight mb-2">Hipertensão Arterial</h3>
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="text-xs px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-slate-500 dark:text-slate-400 font-medium">Clínica Médica</span>
+<span class="text-xs px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded font-medium">Médio</span>
+</div>
+<div class="flex items-center justify-between mt-4">
+<div class="flex items-center gap-1.5 text-slate-400 text-xs">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>Próxima: 05/11/2023</span>
+</div>
+<button class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold px-4 py-2 rounded-lg">Revisar</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-background-dark/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-6 pt-3 pb-8 z-40">
+<div class="flex justify-between items-center max-w-md mx-auto">
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined text-[26px]">grid_view</span>
+<span class="text-[10px] font-medium">Dashboard</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[26px] font-variation-settings-fill">assignment</span>
+<span class="text-[10px] font-bold">Plano</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400 relative">
+<div class="bg-primary rounded-full p-3 -mt-10 shadow-lg shadow-primary/40 border-4 border-background-light dark:border-background-dark">
+<span class="material-symbols-outlined text-white text-2xl">add</span>
+</div>
+<span class="text-[10px] font-medium mt-6">Adicionar</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined text-[26px]">style</span>
+<span class="text-[10px] font-medium">Flashcards</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined text-[26px]">account_circle</span>
+<span class="text-[10px] font-medium">Perfil</span>
+</button>
+</div>
+</nav>
+
+</body></html>

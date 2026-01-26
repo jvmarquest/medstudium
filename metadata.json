@@ -1,0 +1,7 @@
+{
+  "name": "MedStudium",
+  "description": "Uma plataforma completa para estudantes de medicina se prepararem para provas de residência com repetição espaçada, análise de desempenho e tutoria por IA.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

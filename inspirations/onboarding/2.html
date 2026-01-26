@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MedStudium - Passo 2: Tipo de Prova</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#0B101A",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Manrope', sans-serif;
+            min-height: 100dvh;
+        }
+        .ios-bottom-inset {
+            padding-bottom: env(safe-area-inset-bottom, 24px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased">
+<div class="relative flex min-h-screen w-full max-w-[430px] mx-auto flex-col overflow-x-hidden border-x border-slate-200 dark:border-slate-800 shadow-2xl bg-background-light dark:bg-background-dark">
+<header class="sticky top-0 z-50 flex flex-col bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-4 pt-4 pb-2">
+<div class="flex items-center justify-between mb-4">
+<button class="text-slate-900 dark:text-white flex size-10 items-center justify-start rounded-full active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
+</button>
+<span class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Passo 2 de 5</span>
+<div class="size-10"></div> 
+</div>
+<div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 40%"></div>
+</div>
+</header>
+<main class="flex-1 px-6 pb-40">
+<section class="pt-8 pb-8">
+<h1 class="text-slate-900 dark:text-white tracking-tight text-3xl font-extrabold leading-tight">
+                    Qual o seu objetivo?
+                </h1>
+<p class="text-slate-600 dark:text-slate-400 text-lg font-medium leading-relaxed mt-2">
+                    Selecione o tipo de prova que você está se preparando.
+                </p>
+</section>
+<div class="flex flex-col gap-4">
+<button class="group relative flex items-center gap-4 p-5 rounded-2xl border-2 border-primary bg-primary/5 dark:bg-primary/10 text-left transition-all active:scale-[0.98]">
+<div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white">
+<span class="material-symbols-outlined text-2xl">medical_services</span>
+</div>
+<div class="flex-1">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight">Residência Médica</h3>
+</div>
+<div class="flex size-6 items-center justify-center rounded-full bg-primary text-white">
+<span class="material-symbols-outlined text-sm font-bold">check</span>
+</div>
+</button>
+<button class="group relative flex items-center gap-4 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 text-left transition-all hover:border-primary/50 active:scale-[0.98]">
+<div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-2xl">workspace_premium</span>
+</div>
+<div class="flex-1">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight">Prova de Título</h3>
+</div>
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-700">chevron_right</span>
+</button>
+<button class="group relative flex items-center gap-4 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 text-left transition-all hover:border-primary/50 active:scale-[0.98]">
+<div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-2xl">gavel</span>
+</div>
+<div class="flex-1">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight">Concurso Público</h3>
+</div>
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-700">chevron_right</span>
+</button>
+<button class="group relative flex items-center gap-4 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 text-left transition-all hover:border-primary/50 active:scale-[0.98]">
+<div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-2xl">more_horiz</span>
+</div>
+<div class="flex-1">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight">Outro</h3>
+</div>
+<span class="material-symbols-outlined text-slate-300 dark:text-slate-700">chevron_right</span>
+</button>
+</div>
+</main>
+<footer class="fixed bottom-0 w-full max-w-[430px] p-6 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 ios-bottom-inset">
+<button class="w-full h-16 bg-primary hover:bg-primary/90 text-white font-bold text-xl rounded-2xl transition-all active:scale-[0.97] shadow-lg shadow-primary/25 flex items-center justify-center gap-2">
+                Próximo
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</footer>
+</div>
+
+</body></html>

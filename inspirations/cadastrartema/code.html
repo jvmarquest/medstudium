@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Cadastrar Novo Tema</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "primary-dark": "#0f4bc4",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#192233",
+                        "border-light": "#e2e8f0",
+                        "border-dark": "#324467",
+                        "text-secondary-light": "#64748b",
+                        "text-secondary-dark": "#92a4c9",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none
+        }
+
+        select {
+            appearance: none;
+            background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuBGs47GX0n1dfmMVXs5dFspetggTz6H4GdKywCe0REkLqj6zL-GmnkyfpC7EFrSzhfZic1CC2P8Fi11BpKkbi7TsViG_vvbM1ieCW9Na05QBIleBs7UErEC7NsnPQVR8O55qkcNyTHHs8AnSxJ1La-W5LjSaOtTScMSLzn16kMJNt-1SDg8UectwResIAzmPdXlHD3JH6lSYF_2kAOGSdfv2kGPwCcplBQ021kFtllIMvHivAp-uSLea9vTKovK35-NE4PaXCK8ppg);
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em
+        }
+
+        .dark select {
+            background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuDUlqHudW_KGMYr0Pz8O-T_nRYO40HF1PWJR4KfpJmMdoG3jj50-l5pG4iUhwR9s7tLw454G6KlzYvVjmytUCgXsFV_yh9OHPUaVy3RkGAB69KklxoRYveKQD-uW8xNWTeD-0n8kL9XLKqfpni63lB0XceY7bQPt1kiNLNfZgVpesopeWQe61UnGEw--3uYTC7dxH4e9zHHi8P8mNYHKmxB9Cf99udC0hwIevglrKtLya1sPTEkTYnzrB3XazZ9PI9WhNT7Aa_Po8U)
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body
+    class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased selection:bg-primary selection:text-white flex flex-col h-screen overflow-hidden">
+    <header
+        class="shrink-0 flex items-center justify-between px-4 py-3 bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark z-20">
+        <button
+            class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full text-slate-900 dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+            <span class="material-symbols-outlined text-2xl">arrow_back</span>
+        </button>
+        <h1 class="text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-8">Cadastrar Novo Tema</h1>
+    </header>
+    <main class="flex-1 overflow-y-auto no-scrollbar pb-24 relative w-full max-w-md mx-auto">
+        <div class="px-4 py-6 space-y-6">
+            <div class="space-y-2">
+                <label class="block text-sm font-semibold text-slate-900 dark:text-white">Nome do Tema</label>
+                <input
+                    class="w-full h-14 px-4 rounded-xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white placeholder-text-secondary-light dark:placeholder-text-secondary-dark transition-all outline-none"
+                    placeholder="ex: Infarto Agudo do Miocárdio" type="text" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-slate-900 dark:text-white">Especialidade</label>
+                    <div class="relative">
+                        <select
+                            class="w-full h-14 px-4 pr-10 rounded-xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white appearance-none outline-none">
+                            <option disabled="" selected="" value="">Selecionar</option>
+                            <option value="im">Clínica Médica</option>
+                            <option value="surg">Cirurgia</option>
+                            <option value="ped">Pediatria</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-slate-900 dark:text-white">Grande Área</label>
+                    <div class="relative">
+                        <select
+                            class="w-full h-14 px-4 pr-10 rounded-xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white appearance-none outline-none">
+                            <option disabled="" selected="" value="">Selecionar</option>
+                            <option value="nephro">Nefrologia</option>
+                            <option value="cardio">Cardiologia</option>
+                            <option value="resp">Pneumologia</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="h-px bg-border-light dark:bg-border-dark w-full"></div>
+            <div class="space-y-5">
+                <h3
+                    class="text-sm font-bold uppercase tracking-wider text-text-secondary-light dark:text-text-secondary-dark">
+                    Dados de Desempenho</h3>
+                <div class="space-y-2">
+                    <label class="block text-sm font-semibold text-slate-900 dark:text-white">Data do Estudo</label>
+                    <div class="relative flex items-center">
+                        <input
+                            class="w-full h-14 px-4 rounded-xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white placeholder-text-secondary-light dark:placeholder-text-secondary-dark transition-all outline-none"
+                            type="date" value="2023-10-24" />
+                        <div
+                            class="absolute right-4 pointer-events-none text-text-secondary-light dark:text-text-secondary-dark flex items-center">
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-slate-900 dark:text-white">Total de
+                            Questões</label>
+                        <input
+                            class="w-full h-14 px-4 text-center text-lg font-medium rounded-xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white outline-none"
+                            inputmode="numeric" placeholder="0" type="number" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-green-600 dark:text-green-400">Acertos</label>
+                        <input
+                            class="w-full h-14 px-4 text-center text-lg font-medium rounded-xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark focus:border-green-500 focus:ring-1 focus:ring-green-500 text-green-600 dark:text-green-400 outline-none"
+                            inputmode="numeric" placeholder="0" type="number" />
+                    </div>
+                </div>
+            </div>
+            <div
+                class="mt-8 relative overflow-hidden rounded-2xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark shadow-sm">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl"></div>
+                <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl"></div>
+                <div class="relative p-5">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="material-symbols-outlined text-primary text-xl">analytics</span>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">Análise</h3>
+                    </div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="flex flex-col">
+                            <span
+                                class="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wide mb-1">Dificuldade</span>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-red-500">Difícil</span>
+                                <span class="text-sm font-medium text-red-500/80">45%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+                                <div class="bg-red-500 h-full rounded-full w-[45%]"></div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col">
+                            <span
+                                class="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wide mb-1">Próxima
+                                Revisão</span>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-slate-900 dark:text-white">Amanhã</span>
+                            </div>
+                            <span class="text-xs text-primary mt-1 font-medium">Repetição Espaçada Ativa</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div class="fixed bottom-[80px] left-0 right-0 px-4 z-10 w-full max-w-md mx-auto pointer-events-none">
+        <button
+            class="pointer-events-auto w-full h-14 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-lg shadow-lg shadow-primary/25 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]">
+            <span class="material-symbols-outlined">save</span>
+            Salvar Tema
+        </button>
+    </div>
+    <nav
+        class="shrink-0 h-[72px] bg-surface-light dark:bg-surface-dark border-t border-border-light dark:border-border-dark flex items-center justify-around px-2 z-20 pb-safe">
+        <a class="flex flex-col items-center justify-center w-16 h-full text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary transition-colors gap-1"
+            href="#">
+            <span class="material-symbols-outlined text-2xl">home</span>
+            <span class="text-[10px] font-medium">Início</span>
+        </a>
+        <a class="flex flex-col items-center justify-center w-16 h-full text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary transition-colors gap-1"
+            href="#">
+            <span class="material-symbols-outlined text-2xl">menu_book</span>
+            <span class="text-[10px] font-medium">Estudo</span>
+        </a>
+        <div class="flex flex-col items-center justify-center w-16 h-full relative">
+            <div
+                class="absolute -top-6 bg-surface-light dark:bg-surface-dark p-1.5 rounded-full border-t border-border-light dark:border-border-dark">
+                <a class="flex items-center justify-center w-12 h-12 bg-primary text-white rounded-full shadow-lg shadow-primary/30"
+                    href="#">
+                    <span class="material-symbols-outlined text-2xl">add</span>
+                </a>
+            </div>
+            <span class="text-[10px] font-medium text-primary mt-8">Adicionar</span>
+        </div>
+        <a class="flex flex-col items-center justify-center w-16 h-full text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary transition-colors gap-1"
+            href="#">
+            <span class="material-symbols-outlined text-2xl">bar_chart</span>
+            <span class="text-[10px] font-medium">Estatísticas</span>
+        </a>
+        <a class="flex flex-col items-center justify-center w-16 h-full text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary transition-colors gap-1"
+            href="#">
+            <span class="material-symbols-outlined text-2xl">person</span>
+            <span class="text-[10px] font-medium">Perfil</span>
+        </a>
+    </nav>
+    <div style="display: none;">
+        <img data-alt="Abstract soft blue gradient blob for visual interest on dark background" src="" />
+        <img data-alt="Abstract soft red gradient blob for visual interest on dark background" src="" />
+    </div>
+
+</body>
+
+</html>

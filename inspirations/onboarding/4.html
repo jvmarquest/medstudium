@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MedStudium - Onboarding Passo 4</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Manrope', sans-serif;
+            min-height: 100dvh;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased">
+<div class="relative flex min-h-screen w-full max-w-[430px] mx-auto flex-col overflow-x-hidden border-x border-slate-200 dark:border-slate-800 shadow-2xl">
+<header class="sticky top-0 z-50 bg-background-light dark:bg-background-dark p-4">
+<div class="flex items-center justify-between mb-4">
+<div class="text-primary flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer" data-icon="arrow_back">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<div class="flex-1 px-6">
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 80%"></div>
+</div>
+</div>
+<span class="text-xs font-bold text-slate-500 dark:text-slate-400">4/5</span>
+</div>
+</header>
+<main class="flex-1 flex flex-col px-6">
+<section class="pb-8">
+<h2 class="text-slate-900 dark:text-white tracking-tight text-[28px] font-extrabold leading-tight pb-2">Qual sua disponibilidade?</h2>
+<p class="text-slate-600 dark:text-slate-400 text-base font-normal leading-relaxed">
+                    Quantos dias por semana você pretende dedicar aos estudos?
+                </p>
+</section>
+<div class="flex flex-col gap-4 mb-32">
+<button class="flex items-center justify-between p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm hover:border-primary transition-all group">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-xl group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+<span class="text-2xl font-extrabold">3</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-lg dark:text-white">3 dias</p>
+<p class="text-sm text-slate-500">Ritmo leve</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-slate-300 dark:border-slate-700 group-hover:border-primary"></div>
+</button>
+<button class="flex items-center justify-between p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm hover:border-primary transition-all group">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-xl group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+<span class="text-2xl font-extrabold">4</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-lg dark:text-white">4 dias</p>
+<p class="text-sm text-slate-500">Ritmo moderado</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-slate-300 dark:border-slate-700 group-hover:border-primary"></div>
+</button>
+<button class="flex items-center justify-between p-5 bg-white dark:bg-slate-900 border-2 border-primary rounded-2xl shadow-lg shadow-primary/5 transition-all">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 flex items-center justify-center bg-primary/10 text-primary rounded-xl">
+<span class="text-2xl font-extrabold">5</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-lg dark:text-white">5 dias</p>
+<p class="text-sm text-slate-500">Recomendado</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[16px] font-bold">check</span>
+</div>
+</button>
+<button class="flex items-center justify-between p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm hover:border-primary transition-all group">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-xl group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+<span class="text-2xl font-extrabold">6</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-lg dark:text-white">6 dias</p>
+<p class="text-sm text-slate-500">Ritmo intenso</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-slate-300 dark:border-slate-700 group-hover:border-primary"></div>
+</button>
+<button class="flex items-center justify-between p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm hover:border-primary transition-all group">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-xl group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+<span class="text-2xl font-extrabold">7</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-lg dark:text-white">7 dias</p>
+<p class="text-sm text-slate-500">Total dedicação</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-slate-300 dark:border-slate-700 group-hover:border-primary"></div>
+</button>
+</div>
+</main>
+<footer class="fixed bottom-0 w-full max-w-[430px] p-6 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 flex flex-col items-center gap-4">
+<button class="w-full h-14 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-primary/25">
+                Próximo
+            </button>
+</footer>
+</div>
+
+</body></html>

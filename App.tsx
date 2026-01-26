@@ -1,0 +1,321 @@
+
+import React, { useState, useEffect } from 'react';
+import { NetworkProvider } from './contexts/NetworkContext';
+import { UserProvider } from './contexts/UserContext';
+import { View, Theme } from './types';
+import Dashboard from './views/Dashboard';
+import ReviewList from './views/ReviewList';
+import Plan from './views/Plan';
+import Analytics from './views/Analytics';
+import Achievements from './views/Achievements';
+import Settings from './views/Settings';
+import FocusMode from './views/FocusMode';
+import AddTheme from './views/AddTheme';
+import ThemeDetails from './views/ThemeDetails';
+import { supabase } from './supabase';
+import { Session } from '@supabase/supabase-js';
+import Auth from './views/Auth';
+import Onboarding from './views/Onboarding';
+
+
+
+const App: React.FC = () => {
+  const [currentView, setCurrentView] = useState<View>(View.LOGIN);
+
+  const [selectedThemeId, setSelectedThemeId] = useState<string | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isOnboardingCompleted, setIsOnboardingCompleted] = useState<boolean>(false);
+  const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
+  const [loadingPreferences, setLoadingPreferences] = useState<boolean>(false);
+  const [appError, setAppError] = useState<string | null>(null);
+
+  // Ref to track loading status inside timeout closure
+  const loadingRef = React.useRef({ auth: true, prefs: false });
+
+  // Sync ref with state
+  useEffect(() => {
+    loadingRef.current = { auth: loadingAuth, prefs: loadingPreferences };
+  }, [loadingAuth, loadingPreferences]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    // Global Initialization Timeout (10s)
+    const timeoutId = setTimeout(() => {
+      if (!mounted) return;
+      const { auth, prefs } = loadingRef.current;
+      if (auth || prefs) {
+        console.error('[App] Initialization timeout reached (10s).');
+        setLoadingAuth(false);
+        setLoadingPreferences(false);
+        setAppError("Não foi possível carregar seus dados. Tente recarregar.");
+      }
+    }, 10000);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    // 1. Initial Auth Check
+    console.log('[init] auth loading');
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      setSession(session);
+      setLoadingAuth(false);
+
+      if (session) {
+        console.log('[init] auth success');
+        checkPreferences(session.user.id);
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
+      setSession(session);
+      setLoadingAuth(false);
+
+      if (!session) {
+        setCurrentView(View.LOGIN);
+        setIsOnboardingCompleted(false);
+        setLoadingPreferences(false);
+      } else {
+        // Trigger preference check if not already loading or done
+        checkPreferences(session.user.id);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const checkPreferences = async (userId: string) => {
+    console.log('[init] fetching user_preferences');
+    setLoadingPreferences(true);
+    try {
+      // Use maybeSingle() to avoid PGRST116 error if no row exists
+      const { data: prefs, error } = await supabase
+        .from('user_preferences')
+        .select('onboarding_completed')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('[App] Error checking preferences:', error);
+        // Fail safe: Redirect to Onboarding
+        setIsOnboardingCompleted(false);
+        setCurrentView(View.ONBOARDING);
+        return;
+      }
+
+      // Explicitly handle "Not Found" case
+      if (!prefs) {
+        console.log('[App] User preferences not found (new user). Redirecting to Onboarding.');
+        setIsOnboardingCompleted(false);
+        setCurrentView(View.ONBOARDING);
+        return;
+      }
+
+      console.log('[init] preferences found');
+
+      // Handle existing preferences
+      const completed = !!prefs.onboarding_completed;
+      console.log(`[init] onboarding_completed = ${completed}`);
+      setIsOnboardingCompleted(completed);
+
+      if (completed) {
+        if (currentView === View.LOGIN || currentView === View.SIGNUP || currentView === View.ONBOARDING) {
+          console.log('[init] routing to home');
+          setCurrentView(View.DASHBOARD);
+        }
+      } else {
+        console.log('[init] routing to onboarding');
+        setCurrentView(View.ONBOARDING);
+      }
+    } catch (error) {
+      console.error('[App] Unexpected error checking preferences:', error);
+      setCurrentView(View.ONBOARDING);
+      setIsOnboardingCompleted(false);
+    } finally {
+      setLoadingPreferences(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const [viewHistory, setViewHistory] = useState<{ view: View; themeId: string | null }[]>([]);
+
+  // ... (previous checks)
+
+  const navigateTo = (view: View, themeId?: string) => {
+    if (!session) {
+      if (view !== View.LOGIN && view !== View.SIGNUP) return;
+    } else {
+      // STRICT GUARD
+      if (!isOnboardingCompleted && view !== View.ONBOARDING) {
+        // console.warn('Blocked navigation: Onboarding incomplete');
+        setCurrentView(View.ONBOARDING);
+        return;
+      }
+    }
+
+    // Add to history if valid transition (prevent duplicates if needed, but linear history is fine)
+    // Only add to history if we are in a main app view (not Login/Signup/Onboarding transitions usually)
+    // For simplicity, we track everything after login.
+    if (session && isOnboardingCompleted) {
+      setViewHistory(prev => [...prev, { view: currentView, themeId: selectedThemeId }]);
+    }
+
+    if (themeId) setSelectedThemeId(themeId);
+    setCurrentView(view);
+  };
+
+  const handleGoBack = () => {
+    if (viewHistory.length === 0) {
+      navigateTo(View.DASHBOARD);
+      return;
+    }
+
+    const newHistory = [...viewHistory];
+    const previous = newHistory.pop();
+    setViewHistory(newHistory);
+
+    if (previous) {
+      if (previous.themeId) setSelectedThemeId(previous.themeId);
+      else setSelectedThemeId(null);
+      setCurrentView(previous.view);
+    }
+  };
+
+  const calculateSelectedTheme = () => {
+    // Basic fallback if needed, but ThemeDetails handles its own data now ideally.
+    // For now we pass just ID or let it fetch.
+    // But existing code expects a theme object.
+    // We will keep selectedThemeId but removing local themes array means we can't find it here.
+    return { id: selectedThemeId } as any;
+  };
+  // NOTE: ThemeDetails will be refactored to fetch by ID or receive just ID. 
+  // Checking ThemeDetails usage next. For now, removing the local lookup.
+
+  const renderView = () => {
+    // 0. Fatal Error
+    if (appError) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark p-6">
+          <div className="flex flex-col items-center gap-4 text-center max-w-sm">
+            <div className="size-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+              <span className="material-symbols-outlined text-red-500 text-3xl">error</span>
+            </div>
+            <h2 className="text-xl font-bold dark:text-white">Ops! Algo deu errado.</h2>
+            <p className="text-slate-500 dark:text-slate-400 font-medium">{appError}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-all shadow-lg shadow-primary/25"
+            >
+              Recarregar Aplicação
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // 1. Auth Loading
+    if (loadingAuth) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <p className="text-sm text-slate-500 font-medium">Autenticando...</p>
+          </div>
+        </div>
+      );
+    }
+
+    // 2. Not Logged In -> Auth Screens
+    if (!session) {
+      if (currentView !== View.SIGNUP) return <Auth mode={View.LOGIN} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.SIGNUP)} />;
+      return <Auth mode={View.SIGNUP} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.LOGIN)} />;
+    }
+
+    // 3. Preferences Loading (Logged in but checking onboarding)
+    if (loadingPreferences) {
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <p className="text-sm text-slate-500 font-medium">Carregando perfil...</p>
+          </div>
+        </div>
+      );
+    }
+
+    // 4. Logged in, Loaded, but Onboarding Incomplete -> FORCE ONBOARDING
+    if (!isOnboardingCompleted && currentView !== View.ONBOARDING) {
+      return <Onboarding onNavigate={(v) => {
+        if (v === View.DASHBOARD) checkPreferences(session.user.id);
+        else navigateTo(v);
+      }} />;
+    }
+
+    // 5. Main Routing
+    switch (currentView) {
+      case View.LOGIN:
+      case View.SIGNUP:
+        // If we are here and logged in + loaded + completed, go to dashboard
+        if (isOnboardingCompleted) return <Dashboard onNavigate={navigateTo} />;
+        return <Auth mode={currentView} onAuthSuccess={() => checkPreferences(session.user.id)} onToggleMode={() => navigateTo(currentView === View.LOGIN ? View.SIGNUP : View.LOGIN)} />;
+      case View.DASHBOARD:
+        return <Dashboard onNavigate={navigateTo} />;
+      case View.REVIEWS:
+        return <ReviewList onNavigate={navigateTo} />;
+      case View.PLAN:
+        return <Plan onNavigate={navigateTo} onBack={handleGoBack} />;
+      case View.ANALYTICS:
+        return <Analytics onNavigate={navigateTo} />;
+      case View.ACHIEVEMENTS:
+        return <Achievements onNavigate={navigateTo} />;
+      case View.SETTINGS:
+        return <Settings onNavigate={navigateTo} isDarkMode={isDarkMode} onToggleTheme={() => setIsDarkMode(!isDarkMode)} />;
+      case View.ADD_THEME:
+        return <AddTheme onNavigate={navigateTo} />;
+      case View.THEME_DETAILS:
+        return <ThemeDetails themeId={selectedThemeId} onNavigate={navigateTo} />;
+      case View.ONBOARDING:
+        return <Onboarding onNavigate={async (v) => {
+          // When finishing onboarding, re-verify status explicitly
+          if (v === View.DASHBOARD) {
+            if (session) await checkPreferences(session.user.id);
+          } else {
+            navigateTo(v);
+          }
+        }} />;
+      default:
+        return <Dashboard onNavigate={navigateTo} />;
+    }
+  };
+
+  return (
+    <NetworkProvider>
+      <UserProvider>
+        {renderView()}
+      </UserProvider>
+    </NetworkProvider>
+  );
+};
+
+export default App;
