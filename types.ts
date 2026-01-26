@@ -15,6 +15,15 @@ export enum View {
   PREMIUM = 'PREMIUM'
 }
 
+export type UserProfile = {
+  id: string;
+  email: string;
+  plan: 'free' | 'monthly' | 'lifetime';
+  premiumActive: boolean;
+  expires_at: string | null;
+};
+
+// Existing interfaces
 export interface Theme {
   id: string;
   name: string;
@@ -40,4 +49,14 @@ export interface Task {
   points?: string;
   isCompleted: boolean;
   category?: string;
+}
+
+export interface UserPreferences {
+  nome?: string;
+  data_prova?: string;
+  dias_disponiveis_semana?: number;
+  especialidades?: string[];
+  prioridades_por_especialidade?: Record<string, string>;
+  onboarding_completed?: boolean;
+  updated_at?: string;
 }

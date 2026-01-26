@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.ns", "dom"],
+    "types": ["https://deno.land/std@0.168.0/types.d.ts"]
+  }
+}
