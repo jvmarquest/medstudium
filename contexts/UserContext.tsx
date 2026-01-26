@@ -26,6 +26,7 @@ interface UserContextData {
     refreshUserData: () => Promise<void>;
     subscription: Subscription | null;
     isPremium: boolean;
+    trialExpiresAt: string | null;
 }
 
 const UserContext = createContext<UserContextData>({
@@ -37,6 +38,7 @@ const UserContext = createContext<UserContextData>({
     refreshUserData: async () => { },
     subscription: null,
     isPremium: false,
+    trialExpiresAt: null,
 });
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -45,8 +47,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [subscription, setSubscription] = useState<Subscription | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const [trialExpiresAt, setTrialExpiresAt] = useState<string | null>(null);
+
     // Derived premium status
     const isPremium = React.useMemo(() => {
+        // Check Trial
+        if (trialExpiresAt && new Date(trialExpiresAt) > new Date()) return true;
+
+        // Check Subscription
         if (!subscription) return false;
         const validStatus = ['active', 'lifetime'].includes(subscription.status);
         if (!validStatus) return false;
@@ -54,13 +62,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (subscription.status === 'active' && subscription.expires_at) {
             return new Date(subscription.expires_at) > new Date();
         }
-        return true; // Lifetime or active without hard expiration (managed by stripe)
-    }, [subscription]);
+        return true;
+    }, [subscription, trialExpiresAt]);
 
     const fetchProfile = useCallback(async (currentSession: Session | null) => {
         if (!currentSession?.user) {
             setProfile(null);
             setSubscription(null);
+            setTrialExpiresAt(null);
             setLoading(false);
             return;
         }
@@ -72,6 +81,19 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .select('*')
                 .eq('user_id', currentSession.user.id)
                 .maybeSingle();
+
+            // Fetch Core Profile for Trial
+            const { data: coreProfile } = await supabase
+                .from('profiles')
+                .select('trial_expires_at')
+                .eq('id', currentSession.user.id)
+                .maybeSingle();
+
+            if (coreProfile?.trial_expires_at) {
+                setTrialExpiresAt(coreProfile.trial_expires_at);
+            } else {
+                setTrialExpiresAt(null);
+            }
 
             if (data) {
                 // ... (Parsing logic kept same)
@@ -168,7 +190,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [fetchProfile]);
 
     return (
-        <UserContext.Provider value={{ profile, loading, refreshProfile, session, dataVersion, refreshUserData, subscription, isPremium }}>
+        <UserContext.Provider value={{ profile, loading, refreshProfile, session, dataVersion, refreshUserData, subscription, isPremium, trialExpiresAt }}>
             {children}
         </UserContext.Provider>
     );

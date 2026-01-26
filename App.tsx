@@ -359,9 +359,16 @@ const App: React.FC = () => {
     }
   };
 
+  import { TrialBanner } from './components/TrialBanner';
+
+  // ... (other imports)
+
+  // ... (App component)
+
   return (
     <NetworkProvider>
       <UserProvider>
+        <TrialBanner onNavigate={navigateTo} />
         {renderView()}
       </UserProvider>
     </NetworkProvider>
