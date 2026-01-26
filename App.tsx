@@ -17,6 +17,7 @@ import { supabase } from './supabase';
 import { Session } from '@supabase/supabase-js';
 import Auth from './views/Auth';
 import Onboarding from './views/Onboarding';
+import { TrialBanner } from './components/TrialBanner';
 
 
 
@@ -359,11 +360,7 @@ const App: React.FC = () => {
     }
   };
 
-  import { TrialBanner } from './components/TrialBanner';
 
-  // ... (other imports)
-
-  // ... (App component)
 
   return (
     <NetworkProvider>
