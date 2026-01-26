@@ -11,6 +11,12 @@ interface UserProfile {
     prioridades_por_especialidade?: Record<string, string>;
 }
 
+interface Subscription {
+    status: string;
+    plan: string;
+    expires_at: string | null;
+}
+
 interface UserContextData {
     profile: UserProfile | null;
     loading: boolean;
@@ -18,6 +24,8 @@ interface UserContextData {
     session: Session | null;
     dataVersion: number;
     refreshUserData: () => Promise<void>;
+    subscription: Subscription | null;
+    isPremium: boolean;
 }
 
 const UserContext = createContext<UserContextData>({
@@ -27,31 +35,46 @@ const UserContext = createContext<UserContextData>({
     session: null,
     dataVersion: 0,
     refreshUserData: async () => { },
+    subscription: null,
+    isPremium: false,
 });
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [session, setSession] = useState<Session | null>(null);
+    const [subscription, setSubscription] = useState<Subscription | null>(null);
     const [loading, setLoading] = useState(true);
+
+    // Derived premium status
+    const isPremium = React.useMemo(() => {
+        if (!subscription) return false;
+        const validStatus = ['active', 'lifetime'].includes(subscription.status);
+        if (!validStatus) return false;
+
+        if (subscription.status === 'active' && subscription.expires_at) {
+            return new Date(subscription.expires_at) > new Date();
+        }
+        return true; // Lifetime or active without hard expiration (managed by stripe)
+    }, [subscription]);
 
     const fetchProfile = useCallback(async (currentSession: Session | null) => {
         if (!currentSession?.user) {
             setProfile(null);
+            setSubscription(null);
             setLoading(false);
             return;
         }
 
         try {
+            // Fetch Profile
             const { data, error } = await supabase
                 .from('user_preferences')
                 .select('*')
                 .eq('user_id', currentSession.user.id)
-                .single();
+                .maybeSingle();
 
             if (data) {
-                // --- Safe Types Parsing ---
-
-                // 1. Specialties
+                // ... (Parsing logic kept same)
                 let parsedSpecialties: string[] = [];
                 if (Array.isArray(data.especialidades)) {
                     parsedSpecialties = data.especialidades;
@@ -60,18 +83,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         parsedSpecialties = JSON.parse(data.especialidades);
                         if (!Array.isArray(parsedSpecialties)) parsedSpecialties = [];
                     } catch (e) {
-                        console.warn('[UserContext] Failed to parse specialties JSON', e);
                         parsedSpecialties = [];
                     }
                 }
 
-                // 2. Exam Date
                 let parsedDate = data.data_prova;
-                if (parsedDate) {
-                    // Try to standardize to YYYY-MM-DD if in ISO format
-                    if (parsedDate.includes('T')) {
-                        parsedDate = parsedDate.split('T')[0];
-                    }
+                if (parsedDate && parsedDate.includes('T')) {
+                    parsedDate = parsedDate.split('T')[0];
                 }
 
                 const finalProfile = {
@@ -80,43 +98,40 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     data_prova: parsedDate
                 };
 
-                console.log('[UserContext] === DIAGNOSTIC LOG: BOOTSTRAP ===');
-                console.log('[UserContext] Raw Data:', data);
-                console.log('[UserContext] Parsed Specialties:', finalProfile.especialidades);
-                console.log('[UserContext] Parsed Exam Date:', finalProfile.data_prova);
-
-                // Check if name is missing but metadata exists
+                // Sync Name logic ...
                 if (!finalProfile.nome && (currentSession.user.user_metadata?.full_name || currentSession.user.user_metadata?.name)) {
                     const nameToSave = currentSession.user.user_metadata.full_name || currentSession.user.user_metadata.name;
-
-                    // Update Supabase
-                    supabase.from('user_preferences')
-                        .update({ nome: nameToSave })
-                        .eq('user_id', currentSession.user.id)
-                        .then(() => console.log('Auto-synced user name from metadata'));
-
-                    // Update Local State immediately
+                    supabase.from('user_preferences').update({ nome: nameToSave }).eq('user_id', currentSession.user.id).then();
                     setProfile({ ...finalProfile, nome: nameToSave });
                 } else {
                     setProfile(finalProfile);
                 }
             } else {
-                // Row missing: Create default preferences if possible, or just set empty state with metadata name attempt
+                // Default Profile logic
                 if (currentSession.user.user_metadata?.full_name || currentSession.user.user_metadata?.name) {
                     const nameToSave = currentSession.user.user_metadata.full_name || currentSession.user.user_metadata.name;
-
-                    // Attempt to create row (upsert)
-                    supabase.from('user_preferences')
-                        .upsert({ user_id: currentSession.user.id, nome: nameToSave })
-                        .then(() => console.log('Auto-created user preferences with name'));
-
+                    supabase.from('user_preferences').upsert({ user_id: currentSession.user.id, nome: nameToSave }).then();
                     setProfile({ nome: nameToSave });
                 } else {
                     setProfile({});
                 }
             }
+
+            // Fetch Subscription
+            const { data: subData } = await supabase
+                .from('subscriptions')
+                .select('status, plan, expires_at')
+                .eq('user_id', currentSession.user.id)
+                .maybeSingle();
+
+            if (subData) {
+                setSubscription(subData);
+            } else {
+                setSubscription(null);
+            }
+
         } catch (err) {
-            console.error('Error fetching profile:', err);
+            console.error('Error fetching data:', err);
         } finally {
             setLoading(false);
         }
@@ -125,22 +140,18 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [dataVersion, setDataVersion] = useState(0);
 
     const refreshUserData = useCallback(async () => {
-        // Just increment version to trigger effects in subscribers
         setDataVersion(prev => prev + 1);
-        // Also refresh profile just in case
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         if (currentSession) {
             await fetchProfile(currentSession);
         }
     }, [fetchProfile]);
 
-    // Kept for backward compatibility if needed, but mapped to new logic
     const refreshProfile = async () => {
         await refreshUserData();
     };
 
     useEffect(() => {
-        // Initial Session Check & Subscription
         supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
             fetchProfile(session);
@@ -157,7 +168,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [fetchProfile]);
 
     return (
-        <UserContext.Provider value={{ profile, loading, refreshProfile, session, dataVersion, refreshUserData }}>
+        <UserContext.Provider value={{ profile, loading, refreshProfile, session, dataVersion, refreshUserData, subscription, isPremium }}>
             {children}
         </UserContext.Provider>
     );

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { NetworkProvider } from './contexts/NetworkContext';
 import { UserProvider } from './contexts/UserContext';
 import { View, Theme } from './types';
+import Premium from './views/Premium';
 import Dashboard from './views/Dashboard';
 import ReviewList from './views/ReviewList';
 import Plan from './views/Plan';
@@ -304,6 +305,8 @@ const App: React.FC = () => {
             navigateTo(v);
           }
         }} />;
+      case View.PREMIUM:
+        return <Premium />;
       default:
         return <Dashboard onNavigate={navigateTo} />;
     }

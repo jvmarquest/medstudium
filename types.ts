@@ -11,7 +11,8 @@ export enum View {
   FOCUS = 'FOCUS',
   ADD_THEME = 'ADD_THEME',
   THEME_DETAILS = 'THEME_DETAILS',
-  ONBOARDING = 'ONBOARDING'
+  ONBOARDING = 'ONBOARDING',
+  PREMIUM = 'PREMIUM'
 }
 
 export interface Theme {
