@@ -1,19 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
 import { useUser } from '../contexts/UserContext';
 import { Check } from 'lucide-react';
 
 const Premium: React.FC = () => {
     const { session } = useUser();
-    const navigate = useNavigate();
     const [loading, setLoading] = useState<'monthly' | 'lifetime' | null>(null);
 
     const handleSubscribe = async (plan: 'monthly' | 'lifetime') => {
-        if (!session?.user) {
-            navigate('/auth');
-            return;
-        }
+        if (!session?.user) return;
 
         setLoading(plan);
         try {
@@ -35,41 +30,57 @@ const Premium: React.FC = () => {
         }
     };
 
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        // window.location.reload() might be needed if state doesnt clear immediately, 
+        // but App.tsx auth listener should handle it.
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+            <div className="w-full max-w-4xl flex justify-end mb-4">
+                <button
+                    onClick={handleLogout}
+                    className="text-slate-500 hover:text-red-500 text-sm font-semibold transition-colors flex items-center gap-2"
+                >
+                    <span className="material-symbols-outlined text-lg">logout</span>
+                    Sair
+                </button>
+            </div>
+
             <div className="text-center mb-12">
-                <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white sm:text-4xl">
                     Escolha seu plano Premium
                 </h2>
-                <p className="mt-4 text-lg text-gray-600">
+                <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">
                     Desbloqueie todo o potencial do MedStudium.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:max-w-4xl w-full">
                 {/* Monthly Plan */}
-                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 flex flex-col">
+                <div className="bg-white dark:bg-card-dark rounded-2xl shadow-xl overflow-hidden border border-slate-100 dark:border-slate-800 flex flex-col transition-colors">
                     <div className="p-8 flex-1">
-                        <h3 className="text-2xl font-bold text-gray-900">Mensal</h3>
-                        <p className="mt-4 text-gray-500">Flexibilidade para seus estudos.</p>
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Mensal</h3>
+                        <p className="mt-4 text-slate-500 dark:text-slate-400">Flexibilidade para seus estudos.</p>
                         <div className="mt-6 flex items-baseline">
-                            <span className="text-5xl font-extrabold text-gray-900">R$ 29,90</span>
-                            <span className="ml-2 text-gray-500">/mês</span>
+                            <span className="text-5xl font-extrabold text-slate-900 dark:text-white">R$ 29,90</span>
+                            <span className="ml-2 text-slate-500 dark:text-slate-400">/mês</span>
                         </div>
                         <ul className="mt-8 space-y-4">
                             {['Acesso ilimitado a questões', 'Sem anúncios', 'Estatísticas avançadas', 'Suporte prioritário'].map((benefit, index) => (
                                 <li key={index} className="flex items-center">
-                                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                                    <span className="text-gray-600">{benefit}</span>
+                                    <Check className="h-5 w-5 text-green-500 mr-3 shrink-0" />
+                                    <span className="text-slate-600 dark:text-slate-300">{benefit}</span>
                                 </li>
                             ))}
                         </ul>
                     </div>
-                    <div className="p-8 bg-gray-50">
+                    <div className="p-8 bg-slate-50 dark:bg-slate-800/50">
                         <button
                             onClick={() => handleSubscribe('monthly')}
                             disabled={loading === 'monthly'}
-                            className="w-full bg-indigo-600 text-white rounded-lg px-4 py-3 font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-indigo-600 text-white rounded-xl px-4 py-3 font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading === 'monthly' ? 'Processando...' : 'Assinar Mensal'}
                         </button>
@@ -77,31 +88,31 @@ const Premium: React.FC = () => {
                 </div>
 
                 {/* Lifetime Plan */}
-                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-indigo-600 relative flex flex-col">
+                <div className="bg-white dark:bg-card-dark rounded-2xl shadow-xl overflow-hidden border-2 border-indigo-600 relative flex flex-col transition-colors">
                     <div className="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
                         MELHOR VALOR
                     </div>
                     <div className="p-8 flex-1">
-                        <h3 className="text-2xl font-bold text-gray-900">Vitalício</h3>
-                        <p className="mt-4 text-gray-500">Pague uma vez, use para sempre.</p>
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Vitalício</h3>
+                        <p className="mt-4 text-slate-500 dark:text-slate-400">Pague uma vez, use para sempre.</p>
                         <div className="mt-6 flex items-baseline">
-                            <span className="text-5xl font-extrabold text-gray-900">R$ 297,00</span>
-                            <span className="ml-2 text-gray-500">único</span>
+                            <span className="text-5xl font-extrabold text-slate-900 dark:text-white">R$ 297,00</span>
+                            <span className="ml-2 text-slate-500 dark:text-slate-400">único</span>
                         </div>
                         <ul className="mt-8 space-y-4">
                             {['Acesso Vitalício', 'Todas as atualizações futuras', 'Sem renovações automáticas', 'Badge exclusivo de Membro Fundador'].map((benefit, index) => (
                                 <li key={index} className="flex items-center">
-                                    <Check className="h-5 w-5 text-indigo-600 mr-3" />
-                                    <span className="text-gray-600">{benefit}</span>
+                                    <Check className="h-5 w-5 text-indigo-600 mr-3 shrink-0" />
+                                    <span className="text-slate-600 dark:text-slate-300">{benefit}</span>
                                 </li>
                             ))}
                         </ul>
                     </div>
-                    <div className="p-8 bg-gray-50">
+                    <div className="p-8 bg-slate-50 dark:bg-slate-800/50">
                         <button
                             onClick={() => handleSubscribe('lifetime')}
                             disabled={loading === 'lifetime'}
-                            className="w-full bg-gray-900 text-white rounded-lg px-4 py-3 font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl px-4 py-3 font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading === 'lifetime' ? 'Processando...' : 'Comprar Vitalício'}
                         </button>

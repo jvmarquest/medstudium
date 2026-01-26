@@ -27,6 +27,7 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const [isOnboardingCompleted, setIsOnboardingCompleted] = useState<boolean>(false);
+  const [isPremium, setIsPremium] = useState<boolean>(false);
   const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
   const [loadingPreferences, setLoadingPreferences] = useState<boolean>(false);
   const [appError, setAppError] = useState<string | null>(null);
@@ -134,7 +135,27 @@ const App: React.FC = () => {
       setIsOnboardingCompleted(completed);
 
       if (completed) {
-        if (currentView === View.LOGIN || currentView === View.SIGNUP || currentView === View.ONBOARDING) {
+        // --- PAYWALL CHECK ---
+        const { data: sub } = await supabase
+          .from('subscriptions')
+          .select('status, expires_at')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+        const premiumActive = !!(sub && (
+          sub.status === 'lifetime' ||
+          (sub.status === 'active' && (!sub.expires_at || new Date(sub.expires_at) > new Date()))
+        ));
+
+        setIsPremium(premiumActive);
+
+        if (!premiumActive) {
+          console.log('[init] User is NOT premium. Redirecting to Paywall.');
+          setCurrentView(View.PREMIUM);
+          return;
+        }
+
+        if (currentView === View.LOGIN || currentView === View.SIGNUP || currentView === View.ONBOARDING || currentView === View.PREMIUM) {
           console.log('[init] routing to home');
           setCurrentView(View.DASHBOARD);
         }
@@ -167,10 +188,14 @@ const App: React.FC = () => {
     if (!session) {
       if (view !== View.LOGIN && view !== View.SIGNUP) return;
     } else {
-      // STRICT GUARD
+      // 1. Onboarding Guard
       if (!isOnboardingCompleted && view !== View.ONBOARDING) {
-        // console.warn('Blocked navigation: Onboarding incomplete');
         setCurrentView(View.ONBOARDING);
+        return;
+      }
+      // 2. Premium Guard (Strict)
+      if (isOnboardingCompleted && !isPremium && view !== View.PREMIUM && view !== View.ONBOARDING) {
+        setCurrentView(View.PREMIUM);
         return;
       }
     }
@@ -178,7 +203,7 @@ const App: React.FC = () => {
     // Add to history if valid transition (prevent duplicates if needed, but linear history is fine)
     // Only add to history if we are in a main app view (not Login/Signup/Onboarding transitions usually)
     // For simplicity, we track everything after login.
-    if (session && isOnboardingCompleted) {
+    if (session && isOnboardingCompleted && isPremium) {
       setViewHistory(prev => [...prev, { view: currentView, themeId: selectedThemeId }]);
     }
 
@@ -265,7 +290,7 @@ const App: React.FC = () => {
       );
     }
 
-    // 4. Logged in, Loaded, but Onboarding Incomplete -> FORCE ONBOARDING
+    // 4. Onboarding Guard
     if (!isOnboardingCompleted && currentView !== View.ONBOARDING) {
       return <Onboarding onNavigate={(v) => {
         if (v === View.DASHBOARD) checkPreferences(session.user.id);
@@ -273,13 +298,22 @@ const App: React.FC = () => {
       }} />;
     }
 
-    // 5. Main Routing
+    // 5. Paywall Guard (Fallback for render loop)
+    if (isOnboardingCompleted && !isPremium && currentView !== View.PREMIUM) {
+      return <Premium />;
+    }
+
+    // 6. Main Routing
     switch (currentView) {
       case View.LOGIN:
       case View.SIGNUP:
         // If we are here and logged in + loaded + completed, go to dashboard
-        if (isOnboardingCompleted) return <Dashboard onNavigate={navigateTo} />;
+        if (isOnboardingCompleted && isPremium) return <Dashboard onNavigate={navigateTo} />;
         return <Auth mode={currentView} onAuthSuccess={() => checkPreferences(session.user.id)} onToggleMode={() => navigateTo(currentView === View.LOGIN ? View.SIGNUP : View.LOGIN)} />;
+      case View.PREMIUM:
+        if (isPremium) return <Dashboard onNavigate={navigateTo} />; // Auto-exit paywall if becomes premium
+        return <Premium />;
+
       case View.DASHBOARD:
         return <Dashboard onNavigate={navigateTo} />;
       case View.REVIEWS:
@@ -305,8 +339,8 @@ const App: React.FC = () => {
             navigateTo(v);
           }
         }} />;
-      case View.PREMIUM:
-        return <Premium />;
+      case View.FOCUS_MODE:
+        return <FocusMode themeId={selectedThemeId} onNavigate={navigateTo} />;
       default:
         return <Dashboard onNavigate={navigateTo} />;
     }
