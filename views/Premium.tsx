@@ -119,6 +119,36 @@ const Premium: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            <div className="mt-8 text-center animate-fade-in delay-150">
+                <button
+                    onClick={async () => {
+                        if (!session?.user) return;
+                        // Set plan to Free in subscriptions
+                        const { error } = await supabase
+                            .from('subscriptions')
+                            .upsert({
+                                user_id: session.user.id,
+                                status: 'active', // Active purely for existence check, but plan is free
+                                plan: 'free',
+                                // Ensure we don't overwrite existing paid timestamps if they somehow exist, 
+                                // but usually this is for new/expired users.
+                                updated_at: new Date().toISOString()
+                            }, { onConflict: 'user_id' });
+
+                        if (error) {
+                            console.error("Error setting free plan:", error);
+                            alert("Erro ao selecionar plano gratuito.");
+                            return;
+                        }
+
+                        window.location.reload(); // Reload to refresh App state (isFreePlan check)
+                    }}
+                    className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white text-sm font-medium transition-colors border-b border-transparent hover:border-indigo-600 dark:hover:border-white pb-0.5"
+                >
+                    Continuar com versão gratuita
+                </button>
+            </div>
         </div>
     );
 };

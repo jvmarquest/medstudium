@@ -29,6 +29,7 @@ const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isOnboardingCompleted, setIsOnboardingCompleted] = useState<boolean>(false);
   const [isPremium, setIsPremium] = useState<boolean>(false);
+  const [isFreePlan, setIsFreePlan] = useState<boolean>(false);
   const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
   const [loadingPreferences, setLoadingPreferences] = useState<boolean>(false);
   const [appError, setAppError] = useState<string | null>(null);
@@ -153,18 +154,15 @@ const App: React.FC = () => {
         const now = new Date();
         const trialActive = profile?.trial_expires_at && new Date(profile.trial_expires_at) > now;
 
-        const premiumActive = !!(
-          (sub && (
-            sub.status === 'lifetime' ||
-            (sub.status === 'active' && (!sub.expires_at || new Date(sub.expires_at) > now))
-          )) ||
-          trialActive
-        );
+        const isFree = sub?.plan === 'free';
+        // Note: isPremium remains strict (paid or trial).
+        // Free users entering here should NOT be redirected to Paywall,
+        // but they also won't have premium features unlocked.
 
         setIsPremium(premiumActive);
 
-        if (!premiumActive) {
-          console.log('[init] User is NOT premium. Redirecting to Paywall.');
+        if (!premiumActive && !isFree) {
+          console.log('[init] User is NOT premium and NOT free tier. Redirecting to Paywall.');
           setCurrentView(View.PREMIUM);
           return;
         }
@@ -208,7 +206,7 @@ const App: React.FC = () => {
         return;
       }
       // 2. Premium Guard (Strict)
-      if (isOnboardingCompleted && !isPremium && view !== View.PREMIUM && view !== View.ONBOARDING) {
+      if (isOnboardingCompleted && !isPremium && !isFreePlan && view !== View.PREMIUM && view !== View.ONBOARDING) {
         setCurrentView(View.PREMIUM);
         return;
       }
@@ -313,7 +311,7 @@ const App: React.FC = () => {
     }
 
     // 5. Paywall Guard (Fallback for render loop)
-    if (isOnboardingCompleted && !isPremium && currentView !== View.PREMIUM) {
+    if (isOnboardingCompleted && !isPremium && !isFreePlan && currentView !== View.PREMIUM) {
       return <Premium />;
     }
 
