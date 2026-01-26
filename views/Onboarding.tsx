@@ -144,6 +144,37 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
             });
 
             // Explicitly specify onConflict: 'user_id' to ensure 1 row per user.
+
+            // --- TRIAL LOGIC START ---
+            // Check if user already has a trial_started_at to avoid resetting
+            const { data: existingProfile } = await supabase
+                .from('profiles')
+                .select('trial_started_at')
+                .eq('id', user.id)
+                .single();
+
+            const now = new Date();
+            const trialUpdate: any = {};
+
+            if (!existingProfile?.trial_started_at) {
+                console.log('[onboarding] Starting 7-day free trial');
+                const expireDate = new Date(now);
+                expireDate.setDate(expireDate.getDate() + 7);
+                trialUpdate.trial_started_at = now.toISOString();
+                trialUpdate.trial_expires_at = expireDate.toISOString();
+
+                // Also update profiles table explicitly if needed, but usually trigger handles it or we do it here
+                // Note: user_preferences is a separate concept from profiles in this app's legacy structure? 
+                // Let's check requirements. "Regras: Salvar no Supabase ... esses campos devem ser criados na tabela PROFILES".
+                // So we need to update PROFILES, not just user_preferences.
+
+                await supabase.from('profiles').upsert({
+                    id: user.id,
+                    ...trialUpdate
+                });
+            }
+            // --- TRIAL LOGIC END ---
+
             const { data: savedData, error: upsertError } = await withTimeout(Promise.resolve(supabase
                 .from('user_preferences')
                 .upsert({

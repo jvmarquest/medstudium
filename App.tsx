@@ -142,10 +142,23 @@ const App: React.FC = () => {
           .eq('user_id', userId)
           .maybeSingle();
 
-        const premiumActive = !!(sub && (
-          sub.status === 'lifetime' ||
-          (sub.status === 'active' && (!sub.expires_at || new Date(sub.expires_at) > new Date()))
-        ));
+        // Also check profile for trial
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('trial_expires_at')
+          .eq('id', userId)
+          .maybeSingle();
+
+        const now = new Date();
+        const trialActive = profile?.trial_expires_at && new Date(profile.trial_expires_at) > now;
+
+        const premiumActive = !!(
+          (sub && (
+            sub.status === 'lifetime' ||
+            (sub.status === 'active' && (!sub.expires_at || new Date(sub.expires_at) > now))
+          )) ||
+          trialActive
+        );
 
         setIsPremium(premiumActive);
 
@@ -339,7 +352,7 @@ const App: React.FC = () => {
             navigateTo(v);
           }
         }} />;
-      case View.FOCUS_MODE:
+      case View.FOCUS:
         return <FocusMode themeId={selectedThemeId} onNavigate={navigateTo} />;
       default:
         return <Dashboard onNavigate={navigateTo} />;
