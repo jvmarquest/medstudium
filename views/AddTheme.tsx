@@ -107,7 +107,8 @@ const AddTheme: React.FC<Props> = ({ onNavigate }) => {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', session?.user.id);
 
-      if (count !== null && count >= 3) {
+      // Limit updated to 10
+      if (count !== null && count >= 10) {
         setShowUpgradeModal(true);
         return;
       }
@@ -215,6 +216,13 @@ const AddTheme: React.FC<Props> = ({ onNavigate }) => {
 
       if (themeError) {
         console.error('Error saving theme to DB:', themeError);
+
+        // Handle trigger exception for limit
+        if (themeError.message && themeError.message.includes('Limite do plano gratuito')) {
+          setShowUpgradeModal(true);
+          return;
+        }
+
         alert('Erro ao salvar tema. Tente novamente.');
         return;
       }
@@ -438,7 +446,7 @@ const AddTheme: React.FC<Props> = ({ onNavigate }) => {
         onClose={() => setShowUpgradeModal(false)}
         onNavigate={onNavigate}
         title="Limite de Temas Atingido"
-        description="No plano gratuito você pode criar até 3 temas. Faça upgrade para criar ilimitados."
+        description="No plano gratuito você pode criar até 10 temas. Faça upgrade para criar ilimitados."
       />
     </PageLayout>
   );
