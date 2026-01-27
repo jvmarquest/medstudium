@@ -55,8 +55,20 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
 
         // Benefits List
         const benefits = isPremium
-            ? ['Temas Ilimitados', 'Estatísticas Avançadas', 'Sem Anúncios', 'Suporte Prioritário']
-            : ['Limite de 10 Temas', 'Estatísticas Básicas', 'Modo Gratuito'];
+            ? [
+                'Temas ilimitados',
+                'Revisões ilimitadas',
+                'Estatísticas avançadas',
+                'Relatórios detalhados',
+                'Análise por dificuldade'
+            ]
+            : [
+                'Limite de 10 Temas',
+                'Estatísticas básicas',
+                'Revisões limitadas',
+                'Sem relatórios completos',
+                'Modo Gratuito'
+            ];
 
         // Validity Date
         let dateLabel = null;
