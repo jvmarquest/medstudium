@@ -10,7 +10,7 @@ export async function createCheckoutSession(plan: 'monthly' | 'lifetime') {
 
     // 2. Invoke Function
     console.log(`[Checkout] Invoking create-checkout for plan: ${plan}`);
-    const { data, error } = await supabase.functions.invoke('create-checkout', {
+    const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: { plan },
     });
 
