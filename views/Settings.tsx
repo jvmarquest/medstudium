@@ -215,9 +215,17 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
           })
           .eq('user_id', user.id);
 
-        if (prefsError) {
-          console.error('Error updating preferences:', prefsError);
-          throw prefsError;
+        // 3b. Reset profiles (Source of Truth)
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            onboarding_completed: false
+          })
+          .eq('id', user.id);
+
+        if (prefsError || profileError) {
+          console.error('Error updating preferences/profile:', prefsError || profileError);
+          throw prefsError || profileError;
         }
 
         console.log('App reset successful. Refreshing profile...');
@@ -333,8 +341,16 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
                     })
                     .eq('user_id', user.id);
 
-                  if (error) {
-                    console.error('[profile] Error resetting onboarding:', error);
+                  // Also update 'profiles' as it is the source of truth for UserContext
+                  const { error: profileError } = await supabase
+                    .from('profiles')
+                    .update({
+                      onboarding_completed: false
+                    })
+                    .eq('id', user.id);
+
+                  if (error || profileError) {
+                    console.error('[profile] Error resetting onboarding:', error || profileError);
                     alert('Erro ao resetar onboarding. Tente novamente.');
                     return;
                   }
