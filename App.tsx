@@ -301,7 +301,7 @@ const AppContent: React.FC = () => {
 
     // 5. Paywall Guard (Render Check)
     if (isOnboardingCompleted && !hasAppAccess && currentView !== View.PREMIUM) {
-      return <Premium />;
+      return <Premium onNavigate={navigateTo} />;
     }
 
     // 6. Main Routing
@@ -313,7 +313,7 @@ const AppContent: React.FC = () => {
 
       case View.PREMIUM:
         // Allow users to view Premium/Plans screen even if they have a plan/trial (to upgrade or check status)
-        return <Premium />;
+        return <Premium onNavigate={navigateTo} />;
 
       case View.DASHBOARD:
         return <Dashboard onNavigate={navigateTo} />;

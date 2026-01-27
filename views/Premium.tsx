@@ -2,20 +2,31 @@ import React, { useState } from 'react';
 import { supabase } from '../supabase';
 import { useUser } from '../contexts/UserContext';
 import { Check } from 'lucide-react';
+import { View } from '../types';
 
-const Premium: React.FC = () => {
-    const { session, profile, loading: userLoading } = useUser();
+interface PremiumProps {
+    onNavigate?: (view: View) => void;
+}
+
+const Premium: React.FC<PremiumProps> = ({ onNavigate }) => {
+    const { session, profile, loading: userLoading, refreshProfile } = useUser();
     const [loading, setLoading] = useState<'monthly' | 'lifetime' | null>(null);
     const [freeLoading, setFreeLoading] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
 
     // Block access for Active (Premium) users
     // Trial users can still see this screen to engage with upgrade options.
+    // Block access for Active (Premium) users
+    // Trial users can still see this screen to engage with upgrade options.
     React.useEffect(() => {
         if (!userLoading && profile?.subscription_status === 'active') {
-            window.location.href = '/';
+            if (onNavigate) {
+                onNavigate(View.DASHBOARD);
+            } else {
+                window.location.href = '/';
+            }
         }
-    }, [profile, userLoading]);
+    }, [profile, userLoading, onNavigate]);
 
     const handleSubscribe = async (plan: 'monthly' | 'lifetime') => {
         if (!session?.user) return;
@@ -57,8 +68,8 @@ const Premium: React.FC = () => {
 
             const updatePayload = {
                 plan: 'free',
-                is_premium: true, // Legacy compatibility (Trial = Premium access)
-                subscription_status: 'trial',
+                is_premium: false, // User requested correction: Free Plan is NOT premium
+                subscription_status: 'trial', // 'trial' allows access (Free Active)
                 trial_started_at: now.toISOString(),
                 trial_expires_at: expiresAt.toISOString(),
                 updated_at: now.toISOString()
@@ -77,9 +88,16 @@ const Premium: React.FC = () => {
 
             console.log("handleFreePlan: Trial activated successfully", data);
 
-            // Force refresh of local state to update 'hasAppAccess' immediately
-            // We can reload the window to be safe and ensure all guards re-run
-            window.location.href = '/';
+            console.log("handleFreePlan: Trial activated successfully", data);
+
+            // Refresh Profile to update context immediately
+            await refreshProfile();
+
+            if (onNavigate) {
+                onNavigate(View.DASHBOARD);
+            } else {
+                window.location.href = '/';
+            }
 
         } catch (error: any) {
             console.error("Erro ao ativar Trial:", error);
@@ -208,6 +226,7 @@ const Premium: React.FC = () => {
                             if (!confirm('ATIVAR MODO DEV: Isso simulará um plano premium (Active / Dev). Continuar?')) return;
 
                             try {
+                                // 1. Update Profile
                                 const { error } = await supabase.from('profiles').update({
                                     plan: 'dev',
                                     is_premium: true,
@@ -216,8 +235,19 @@ const Premium: React.FC = () => {
                                 }).eq('id', session.user.id);
 
                                 if (error) throw error;
-                                alert('Modo Dev Ativado! Recarregando...');
-                                window.location.href = '/';
+
+                                // 2. Feedback
+                                alert('Modo Dev Ativado! Acesso Premium liberado.');
+
+                                // 3. Refresh State
+                                await refreshProfile();
+
+                                // 4. Navigate
+                                if (onNavigate) {
+                                    onNavigate(View.DASHBOARD);
+                                } else {
+                                    window.location.href = '/';
+                                }
                             } catch (e: any) {
                                 alert('Erro: ' + e.message);
                             }

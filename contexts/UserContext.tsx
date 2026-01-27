@@ -57,11 +57,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Derived premium status
     const isPremium = React.useMemo(() => {
-        // Check Trial
+        // 1. Check Profile Status (Priority)
+        // This covers 'active' subscription and 'dev' mode
+        if (profile?.subscription_status === 'active') return true;
+        if (profile?.plan === 'dev') return true;
+
+        // 2. Check Trial
         if (trialExpiresAt && new Date(trialExpiresAt) > new Date()) return true;
 
-        // Check Subscription
+        // 3. Status 'trial' in profile also grants premium access features generally
+        if (profile?.subscription_status === 'trial') return true;
+
+        // 4. Fallback to Subscription Table (Legacy/Stripe Check)
         if (!subscription) return false;
+
         const validStatus = ['active', 'lifetime'].includes(subscription.status);
         if (!validStatus) return false;
 
@@ -69,7 +78,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return new Date(subscription.expires_at) > new Date();
         }
         return true;
-    }, [subscription, trialExpiresAt]);
+    }, [subscription, trialExpiresAt, profile]);
 
     const fetchProfile = useCallback(async (currentSession: Session | null) => {
         if (!currentSession?.user) {
