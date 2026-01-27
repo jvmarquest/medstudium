@@ -4,6 +4,7 @@ import { Navbar, Header } from '../components/Layout';
 import { PageLayout } from '../components/PageLayout';
 import { supabase } from '../supabase';
 import { useUser } from '../contexts/UserContext';
+import { useAccess, Feature } from '../lib/planAccess';
 
 
 interface Props {
@@ -11,7 +12,9 @@ interface Props {
 }
 
 const Analytics: React.FC<Props> = ({ onNavigate }) => {
-  const { session, profile, dataVersion, isPremium } = useUser();
+  const { session, profile, dataVersion } = useUser();
+  const { canAccess } = useAccess();
+  // removed isPremium from destructuring above since we use canAccess now
   const [effortByArea, setEffortByArea] = useState<{ area: string; percentage: number }[]>([]);
   const [generalAccuracy, setGeneralAccuracy] = useState<number | null>(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
@@ -175,7 +178,7 @@ const Analytics: React.FC<Props> = ({ onNavigate }) => {
   }, [profile, dataVersion]);
 
   // PROTECT View
-  if (!loading && !isPremium) {
+  if (!loading && !canAccess(Feature.ADVANCED_ANALYTICS)) {
     return (
       <PageLayout
         header={<Header title="Análise" subtitle="Recurso Premium" onCalendar={() => onNavigate(View.PLAN)} />}

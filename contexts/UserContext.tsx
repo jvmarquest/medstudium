@@ -10,6 +10,11 @@ interface UserProfile {
     especialidades?: string[];
     prioridades_por_especialidade?: Record<string, string>;
     onboarding_completed?: boolean;
+    plan?: 'free' | 'monthly' | 'lifetime';
+    subscription_status?: string;
+    is_premium?: boolean;
+    trial_expires_at?: string | null;
+    trial_started_at?: string | null;
 }
 
 interface Subscription {
@@ -81,9 +86,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // 1. Fetch Core Profile
             let { data: coreProfile, error: profileError } = await supabase
                 .from('profiles')
-                .select('trial_expires_at, onboarding_completed')
+                .select('trial_expires_at, trial_started_at, onboarding_completed, plan, subscription_status, is_premium')
                 .eq('id', userId)
-                .maybeSingle();
+                .maybeSingle() as any;
 
             // 2. Auto-create Profile if missing
             if (!coreProfile && !profileError) {
@@ -167,7 +172,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } else {
                 // Default Profile logic
                 const defaultProfile: UserProfile = {
-                    onboarding_completed: isOnboardingCompleted
+                    onboarding_completed: isOnboardingCompleted,
+                    plan: coreProfile?.plan as any || 'free',
+                    subscription_status: coreProfile?.subscription_status || 'free',
+                    is_premium: coreProfile?.is_premium || false,
+                    trial_expires_at: coreProfile?.trial_expires_at,
+                    trial_started_at: coreProfile?.trial_started_at
                 };
 
                 if (currentSession.user.user_metadata?.full_name || currentSession.user.user_metadata?.name) {

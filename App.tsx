@@ -18,10 +18,11 @@ import { Session } from '@supabase/supabase-js';
 import Auth from './views/Auth';
 import Onboarding from './views/Onboarding';
 import { TrialBanner } from './components/TrialBanner';
+import { PlanProvider, usePlan } from './lib/planContext';
 
 
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(View.LOGIN);
 
   const [selectedThemeId, setSelectedThemeId] = useState<string | null>(null);
@@ -355,13 +356,20 @@ const App: React.FC = () => {
     }
   };
 
+  return (
+    <TrialBanner onNavigate={navigateTo} />
+      {/* renderView() */ }
+  { renderView() }
+  );
+};
 
-
+const App: React.FC = () => {
   return (
     <NetworkProvider>
       <UserProvider>
-        <TrialBanner onNavigate={navigateTo} />
-        {renderView()}
+        <PlanProvider>
+          <AppContent />
+        </PlanProvider>
       </UserProvider>
     </NetworkProvider>
   );

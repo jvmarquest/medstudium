@@ -7,6 +7,8 @@ import { supabase } from '../supabase';
 import { useNetwork } from '../contexts/NetworkContext';
 import { generateTopicIllustration } from '../services/imageService';
 import { useUser } from '../contexts/UserContext';
+import { useAccess, Feature } from '../lib/planAccess';
+import { UpgradeModal } from '../components/UpgradeModal';
 
 interface Props {
   onNavigate: (view: View) => void;
@@ -24,6 +26,8 @@ const AddTheme: React.FC<Props> = ({ onNavigate }) => {
   const [correct, setCorrect] = useState<string>('');
   const [availableAreas, setAvailableAreas] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const { canAccess } = useAccess();
 
   useEffect(() => {
     // Populate areas from Profile (DB) or Session metadata (Fallback)
@@ -94,6 +98,20 @@ const AddTheme: React.FC<Props> = ({ onNavigate }) => {
 
   const handleSubmit = async () => {
     if (!name || !specialty || !area) return;
+
+    // --- PREMIUM GUARD: UNLIMITED TOPICS ---
+    if (!canAccess(Feature.UNLIMITED_TOPICS)) {
+      // Check current theme count
+      const { count, error } = await supabase
+        .from('themes')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', session?.user.id);
+
+      if (count !== null && count >= 3) {
+        setShowUpgradeModal(true);
+        return;
+      }
+    }
 
     const t = parseInt(total) || 0;
     const c = parseInt(correct) || 0;
@@ -415,6 +433,13 @@ const AddTheme: React.FC<Props> = ({ onNavigate }) => {
         </div>
 
       </div>
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onNavigate={onNavigate}
+        title="Limite de Temas Atingido"
+        description="No plano gratuito você pode criar até 3 temas. Faça upgrade para criar ilimitados."
+      />
     </PageLayout>
   );
 };
