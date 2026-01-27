@@ -160,7 +160,7 @@ const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode }) => {
               <div className="flex w-full items-stretch rounded-xl overflow-hidden shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary/50">
                 <input
                   className="flex w-full min-w-0 flex-1 resize-none border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface-dark focus:outline-0 focus:ring-0 focus:border-primary dark:focus:border-primary h-14 px-[15px] rounded-l-xl border-r-0 text-base font-normal transition-colors"
-                  placeholder="medico@hospital.com"
+                  placeholder="Informe seu email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
