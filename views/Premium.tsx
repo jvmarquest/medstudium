@@ -6,6 +6,8 @@ import { Check } from 'lucide-react';
 const Premium: React.FC = () => {
     const { session } = useUser();
     const [loading, setLoading] = useState<'monthly' | 'lifetime' | null>(null);
+    const [freeLoading, setFreeLoading] = useState(false);
+    const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
 
     const handleSubscribe = async (plan: 'monthly' | 'lifetime') => {
         if (!session?.user) return;
@@ -24,9 +26,36 @@ const Premium: React.FC = () => {
             }
         } catch (err: any) {
             console.error('Erro no checkout:', err);
-            alert('Falha ao iniciar pagamento. Tente novamente.');
+            setToast({ message: 'Falha ao iniciar pagamento. Tente novamente.', type: 'error' });
+            setTimeout(() => setToast(null), 3000);
         } finally {
             setLoading(null);
+        }
+    };
+
+    const handleFreePlan = async () => {
+        if (!session?.user) return;
+
+        setFreeLoading(true);
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    plan: 'free',
+                    subscription_status: 'active',
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', session.user.id);
+
+            if (error) throw error;
+
+            window.location.href = '/';
+        } catch (error: any) {
+            console.error("Erro ao selecionar plano gratuito:", error);
+            setToast({ message: "Erro ao salvar plano gratuito. Tente novamente.", type: 'error' });
+            setTimeout(() => setToast(null), 3000);
+        } finally {
+            setFreeLoading(false);
         }
     };
 
@@ -37,7 +66,13 @@ const Premium: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300 relative">
+            {toast && (
+                <div className={`fixed top-4 right-4 px-6 py-4 rounded-xl shadow-2xl z-50 text-white font-bold animate-fade-in ${toast.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`}>
+                    {toast.message}
+                </div>
+            )}
+
             <div className="w-full max-w-4xl flex justify-end mb-4">
                 <button
                     onClick={handleLogout}
@@ -79,7 +114,7 @@ const Premium: React.FC = () => {
                     <div className="p-8 bg-slate-50 dark:bg-slate-800/50">
                         <button
                             onClick={() => handleSubscribe('monthly')}
-                            disabled={loading === 'monthly'}
+                            disabled={loading === 'monthly' || freeLoading}
                             className="w-full bg-indigo-600 text-white rounded-xl px-4 py-3 font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading === 'monthly' ? 'Processando...' : 'Assinar Mensal'}
@@ -111,7 +146,7 @@ const Premium: React.FC = () => {
                     <div className="p-8 bg-slate-50 dark:bg-slate-800/50">
                         <button
                             onClick={() => handleSubscribe('lifetime')}
-                            disabled={loading === 'lifetime'}
+                            disabled={loading === 'lifetime' || freeLoading}
                             className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl px-4 py-3 font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading === 'lifetime' ? 'Processando...' : 'Comprar Vitalício'}
@@ -122,39 +157,11 @@ const Premium: React.FC = () => {
 
             <div className="mt-8 text-center animate-fade-in delay-150">
                 <button
-                    onClick={async () => {
-                        if (!session?.user) return;
-
-                        try {
-                            const now = new Date();
-                            const expires = new Date(now);
-                            expires.setDate(expires.getDate() + 7);
-
-                            // Update profiles table instead of subscriptions
-                            const { error } = await supabase
-                                .from('profiles')
-                                .update({
-                                    plan: 'free',
-                                    subscription_status: 'active',
-                                    trial_started_at: now.toISOString(),
-                                    trial_expires_at: expires.toISOString(),
-                                })
-                                .eq('id', session.user.id);
-
-                            if (error) {
-                                console.error("Error setting free plan in profiles:", error);
-                                throw error;
-                            }
-
-                            window.location.reload();
-                        } catch (err: any) {
-                            console.error("Critical error selecting free plan:", err);
-                            // Minimal UI feedback could be added here if desired, preventing alert spam
-                        }
-                    }}
-                    className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white text-sm font-medium transition-colors border-b border-transparent hover:border-indigo-600 dark:hover:border-white pb-0.5"
+                    onClick={handleFreePlan}
+                    disabled={freeLoading || loading !== null}
+                    className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white text-sm font-medium transition-colors border-b border-transparent hover:border-indigo-600 dark:hover:border-white pb-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Continuar com versão gratuita
+                    {freeLoading ? 'Salvando...' : 'Continuar com versão gratuita'}
                 </button>
             </div>
         </div>
