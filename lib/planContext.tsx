@@ -6,7 +6,7 @@ interface PlanContextData {
     isTrial: boolean;
     isPremium: boolean;
     hasAppAccess: boolean;
-    plan: 'free' | 'monthly' | 'lifetime' | 'dev';
+    plan: 'free' | 'monthly' | 'lifetime' | 'dev' | 'premium';
     loading: boolean;
 }
 
@@ -38,14 +38,15 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // 2. Map to Flags
         const isTrial = status === 'trial';
-        const isPremium = status === 'active' || status === 'trial';
+        const isPremium = status === 'active' || status === 'trial' || status === 'dev'; // Added 'dev'
         const isFree = status === 'free' || status === 'expired';
 
         // 3. Determine Plan Name (for UI display if needed)
-        let plan: 'free' | 'monthly' | 'lifetime' | 'dev' = 'free';
+        let plan: 'free' | 'monthly' | 'lifetime' | 'dev' | 'premium' = 'free';
 
         if (isPremium) {
             if (profile?.plan === 'dev') plan = 'dev';
+            else if (profile?.plan === 'premium') plan = 'premium'; // Added 'premium'
             else if (profile?.plan === 'lifetime') plan = 'lifetime';
             else plan = 'monthly';
         }

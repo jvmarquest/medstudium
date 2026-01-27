@@ -229,23 +229,24 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate }) => {
                             if (!confirm('ATIVAR MODO DEV: Isso simulará um plano premium (Active / Dev). Continuar?')) return;
 
                             try {
-                                // 1. Update Profile
+                                // 1. Update Profile (User Request: Strict Values)
                                 const { error } = await supabase.from('profiles').update({
-                                    plan: 'dev',
-                                    is_premium: true,
-                                    subscription_status: 'active',
+                                    plan: 'premium',        // Requested: 'premium'
+                                    is_premium: true,       // Requested: true
+                                    subscription_status: 'dev', // Requested: 'dev'
                                     updated_at: new Date().toISOString()
                                 }).eq('id', session.user.id);
 
                                 if (error) throw error;
 
                                 // 2. Feedback
-                                alert('Modo Dev Ativado! Acesso Premium liberado.');
+                                alert('Modo Dev Ativado! Acesso Premium liberado (Plan: Premium / Status: Dev).');
 
                                 // 3. Refresh State
                                 await refreshProfile();
 
                                 // 4. Navigate
+                                // Force redirect to avoid loop issues
                                 if (onNavigate) {
                                     onNavigate(View.DASHBOARD);
                                 } else {

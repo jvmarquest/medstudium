@@ -18,8 +18,8 @@ export enum View {
 export type UserProfile = {
   id: string;
   email: string;
-  plan: 'free' | 'monthly' | 'lifetime' | 'dev';
-  subscription_status?: 'free' | 'trial' | 'active' | 'expired';
+  plan: 'free' | 'monthly' | 'lifetime' | 'dev' | 'premium';
+  subscription_status?: 'free' | 'trial' | 'active' | 'expired' | 'dev';
   premiumActive: boolean;
   expires_at: string | null;
 };
