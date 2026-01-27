@@ -326,7 +326,7 @@ const App: React.FC = () => {
         return <Dashboard onNavigate={navigateTo} />;
 
       case View.PREMIUM:
-        if (isPremium || isFreePlan) return <Dashboard onNavigate={navigateTo} />;
+        // Allow users to view Premium/Plans screen even if they have a plan/trial (to upgrade or check status)
         return <Premium />;
 
       case View.DASHBOARD:
