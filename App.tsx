@@ -125,33 +125,25 @@ const AppContent: React.FC = () => {
             setCurrentView(View.PREMIUM);
           }
         } else {
-          // Has Access
-          // If stuck on Auth/Onboarding/Premium screens, go to Dashboard
-          // (Unless user explicitly navigated to Premium, but for now we prioritize breaking loops)
-          if ([View.LOGIN, View.SIGNUP, View.ONBOARDING, View.PREMIUM].includes(currentView)) {
-            // Only redirect IF we are "stuck" or just logged in. 
-            // If user clicked "Plans" in menu, we shouldn't force redirect back? 
-            // But the prompt says: "Se hasAccess === true: ... Sempre liberar /home ... Nunca redirecionar para /premium"
-            // And "Se hasAccess === false: Redirecionar para /premium"
+          // Has Access (Active, Trial, Lifetime, Monthly)
+          // 1. Strict Redirection for Premium Users (Requested)
+          // If User is Premium (active/monthly/lifetime) and is on Premium View -> Dashboard
+          // We do NOT want to show the Plan screen to someone who already paid.
+          if (contextIsPremium && currentView === View.PREMIUM) {
+            console.log('[App] Premium User on Plan Screen -> Redirecting to Dashboard');
+            setCurrentView(View.DASHBOARD);
+            return;
+          }
 
-            // Implementation: If on Premium Screen AND hasAccess, we let the Premium component handle the "Go to Dashboard" 
-            // OR we force it here. The prompt says "Se hasAccess === true ... Sempre liberar /home".
-            // Let's force redirect from Premium only if it was an auto-redirect, 
-            // BUT to fix the loop, we better trust the Premium component's internal check (which we added props for) 
-            // OR just let the user be there.
-
-            // However, prompt said: "Se hasAccess === true: Nunca redirecionar para /premium". 
-            // It means don't AUTO-redirect there.
-
-            // We also want to redirect FROM onboarding or auth screens to Dashboard.
-            if (currentView !== View.PREMIUM) {
-              setCurrentView(View.DASHBOARD);
-            }
+          // 2. Loop & Auth Guard
+          // If stuck on Auth/Onboarding screens, go to Dashboard
+          if ([View.LOGIN, View.SIGNUP, View.ONBOARDING].includes(currentView)) {
+            setCurrentView(View.DASHBOARD);
           }
         }
       }
     }
-  }, [loadingAuth, userLoading, session, profile, hasAppAccess, currentView]);
+  }, [loadingAuth, userLoading, session, profile, hasAppAccess, contextIsPremium, currentView]);
 
   // Refactored to rely on UserContext/PlanContext as Source of Truth
   const checkPreferences = async (userId: string) => {
