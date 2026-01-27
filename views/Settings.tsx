@@ -223,8 +223,7 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
         console.log('App reset successful. Refreshing profile...');
         await refreshProfile();
         setIsResetting(false);
-        console.log('Navigating to onboarding...');
-        onNavigate(View.ONBOARDING);
+
 
       } catch (err: any) {
         console.error('Error resetting app:', err);
@@ -342,8 +341,7 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
 
                   console.log('[profile] onboarding_completed set to false');
                   await refreshProfile();
-                  console.log('[profile] redirecting to onboarding');
-                  onNavigate(View.ONBOARDING);
+
                 }
               }}
               className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
