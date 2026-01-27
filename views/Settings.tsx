@@ -451,6 +451,41 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
             </button>
 
             <button
+              onClick={async () => {
+                if (loading) return;
+                const confirm = window.confirm('Deseja verificar o status da sua assinatura?');
+                if (!confirm) return;
+
+                setLoading(true);
+                try {
+                  await refreshProfile();
+                  alert('Status sincronizado! Se você realizou um pagamento recentemente, ele deve aparecer agora.');
+                } catch (e: any) {
+                  console.error(e);
+                  alert('Erro ao sincronizar. Tente novamente.');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            >
+              <div className="flex items-center gap-4">
+                <div className="size-10 flex items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                  <span className="material-symbols-outlined">sync</span>
+                </div>
+                <div className="text-left">
+                  <p className="font-medium text-slate-900 dark:text-white">Sincronizar Assinatura</p>
+                  <p className="text-xs text-slate-500">Atualizar status do plano</p>
+                </div>
+              </div>
+              {loading ? (
+                <span className="material-symbols-outlined animate-spin text-slate-400 py-1">refresh</span>
+              ) : (
+                <span className="material-symbols-outlined text-slate-400">chevron_right</span>
+              )}
+            </button>
+
+            <button
               onClick={() => setIsResetting(true)}
               className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >

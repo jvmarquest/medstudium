@@ -21,8 +21,12 @@ serve(async (req) => {
             { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
         )
 
+        // Manual Auth Check (since we use no-verify-jwt validation at gateway level might be off, but this logic is sound)
+        const authHeader = req.headers.get('Authorization');
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
+
         if (authError || !user) {
+            console.error('[Checkout] Auth Error:', authError);
             throw new Error('Unauthorized')
         }
 
@@ -40,8 +44,6 @@ serve(async (req) => {
 
         // 5. Get or Create Customer
         let customerId;
-
-        // Check Profile First
         const { data: profile } = await supabaseClient
             .from('profiles')
             .select('stripe_customer_id, email')
@@ -51,14 +53,15 @@ serve(async (req) => {
         if (profile?.stripe_customer_id) {
             customerId = profile.stripe_customer_id
         } else {
-            // Create new customer
             const customer = await stripe.customers.create({
                 email: user.email,
-                metadata: { supabase_uid: user.id }
+                metadata: {
+                    user_id: user.id, // Direct linkage on customer too
+                    supabase_uid: user.id
+                }
             })
             customerId = customer.id
 
-            // Save to profile
             await supabaseClient
                 .from('profiles')
                 .update({ stripe_customer_id: customerId })
@@ -77,10 +80,10 @@ serve(async (req) => {
         const mode = plan === 'monthly' ? 'subscription' : 'payment'
         const siteUrl = Deno.env.get('SITE_URL') ?? 'http://localhost:3000'
 
-        // 7. Create Session
-        const session = await stripe.checkout.sessions.create({
+        // 7. Create Session with Metadata
+        const sessionConfig: any = {
             customer: customerId,
-            client_reference_id: user.id, // CRITICAL for webhook
+            client_reference_id: user.id,
             line_items: [
                 {
                     price: priceId,
@@ -91,9 +94,33 @@ serve(async (req) => {
             success_url: `${siteUrl}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${siteUrl}/billing/cancel`,
             metadata: {
-                plan: plan, // Pass plan info
+                user_id: user.id,
+                email: user.email,
+                plan: plan,
             }
-        })
+        }
+
+        // Ensure metadata is propagated to subscription if applicable
+        if (mode === 'subscription') {
+            sessionConfig.subscription_data = {
+                metadata: {
+                    user_id: user.id,
+                    email: user.email,
+                    plan: plan
+                }
+            }
+        } else {
+            // For one-time payments, payment_intent_data can store metadata
+            sessionConfig.payment_intent_data = {
+                metadata: {
+                    user_id: user.id,
+                    email: user.email,
+                    plan: plan
+                }
+            }
+        }
+
+        const session = await stripe.checkout.sessions.create(sessionConfig)
 
         return new Response(
             JSON.stringify({ url: session.url }),

@@ -39,14 +39,32 @@ serve(async (req) => {
             Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
         )
 
+        // Helper to get user_id from various sources
+        const getUserId = async (evtObj: any, customerId: string) => {
+            // 1. Try metadata on the object itself (session or subscription)
+            if (evtObj.metadata?.user_id) return evtObj.metadata.user_id;
+
+            // 2. Try client_reference_id (checkout sessions)
+            if (evtObj.client_reference_id) return evtObj.client_reference_id;
+
+            // 3. Fallback: Lookup by Stripe Customer ID in DB
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('stripe_customer_id', customerId)
+                .maybeSingle()
+
+            return profile?.id;
+        }
+
         switch (event.type) {
             case 'checkout.session.completed': {
                 const session = event.data.object
-                const userId = session.client_reference_id
+                const userId = await getUserId(session, session.customer as string)
 
                 if (!userId) {
-                    console.warn('checkout.session.completed: Missing client_reference_id (user_id)')
-                    break
+                    console.error('[Webhook] Error: Could not find user_id for checkout session.')
+                    return new Response('User not found', { status: 400 })
                 }
 
                 const mode = session.mode
@@ -57,7 +75,6 @@ serve(async (req) => {
                 if (mode === 'subscription') {
                     plan = 'monthly'
                     isPremium = true
-                    // Status defaults to active, but realtime update will come from subscription.created
                 } else if (mode === 'payment') {
                     plan = 'lifetime'
                     isPremium = true
@@ -82,23 +99,18 @@ serve(async (req) => {
             case 'customer.subscription.updated':
             case 'customer.subscription.deleted': {
                 const subscription = event.data.object
-                const customerId = subscription.customer
+                const customerId = subscription.customer as string
+                const userId = await getUserId(subscription, customerId)
 
-                // Find user by stripe_customer_id
-                // Note: use 'maybeSingle' to avoid error if not found instantly (race condition)
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('id')
-                    .eq('stripe_customer_id', customerId)
-                    .maybeSingle()
-
-                if (!profile) {
-                    console.warn(`[Webhook] No profile found for customer: ${customerId}`)
-                    break
+                if (!userId) {
+                    console.error(`[Webhook] Error: Could not find user_id for subscription ${subscription.id}`)
+                    // We initiate a 400 to signal Stripe to retry, or maybe 200 to ignore if it's truly orphaned?
+                    // User asked to "Logar erro e Retornar 400" if user not found.
+                    return new Response('User not found', { status: 400 })
                 }
 
                 const status = subscription.status
-                let plan = 'monthly' // Default for subs
+                let plan = 'monthly' // Default assumption
                 let isPremium = false
 
                 if (['active', 'trialing'].includes(status)) {
@@ -108,29 +120,27 @@ serve(async (req) => {
                     plan = 'free'
                 }
 
-                // Explicit deletion overrides generic status check logic
                 if (event.type === 'customer.subscription.deleted') {
                     isPremium = false
                     plan = 'free'
                 }
 
-                console.log(`[Webhook] Subscription Update for User ${profile.id}: Status=${status}, Premium=${isPremium}`)
+                console.log(`[Webhook] Subscription Update for User ${userId}: Status=${status}, Premium=${isPremium}`)
 
                 const { error } = await supabase.from('profiles').update({
                     plan: isPremium ? 'monthly' : 'free',
                     is_premium: isPremium,
                     subscription_status: status,
                     updated_at: new Date().toISOString()
-                }).eq('id', profile.id)
+                }).eq('id', userId)
 
                 if (error) console.error('[Webhook] Profile Update Error:', error)
                 break
             }
 
             case 'invoice.paid': {
-                // Good for logging or extending expiration dates if we managed that manually
-                console.log('[Webhook] Invoice Paid:', event.data.object.id)
-                break
+                // If needed, can also update user here
+                break;
             }
         }
 
