@@ -171,7 +171,8 @@ const AppContent: React.FC = () => {
     }
 
     // Wait for context to have profile loaded
-    const { profile, loading: userLoading } = usePlan(); // actually useUser is better for raw profile but usePlan gives us derived access
+    // We already have 'profile' and 'userLoading' from the top-level useUser() hook.
+    // We just depend on them in the dependency array below.
 
     // We wait for userLoading (from Context) to finish
     // However, usePlan encapsulates useUser loading.
@@ -287,13 +288,13 @@ const AppContent: React.FC = () => {
       return <Auth mode={View.SIGNUP} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.LOGIN)} />;
     }
 
-    // 3. Preferences Loading (Logged in but checking onboarding)
-    if (loadingPreferences) {
+    // 3. Preferences / User / Plan Loading
+    if (loadingPreferences || userLoading || planLoading) {
       return (
         <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark">
           <div className="flex flex-col items-center gap-4">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            <p className="text-sm text-slate-500 font-medium">Carregando perfil...</p>
+            <p className="text-sm text-slate-500 font-medium">Atualizando dados...</p>
           </div>
         </div>
       );
