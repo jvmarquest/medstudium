@@ -5,6 +5,7 @@ import { View } from '../types';
 import { Navbar, Header } from '../components/Layout';
 import { PageLayout } from '../components/PageLayout';
 import { useUser } from '../contexts/UserContext';
+import { SubscriptionStatusCard } from '../components/SubscriptionStatusCard';
 
 interface Props {
   onNavigate: (view: View) => void;
@@ -264,6 +265,9 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
             </div>
           </div>
         </div>
+
+        {/* Subscription Status - NEW SECTION */}
+        <SubscriptionStatusCard onNavigate={onNavigate} />
 
         {/* Specialties */}
         <div>
