@@ -8,7 +8,7 @@ interface PageLayoutProps {
 
 export const PageLayout: React.FC<PageLayoutProps> = ({ header, children, bottomNav }) => {
     return (
-        <div className="flex flex-col h-[100dvh] w-full bg-background-light dark:bg-background-dark overflow-hidden">
+        <div className="flex flex-col h-full w-full bg-background-light dark:bg-background-dark overflow-hidden">
             {/* Fixed Header Area */}
             {header && <div className="flex-none z-50">{header}</div>}
 

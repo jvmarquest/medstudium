@@ -117,7 +117,7 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate }) => {
     };
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300 relative">
+        <div className="h-full w-full bg-background-light dark:bg-background-dark flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300 relative overflow-y-auto">
             {toast && (
                 <div className={`fixed top-4 right-4 px-6 py-4 rounded-xl shadow-2xl z-50 text-white font-bold animate-fade-in ${toast.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`}>
                     {toast.message}
