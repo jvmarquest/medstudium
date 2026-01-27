@@ -9,9 +9,10 @@ import { createCheckoutSession } from '../lib/checkout';
 
 interface PremiumProps {
     onNavigate?: (view: View) => void;
+    onBack?: () => void;
 }
 
-const Premium: React.FC<PremiumProps> = ({ onNavigate }) => {
+const Premium: React.FC<PremiumProps> = ({ onNavigate, onBack }) => {
     const { session, profile, loading: userLoading, refreshProfile } = useUser();
     const [loading, setLoading] = useState<'monthly' | 'lifetime' | null>(null);
     const [freeLoading, setFreeLoading] = useState(false);
@@ -124,7 +125,18 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate }) => {
                 </div>
             )}
 
-            <div className="w-full max-w-4xl flex justify-end mb-4">
+            <div className="w-full max-w-4xl flex justify-between items-center mb-4">
+                <div>
+                    {onBack && (
+                        <button
+                            onClick={onBack}
+                            className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors flex items-center gap-2 text-sm font-semibold"
+                        >
+                            <span className="material-symbols-outlined text-lg">arrow_back</span>
+                            Voltar
+                        </button>
+                    )}
+                </div>
                 <button
                     onClick={handleLogout}
                     className="text-slate-500 hover:text-red-500 text-sm font-semibold transition-colors flex items-center gap-2"
@@ -216,49 +228,7 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate }) => {
                 </button>
             </div>
 
-            {/* Developer Mode Button - HIDDEN IN PRODUCTION */}
-            {import.meta.env.VITE_DEV_MODE === 'true' && (
-                <div className="mt-4 text-center">
-                    <button
-                        onClick={async () => {
-                            if (!session?.user) return;
-                            if (!confirm('ATIVAR MODO DEV: Isso simulará um plano premium (Active / Dev). Continuar?')) return;
 
-                            try {
-                                // 1. Update Profile (Compatible with DB Constraints)
-                                // We simulate a "Lifetime" plan which is valid in the boolean check.
-                                const { error } = await supabase.from('profiles').update({
-                                    plan: 'lifetime',       // Valid DB value
-                                    is_premium: true,
-                                    subscription_status: 'active', // Valid DB value
-                                    updated_at: new Date().toISOString()
-                                }).eq('id', session.user.id);
-
-                                if (error) throw error;
-
-                                // 2. Feedback
-                                alert('Modo Dev Ativado! Acesso Premium liberado (Plan: Premium / Status: Dev).');
-
-                                // 3. Refresh State
-                                await refreshProfile();
-
-                                // 4. Navigate
-                                // Force redirect to avoid loop issues
-                                if (onNavigate) {
-                                    onNavigate(View.DASHBOARD);
-                                } else {
-                                    window.location.href = '/';
-                                }
-                            } catch (e: any) {
-                                alert('Erro: ' + e.message);
-                            }
-                        }}
-                        className="text-xs text-red-500 font-mono border border-red-500 px-2 py-1 rounded hover:bg-red-50"
-                    >
-                        [DEV] ATIVAR PREMIUM
-                    </button>
-                </div>
-            )}
         </div>
     );
 };

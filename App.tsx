@@ -32,7 +32,7 @@ const AppContent: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isOnboardingCompleted, setIsOnboardingCompleted] = useState<boolean>(false);
   // Removed local duplicate state: isPremium, isFreePlan
-  const { hasAppAccess, isPremium: contextIsPremium } = usePlan();
+  const { hasAppAccess, isPremium: contextIsPremium, isTrial } = usePlan();
   const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
   const [loadingPreferences, setLoadingPreferences] = useState<boolean>(false);
   const [appError, setAppError] = useState<string | null>(null);
@@ -145,8 +145,9 @@ const AppContent: React.FC = () => {
           // 1. Strict Redirection for Premium Users (Requested)
           // If User is Premium (active/monthly/lifetime) and is on Premium View -> Dashboard
           // We do NOT want to show the Plan screen to someone who already paid.
-          if (contextIsPremium && currentView === View.PREMIUM) {
-            console.log('[App] Premium User on Plan Screen -> Redirecting to Dashboard');
+          // BUT if user is in TRIAL, they ARE Premium for features but SHOULD see the screen to Upgrade.
+          if (contextIsPremium && !isTrial && currentView === View.PREMIUM) {
+            console.log('[App] Paid User on Plan Screen -> Redirecting to Dashboard');
             setCurrentView(View.DASHBOARD);
             return;
           }
@@ -321,7 +322,7 @@ const AppContent: React.FC = () => {
 
     // 5. Paywall Guard (Render Check)
     if (isOnboardingCompleted && !hasAppAccess && currentView !== View.PREMIUM) {
-      return <Premium onNavigate={navigateTo} />;
+      return <Premium onNavigate={navigateTo} onBack={handleGoBack} />;
     }
 
     // 6. Main Routing
@@ -333,7 +334,7 @@ const AppContent: React.FC = () => {
 
       case View.PREMIUM:
         // Allow users to view Premium/Plans screen even if they have a plan/trial (to upgrade or check status)
-        return <Premium onNavigate={navigateTo} />;
+        return <Premium onNavigate={navigateTo} onBack={handleGoBack} />;
 
       case View.DASHBOARD:
         return <Dashboard onNavigate={navigateTo} />;

@@ -349,9 +349,6 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
           </div>
         </div>
 
-        {/* Subscription Status - NEW SECTION */}
-        <SubscriptionStatusCard onNavigate={onNavigate} />
-
         {/* Specialties */}
         <div>
           <h3 className="text-slate-500 text-[10px] font-bold uppercase tracking-wider px-2 pb-2 pt-4">Grandes Áreas</h3>
@@ -400,6 +397,9 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
 
           </div>
         </div>
+
+        {/* Subscription Status - NEW SECTION */}
+        <SubscriptionStatusCard onNavigate={onNavigate} />
 
         {/* Account Actions */}
         <div>
