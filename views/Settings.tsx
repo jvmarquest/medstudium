@@ -21,6 +21,10 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
   const [tempName, setTempName] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Exam Date State
+  const [isEditingDate, setIsEditingDate] = useState(false);
+  const [tempDate, setTempDate] = useState('');
+
   useEffect(() => {
     // Priority: Profile (user_preferences) -> Auth Metadata
     if (profile?.nome) {
@@ -33,6 +37,11 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
         }
       };
       fetchData();
+    }
+
+    // Initialize Exam Date
+    if (profile?.data_prova) {
+      setTempDate(profile.data_prova);
     }
   }, [profile]);
 
@@ -147,6 +156,48 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
     setLoading(false);
   };
 
+  const handleSaveExamDate = async () => {
+    if (!tempDate) return;
+
+    // Simple validation: check if date is not in the past (optional, user requested "Non-past")
+    // Let's allow today.
+    const selected = new Date(tempDate + 'T00:00:00'); // append time to avoid timezone shift on just date string
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selected < today) {
+      alert('A data da prova não pode ser no passado.');
+      return;
+    }
+
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      // Update user_preferences
+      const { error: prefsError } = await supabase
+        .from('user_preferences')
+        .update({ data_prova: tempDate })
+        .eq('user_id', user.id);
+
+      // Update profiles (if column exists there, good practice to sync if structure allows)
+      // Assuming profiles has data_prova based on UserContext interface
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ data_prova: tempDate })
+        .eq('id', user.id);
+
+      if (prefsError && profileError) {
+        console.error('Error saving exam date:', prefsError, profileError);
+        alert('Erro ao salvar data da prova.');
+      } else {
+        await refreshProfile();
+        setIsEditingDate(false);
+      }
+    }
+    setLoading(false);
+  };
+
 
   const handleResetApp = async () => {
     setLoading(true);
@@ -256,6 +307,7 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
         <div>
           <h3 className="text-slate-500 text-[10px] font-bold uppercase tracking-wider px-2 pb-2 pt-4">Perfil</h3>
           <div className="flex flex-col overflow-hidden rounded-xl bg-white dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
+            {/* Display Name Row */}
             <div className="flex items-center justify-between p-4">
               <div className="flex items-center gap-4">
                 <div className="flex flex-col">
@@ -265,6 +317,30 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
               </div>
               <button
                 onClick={handleEditProfile}
+                className="text-primary text-xs font-bold hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                Editar
+              </button>
+            </div>
+
+            {/* Exam Date Row - NEW */}
+            <div className="flex items-center justify-between p-4">
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col">
+                  <p className="font-medium">Data da Prova</p>
+                  <p className="text-xs text-slate-500">
+                    Defina a data para o cronograma
+                  </p>
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-1">
+                    {profile?.data_prova ? new Date(profile.data_prova + 'T00:00:00').toLocaleDateString('pt-BR') : 'Não definida'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setTempDate(profile?.data_prova || '');
+                  setIsEditingDate(true);
+                }}
                 className="text-primary text-xs font-bold hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors"
               >
                 Editar
@@ -456,6 +532,44 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
                   </button>
                   <button
                     onClick={handleSaveProfile}
+                    disabled={loading}
+                    className="px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark disabled:opacity-50"
+                  >
+                    {loading ? 'Salvando...' : 'Salvar'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Exam Date Editing Modal - NEW */}
+        {isEditingDate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white dark:bg-surface-dark rounded-xl shadow-xl w-full max-w-sm p-6 animate-in fade-in zoom-in duration-200">
+              <h3 className="text-lg font-bold mb-4">Data da Prova</h3>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Selecione a Data</label>
+                  <input
+                    type="date"
+                    value={tempDate}
+                    onChange={(e) => setTempDate(e.target.value)}
+                    className="w-full bg-slate-100 dark:bg-slate-800 rounded-lg p-3 outline-none focus:ring-2 focus:ring-primary/50"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-2">
+                    Esta data será usada para calcular o contador regressivo na tela inicial.
+                  </p>
+                </div>
+                <div className="flex gap-2 justify-end mt-2">
+                  <button
+                    onClick={() => setIsEditingDate(false)}
+                    className="px-4 py-2 text-slate-500 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleSaveExamDate}
                     disabled={loading}
                     className="px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark disabled:opacity-50"
                   >
