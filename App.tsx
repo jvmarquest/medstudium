@@ -29,8 +29,8 @@ const AppContent: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const [isOnboardingCompleted, setIsOnboardingCompleted] = useState<boolean>(false);
-  const [isPremium, setIsPremium] = useState<boolean>(false);
-  const [isFreePlan, setIsFreePlan] = useState<boolean>(false);
+  // Removed local duplicate state: isPremium, isFreePlan
+  const { hasAppAccess, isPremium: contextIsPremium } = usePlan();
   const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
   const [loadingPreferences, setLoadingPreferences] = useState<boolean>(false);
   const [appError, setAppError] = useState<string | null>(null);
@@ -136,30 +136,8 @@ const AppContent: React.FC = () => {
       setIsOnboardingCompleted(completed);
 
       if (completed) {
-        // --- PAYWALL CHECK ---
-        const { data: sub } = await supabase
-          .from('subscriptions')
-          .select('status, plan, expires_at')
-          .eq('user_id', userId)
-          .maybeSingle();
-
-        // Used fetched profile for trial logic directly
-
-
-        const now = new Date();
-        const trialActive = profile?.trial_expires_at && new Date(profile.trial_expires_at) > now;
-
-        const isFree = sub?.plan === 'free';
-
-        const validSub = sub && ['active', 'lifetime'].includes(sub.status);
-        const subActive = validSub && (sub.status === 'lifetime' || (sub.expires_at && new Date(sub.expires_at) > now));
-
-        const premiumActive = trialActive || !!subActive;
-
-        setIsPremium(premiumActive);
-
-        if (!premiumActive && !isFree) {
-          console.log('[init] User is NOT premium and NOT free tier. Redirecting to Paywall.');
+        if (!hasAppAccess) {
+          console.log('[init] User does NOT have app access. Redirecting to Paywall.');
           setCurrentView(View.PREMIUM);
           return;
         }
@@ -209,21 +187,28 @@ const AppContent: React.FC = () => {
           return;
         }
       } else {
-        // If onboarding completed, prevent re-entry
+        // If onboarding completed
         if (view === View.ONBOARDING) {
           setCurrentView(View.DASHBOARD);
           return;
         }
 
-        // Premium Check
-        if (!isPremium && !isFreePlan && view !== View.PREMIUM) {
+        // --- APP ACCESS GUARD ---
+        // Single source of truth from Context
+        // If !hasAppAccess -> User is Free/Expired -> Redirect to PREMIUM
+        if (!hasAppAccess && view !== View.PREMIUM) {
           setCurrentView(View.PREMIUM);
           return;
         }
+
+        // If hasAppAccess (Active/Trial) -> Allow navigation
+        // But if they are ON Premium view, and they ARE Active (fully premium), maybe redirect to Dashboard?
+        // Actually, let them see Premium view if they want (to manage sub), unless forced.
+        // We only FORCE redirect if they are BLOCKED.
       }
     }
 
-    if (session && isOnboardingCompleted && isPremium) {
+    if (session && isOnboardingCompleted && contextIsPremium) {
       setViewHistory(prev => [...prev, { view: currentView, themeId: selectedThemeId }]);
     }
 
@@ -314,8 +299,8 @@ const AppContent: React.FC = () => {
       }} />;
     }
 
-    // 5. Paywall Guard
-    if (isOnboardingCompleted && !isPremium && !isFreePlan && currentView !== View.PREMIUM) {
+    // 5. Paywall Guard (Render Check)
+    if (isOnboardingCompleted && !hasAppAccess && currentView !== View.PREMIUM) {
       return <Premium />;
     }
 

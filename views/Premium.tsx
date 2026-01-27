@@ -4,10 +4,18 @@ import { useUser } from '../contexts/UserContext';
 import { Check } from 'lucide-react';
 
 const Premium: React.FC = () => {
-    const { session } = useUser();
+    const { session, profile, loading: userLoading } = useUser();
     const [loading, setLoading] = useState<'monthly' | 'lifetime' | null>(null);
     const [freeLoading, setFreeLoading] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null);
+
+    // Block access for Active (Premium) users
+    // Trial users can still see this screen to engage with upgrade options.
+    React.useEffect(() => {
+        if (!userLoading && profile?.subscription_status === 'active') {
+            window.location.href = '/';
+        }
+    }, [profile, userLoading]);
 
     const handleSubscribe = async (plan: 'monthly' | 'lifetime') => {
         if (!session?.user) return;
@@ -39,39 +47,44 @@ const Premium: React.FC = () => {
             return;
         }
 
-        console.log("handleFreePlan: Starting...", { userId: session.user.id });
+        console.log("handleFreePlan: Starting Trial activation...", { userId: session.user.id });
         setFreeLoading(true);
 
         try {
-            // Updated update logic as requested
+            const now = new Date();
+            const expiresAt = new Date(now);
+            expiresAt.setDate(now.getDate() + 7); // 7 Days Trial
+
             const updatePayload = {
                 plan: 'free',
-                is_premium: false, // Ensure column exists!
-                subscription_status: 'active', // Keeping this for compatibility if used elsewhere
-                updated_at: new Date().toISOString()
+                is_premium: true, // Legacy compatibility (Trial = Premium access)
+                subscription_status: 'trial',
+                trial_started_at: now.toISOString(),
+                trial_expires_at: expiresAt.toISOString(),
+                updated_at: now.toISOString()
             };
-
-            console.log("handleFreePlan: Sending update to profiles...", updatePayload);
 
             const { data, error } = await supabase
                 .from('profiles')
                 .update(updatePayload)
                 .eq('id', session.user.id)
-                .select(); // Select to verify return
+                .select();
 
             if (error) {
                 console.error("handleFreePlan: Supabase Error Update:", error);
                 throw error;
             }
 
-            console.log("handleFreePlan: Update success", data);
+            console.log("handleFreePlan: Trial activated successfully", data);
+
+            // Force refresh of local state to update 'hasAppAccess' immediately
+            // We can reload the window to be safe and ensure all guards re-run
             window.location.href = '/';
 
         } catch (error: any) {
-            console.error("Erro ao selecionar plano gratuito (Catch):", error);
-            // Show real error message
+            console.error("Erro ao ativar Trial:", error);
             setToast({
-                message: `Erro ao salvar: ${error.message || error.details || 'Tente novamente'}`,
+                message: `Erro ao ativar período gratuito: ${error.message || 'Tente novamente'}`,
                 type: 'error'
             });
             setTimeout(() => setToast(null), 5000);
@@ -185,6 +198,36 @@ const Premium: React.FC = () => {
                     {freeLoading ? 'Salvando...' : 'Continuar com versão gratuita'}
                 </button>
             </div>
+
+            {/* Developer Mode Button - HIDDEN IN PRODUCTION */}
+            {import.meta.env.VITE_DEV_MODE === 'true' && (
+                <div className="mt-4 text-center">
+                    <button
+                        onClick={async () => {
+                            if (!session?.user) return;
+                            if (!confirm('ATIVAR MODO DEV: Isso simulará um plano premium (Active / Dev). Continuar?')) return;
+
+                            try {
+                                const { error } = await supabase.from('profiles').update({
+                                    plan: 'dev',
+                                    is_premium: true,
+                                    subscription_status: 'active',
+                                    updated_at: new Date().toISOString()
+                                }).eq('id', session.user.id);
+
+                                if (error) throw error;
+                                alert('Modo Dev Ativado! Recarregando...');
+                                window.location.href = '/';
+                            } catch (e: any) {
+                                alert('Erro: ' + e.message);
+                            }
+                        }}
+                        className="text-xs text-red-500 font-mono border border-red-500 px-2 py-1 rounded hover:bg-red-50"
+                    >
+                        [DEV] ATIVAR PREMIUM
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

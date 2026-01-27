@@ -9,11 +9,16 @@ export enum Feature {
 }
 
 export const useAccess = () => {
-    const { isPremium } = usePlan();
+    const { isPremium, isTrial, hasAppAccess } = usePlan();
 
     const canAccess = (feature: Feature | string): boolean => {
-        // Premium users (Active Subscription, Trial, or Lifetime) have access to everything
-        if (isPremium) return true;
+        // Active Premium users have access to everything
+        if (isPremium && !isTrial) return true;
+
+        // Trial users have App Access but are restricted on specific features (like Topic Limit)
+        // If isTrial is true, we fall through to checks below.
+
+        if (!hasAppAccess) return false;
 
         // Free Plan Limitations
         switch (feature) {
@@ -29,5 +34,5 @@ export const useAccess = () => {
         }
     };
 
-    return { canAccess };
+    return { canAccess, hasAccess: hasAppAccess };
 };

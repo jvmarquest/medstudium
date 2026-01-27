@@ -5,7 +5,8 @@ interface PlanContextData {
     isFree: boolean;
     isTrial: boolean;
     isPremium: boolean;
-    plan: 'free' | 'monthly' | 'lifetime';
+    hasAppAccess: boolean;
+    plan: 'free' | 'monthly' | 'lifetime' | 'dev';
     loading: boolean;
 }
 
@@ -13,6 +14,7 @@ const PlanContext = createContext<PlanContextData>({
     isFree: true,
     isTrial: false,
     isPremium: false,
+    hasAppAccess: false,
     plan: 'free',
     loading: true,
 });
@@ -31,46 +33,40 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
         }
 
-        // 1. Check Trial
-        const now = new Date();
-        const trialExpires = profile?.trial_expires_at ? new Date(profile.trial_expires_at) : null;
-        const isTrialActive = !!trialExpires && trialExpires > now;
+        // 1. Get Status from Profile (Single Source of Truth)
+        const status = profile?.subscription_status || 'free';
 
-        // 2. Check Database Flags (Primary Source now)
-        const dbIsPremium = profile?.is_premium === true;
-        const dbPlan = profile?.plan || 'free';
-        const dbSubStatus = profile?.subscription_status;
+        // 2. Map to Flags
+        const isTrial = status === 'trial';
+        const isPremium = status === 'active' || status === 'trial';
+        const isFree = status === 'free' || status === 'expired';
 
-        // 3. Check Legacy/Stripe Subscription (Fallback/Sync)
-        // If we have a valid stripe sub, allow it even if profile is outdated (fail-open for paid users)
-        const stripeSubActive = subscription && ['active', 'lifetime'].includes(subscription.status);
+        // 3. Determine Plan Name (for UI display if needed)
+        let plan: 'free' | 'monthly' | 'lifetime' | 'dev' = 'free';
 
-        // 4. Aggregated Status
-        const isPremium = dbIsPremium || stripeSubActive || isTrialActive || dbPlan === 'lifetime' || dbPlan === 'monthly';
-
-        // Determine Plan (Normalize)
-        let plan: 'free' | 'monthly' | 'lifetime' = 'free';
-        if (dbPlan === 'monthly' || dbPlan === 'lifetime' || dbPlan === 'free') {
-            plan = dbPlan;
+        if (isPremium) {
+            if (profile?.plan === 'dev') plan = 'dev';
+            else if (profile?.plan === 'lifetime') plan = 'lifetime';
+            else plan = 'monthly';
         }
-        if (subscription?.plan === 'monthly') plan = 'monthly';
-        if (subscription?.plan === 'lifetime' || subscription?.status === 'lifetime') plan = 'lifetime';
 
-        // Override if Free but Trial is active -> It's technically "Free Trial" but grants access.
-        // We consider it "Premium Access" for guards.
+        // Active and Trial have App Access. 
+        // Free/Expired do NOT (redirect to Premium).
+        const hasAppAccess = status === 'active' || status === 'trial';
 
         return {
-            isFree: !isPremium, // "Free" means NO premium access
-            isTrial: isTrialActive,
-            isPremium: isPremium,
-            plan: plan,
+            isFree,
+            isTrial,
+            isPremium,
+            hasAppAccess,
+            plan,
             loading: false
         };
-    }, [profile, userLoading, subscription]);
+    }, [profile, userLoading]);
 
     return (
-        <PlanContext.Provider value= { planState } >
-        { children }
+        <PlanContext.Provider value={planState}>
+            {children}
         </PlanContext.Provider>
     );
 };
