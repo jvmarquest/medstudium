@@ -193,24 +193,35 @@ const App: React.FC = () => {
   // ... (previous checks)
 
   const navigateTo = (view: View, themeId?: string) => {
+    // STRICT NAVIGATION GUARDS
     if (!session) {
-      if (view !== View.LOGIN && view !== View.SIGNUP) return;
-    } else {
-      // 1. Onboarding Guard
-      if (!isOnboardingCompleted && view !== View.ONBOARDING) {
-        setCurrentView(View.ONBOARDING);
+      if (view !== View.LOGIN && view !== View.SIGNUP) {
+        setCurrentView(View.LOGIN);
         return;
       }
-      // 2. Premium Guard (Strict)
-      if (isOnboardingCompleted && !isPremium && !isFreePlan && view !== View.PREMIUM && view !== View.ONBOARDING) {
-        setCurrentView(View.PREMIUM);
-        return;
+    } else {
+      // If logged in
+      if (!isOnboardingCompleted) {
+        // MUST go to onboarding
+        if (view !== View.ONBOARDING) {
+          setCurrentView(View.ONBOARDING);
+          return;
+        }
+      } else {
+        // If onboarding completed, prevent re-entry
+        if (view === View.ONBOARDING) {
+          setCurrentView(View.DASHBOARD);
+          return;
+        }
+
+        // Premium Check
+        if (!isPremium && !isFreePlan && view !== View.PREMIUM) {
+          setCurrentView(View.PREMIUM);
+          return;
+        }
       }
     }
 
-    // Add to history if valid transition (prevent duplicates if needed, but linear history is fine)
-    // Only add to history if we are in a main app view (not Login/Signup/Onboarding transitions usually)
-    // For simplicity, we track everything after login.
     if (session && isOnboardingCompleted && isPremium) {
       setViewHistory(prev => [...prev, { view: currentView, themeId: selectedThemeId }]);
     }
@@ -237,14 +248,8 @@ const App: React.FC = () => {
   };
 
   const calculateSelectedTheme = () => {
-    // Basic fallback if needed, but ThemeDetails handles its own data now ideally.
-    // For now we pass just ID or let it fetch.
-    // But existing code expects a theme object.
-    // We will keep selectedThemeId but removing local themes array means we can't find it here.
     return { id: selectedThemeId } as any;
   };
-  // NOTE: ThemeDetails will be refactored to fetch by ID or receive just ID. 
-  // Checking ThemeDetails usage next. For now, removing the local lookup.
 
   const renderView = () => {
     // 0. Fatal Error
@@ -280,7 +285,7 @@ const App: React.FC = () => {
       );
     }
 
-    // 2. Not Logged In -> Auth Screens
+    // 2. Not Logged In -> Auth Screens (STRICT)
     if (!session) {
       if (currentView !== View.SIGNUP) return <Auth mode={View.LOGIN} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.SIGNUP)} />;
       return <Auth mode={View.SIGNUP} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.LOGIN)} />;
@@ -299,14 +304,16 @@ const App: React.FC = () => {
     }
 
     // 4. Onboarding Guard
-    if (!isOnboardingCompleted && currentView !== View.ONBOARDING) {
+    if (!isOnboardingCompleted) {
+      // Must be Onboarding, ignore currentView if it tries to be something else (except during transitions maybe?)
+      // Actually, just render Onboarding content.
       return <Onboarding onNavigate={(v) => {
         if (v === View.DASHBOARD) checkPreferences(session.user.id);
         else navigateTo(v);
       }} />;
     }
 
-    // 5. Paywall Guard (Fallback for render loop)
+    // 5. Paywall Guard
     if (isOnboardingCompleted && !isPremium && !isFreePlan && currentView !== View.PREMIUM) {
       return <Premium />;
     }
@@ -315,11 +322,11 @@ const App: React.FC = () => {
     switch (currentView) {
       case View.LOGIN:
       case View.SIGNUP:
-        // If we are here and logged in + loaded + completed, go to dashboard
-        if (isOnboardingCompleted && isPremium) return <Dashboard onNavigate={navigateTo} />;
-        return <Auth mode={currentView} onAuthSuccess={() => checkPreferences(session.user.id)} onToggleMode={() => navigateTo(currentView === View.LOGIN ? View.SIGNUP : View.LOGIN)} />;
+        // Logic should have caught this above, but safe fallback:
+        return <Dashboard onNavigate={navigateTo} />;
+
       case View.PREMIUM:
-        if (isPremium) return <Dashboard onNavigate={navigateTo} />; // Auto-exit paywall if becomes premium
+        if (isPremium || isFreePlan) return <Dashboard onNavigate={navigateTo} />;
         return <Premium />;
 
       case View.DASHBOARD:
@@ -339,14 +346,8 @@ const App: React.FC = () => {
       case View.THEME_DETAILS:
         return <ThemeDetails themeId={selectedThemeId} onNavigate={navigateTo} />;
       case View.ONBOARDING:
-        return <Onboarding onNavigate={async (v) => {
-          // When finishing onboarding, re-verify status explicitly
-          if (v === View.DASHBOARD) {
-            if (session) await checkPreferences(session.user.id);
-          } else {
-            navigateTo(v);
-          }
-        }} />;
+        // Should not happen if isOnboardingCompleted is true (handled by logic above or navigateTo)
+        return <Dashboard onNavigate={navigateTo} />;
       case View.FOCUS:
         return <FocusMode themeId={selectedThemeId} onNavigate={navigateTo} />;
       default:

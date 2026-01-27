@@ -76,20 +76,45 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         try {
-            // Fetch Profile
-            const { data, error } = await supabase
-                .from('user_preferences')
-                .select('*')
-                .eq('user_id', currentSession.user.id)
-                .maybeSingle();
+            const userId = currentSession.user.id;
 
-            // Fetch Core Profile for Trial & Onboarding
-            const { data: coreProfile } = await supabase
+            // 1. Fetch Core Profile
+            let { data: coreProfile, error: profileError } = await supabase
                 .from('profiles')
                 .select('trial_expires_at, onboarding_completed')
-                .eq('id', currentSession.user.id)
+                .eq('id', userId)
                 .maybeSingle();
 
+            // 2. Auto-create Profile if missing
+            if (!coreProfile && !profileError) {
+                console.log('[UserContext] Profile missing, creating default...');
+                const { data: newProfile, error: createError } = await supabase
+                    .from('profiles')
+                    .insert({
+                        id: userId,
+                        onboarding_completed: false,
+                        // trial logic handled elsewhere or triggers
+                    })
+                    .select('trial_expires_at, onboarding_completed')
+                    .single();
+
+                if (createError) {
+                    console.error('[UserContext] Failed to create profile:', createError);
+                    // If we can't create a profile, it might be an orphaned session (user deleted).
+                    // Verify auth status against server to be sure.
+                    const { error: authError } = await supabase.auth.getUser();
+                    if (authError) {
+                        console.warn('[UserContext] User invalid on server, signing out.');
+                        await supabase.auth.signOut();
+                        setSession(null);
+                        return;
+                    }
+                } else {
+                    coreProfile = newProfile;
+                }
+            }
+
+            // 3. Update State from Core Profile
             if (coreProfile?.trial_expires_at) {
                 setTrialExpiresAt(coreProfile.trial_expires_at);
             } else {
@@ -98,8 +123,15 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             const isOnboardingCompleted = coreProfile?.onboarding_completed === true;
 
+            // 4. Fetch User Preferences (Legacy/Extended Data)
+            const { data, error } = await supabase
+                .from('user_preferences')
+                .select('*')
+                .eq('user_id', userId)
+                .maybeSingle();
+
             if (data) {
-                // ... (Parsing logic kept same)
+                // ... (Parsing logic)
                 let parsedSpecialties: string[] = [];
                 if (Array.isArray(data.especialidades)) {
                     parsedSpecialties = data.especialidades;
@@ -121,13 +153,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     ...data,
                     especialidades: parsedSpecialties,
                     data_prova: parsedDate,
-                    onboarding_completed: isOnboardingCompleted // Override or set from profiles
+                    onboarding_completed: isOnboardingCompleted
                 };
 
                 // Sync Name logic ...
                 if (!finalProfile.nome && (currentSession.user.user_metadata?.full_name || currentSession.user.user_metadata?.name)) {
                     const nameToSave = currentSession.user.user_metadata.full_name || currentSession.user.user_metadata.name;
-                    supabase.from('user_preferences').update({ nome: nameToSave }).eq('user_id', currentSession.user.id).then();
+                    supabase.from('user_preferences').update({ nome: nameToSave }).eq('user_id', userId).then();
                     setProfile({ ...finalProfile, nome: nameToSave });
                 } else {
                     setProfile(finalProfile);
@@ -140,17 +172,17 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
                 if (currentSession.user.user_metadata?.full_name || currentSession.user.user_metadata?.name) {
                     const nameToSave = currentSession.user.user_metadata.full_name || currentSession.user.user_metadata.name;
-                    supabase.from('user_preferences').upsert({ user_id: currentSession.user.id, nome: nameToSave }).then();
+                    supabase.from('user_preferences').upsert({ user_id: userId, nome: nameToSave }).then();
                     defaultProfile.nome = nameToSave;
                 }
                 setProfile(defaultProfile);
             }
 
-            // Fetch Subscription
+            // 5. Fetch Subscription
             const { data: subData } = await supabase
                 .from('subscriptions')
                 .select('status, plan, expires_at')
-                .eq('user_id', currentSession.user.id)
+                .eq('user_id', userId)
                 .maybeSingle();
 
             if (subData) {

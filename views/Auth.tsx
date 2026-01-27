@@ -59,8 +59,15 @@ const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode }) => {
       }
     } catch (err: any) {
       setError(err.message || 'Ocorreu um erro. Tente novamente.');
-    } finally {
       setLoading(false);
+    } finally {
+      // Don't set loading false immediately on success to prevent UI flicker before redirect?
+      // But we need to call onSuccess.
+      if (!error) {
+        // Allow a moment for session to propagate if needed, but usually onAuthSuccess triggers the parent state update
+      } else {
+        setLoading(false);
+      }
     }
   };
 
