@@ -357,9 +357,10 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <TrialBanner onNavigate={navigateTo} />
-      {/* renderView() */ }
-  { renderView() }
+    <>
+      <TrialBanner onNavigate={navigateTo} />
+      {renderView()}
+    </>
   );
 };
 
