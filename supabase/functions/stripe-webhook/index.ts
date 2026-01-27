@@ -110,27 +110,49 @@ serve(async (req) => {
                 }
 
                 const status = subscription.status
-                let plan = 'monthly' // Default assumption
-                let isPremium = false
+                const cancelAtPeriodEnd = subscription.cancel_at_period_end
 
-                if (['active', 'trialing'].includes(status)) {
-                    isPremium = true
-                } else {
-                    isPremium = false
+                let plan = 'monthly' // Default assumption for active subs
+                let isPremium = false
+                let internalStatus = status // Default map
+
+                // LOGIC:
+                // 1. Canceled (Final) or Unpaid/PastDue (if we want to block)
+                if (status === 'canceled' || status === 'unpaid') {
                     plan = 'free'
+                    isPremium = false
+                    internalStatus = 'canceled'
+                }
+                // 2. Active but Scheduled for Cancellation
+                else if (status === 'active' && cancelAtPeriodEnd) {
+                    isPremium = true
+                    plan = 'monthly'
+                    internalStatus = 'canceled_pending'
+                }
+                // 3. Normal Active / Trialing
+                else if (['active', 'trialing'].includes(status)) {
+                    isPremium = true
+                    // keep plan as 'monthly'
+                    internalStatus = status === 'trialing' ? 'trial' : 'active'
+                } else {
+                    // unexpected status like incomplete
+                    plan = 'free'
+                    isPremium = false
                 }
 
                 if (event.type === 'customer.subscription.deleted') {
                     isPremium = false
                     plan = 'free'
+                    internalStatus = 'canceled'
                 }
 
-                console.log(`[Webhook] Subscription Update for User ${userId}: Status=${status}, Premium=${isPremium}`)
+                console.log(`[Webhook] Subscription Update for User ${userId}: Status=${status}, CancelAtEnd=${cancelAtPeriodEnd} -> InternalStatus=${internalStatus}`)
 
                 const { error } = await supabase.from('profiles').update({
                     plan: isPremium ? 'monthly' : 'free',
                     is_premium: isPremium,
-                    subscription_status: status,
+                    subscription_status: internalStatus,
+                    current_period_end: subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString() : null,
                     updated_at: new Date().toISOString()
                 }).eq('id', userId)
 

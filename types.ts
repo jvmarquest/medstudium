@@ -20,7 +20,7 @@ export type UserProfile = {
   id: string;
   email: string;
   plan: 'free' | 'monthly' | 'lifetime';
-  subscription_status?: 'free' | 'trial' | 'active' | 'expired';
+  subscription_status?: 'free' | 'trial' | 'active' | 'expired' | 'canceled' | 'canceled_pending';
   is_premium?: boolean;
   premiumActive: boolean;
   expires_at: string | null;

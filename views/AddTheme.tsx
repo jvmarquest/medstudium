@@ -307,7 +307,7 @@ const AddTheme: React.FC<Props> = ({ onNavigate }) => {
 
   const header = (
     <header className="shrink-0 bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 z-20">
-      <div className="flex items-center justify-between px-4 py-3 lg:py-4 max-w-md lg:max-w-6xl xl:max-w-7xl mx-auto w-full">
+      <div className="flex items-center justify-between px-6 py-3 lg:py-4 w-full mx-auto">
         <button onClick={() => onNavigate(View.DASHBOARD)} className="flex items-center justify-center w-10 h-10 -ml-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
           <span className="material-symbols-outlined text-2xl">arrow_back</span>
         </button>
@@ -442,7 +442,7 @@ const AddTheme: React.FC<Props> = ({ onNavigate }) => {
           </div>
         </main>
 
-        <div className="fixed bottom-[80px] left-0 right-0 px-4 z-10 w-full max-w-md mx-auto pointer-events-none">
+        <div className="fixed bottom-[100px] left-0 right-0 px-4 z-10 w-full max-w-md mx-auto pointer-events-none">
           <button
             onClick={handleSubmit}
             disabled={!name || !specialty || !area}

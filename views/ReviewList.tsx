@@ -268,7 +268,7 @@ const ReviewList: React.FC<Props> = ({ onNavigate }) => {
       header={header}
       bottomNav={<Navbar currentView={View.REVIEWS} onNavigate={onNavigate} />}
     >
-      <div className="flex flex-col gap-6 p-4 max-w-md lg:max-w-6xl xl:max-w-7xl mx-auto w-full relative">
+      <div className="flex flex-col gap-6 p-4 px-6 w-full relative mx-auto">
         <div className="flex flex-col gap-3">
           <div className="flex justify-between items-end">
             <p className="text-base font-bold">Seu Progresso</p>

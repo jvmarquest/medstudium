@@ -216,7 +216,7 @@ const Analytics: React.FC<Props> = ({ onNavigate }) => {
       bottomNav={<Navbar currentView={View.ANALYTICS} onNavigate={onNavigate} />}
     >
 
-      <main className="flex flex-col gap-6 p-4 max-w-md lg:max-w-6xl xl:max-w-7xl mx-auto w-full">
+      <main className="flex flex-col gap-6 p-4 px-6 w-full relative mx-auto">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-4"></div>

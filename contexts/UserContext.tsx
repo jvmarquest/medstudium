@@ -16,6 +16,7 @@ interface UserProfile {
     is_premium?: boolean;
     trial_expires_at?: string | null;
     trial_started_at?: string | null;
+    current_period_end?: string | null;
 }
 
 interface Subscription {
@@ -81,7 +82,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // 1. Fetch Core Profile
             let { data: coreProfile, error: profileError } = await supabase
                 .from('profiles')
-                .select('trial_expires_at, trial_started_at, onboarding_completed, plan, subscription_status, is_premium')
+                .select('trial_expires_at, trial_started_at, onboarding_completed, plan, subscription_status, is_premium, current_period_end')
                 .eq('id', userId)
                 .maybeSingle() as any;
 
@@ -158,7 +159,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     // otherwise these are lost if user_preferences exists
                     plan: coreProfile?.plan || 'free',
                     subscription_status: coreProfile?.subscription_status || 'free',
-                    is_premium: coreProfile?.is_premium || false
+                    is_premium: coreProfile?.is_premium || false,
+                    current_period_end: coreProfile?.current_period_end
                 };
 
                 // Sync Name logic ...
@@ -177,7 +179,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     subscription_status: coreProfile?.subscription_status || 'free',
                     is_premium: coreProfile?.is_premium || false,
                     trial_expires_at: coreProfile?.trial_expires_at,
-                    trial_started_at: coreProfile?.trial_started_at
+                    trial_started_at: coreProfile?.trial_started_at,
+                    current_period_end: coreProfile?.current_period_end
                 };
 
                 if (currentSession.user.user_metadata?.full_name || currentSession.user.user_metadata?.name) {

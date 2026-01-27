@@ -158,25 +158,7 @@ const ManageSubscription: React.FC<Props> = ({ onNavigate }) => {
                                     </div>
                                 )}
 
-                                {/* Simulation Tools for Dev */}
-                                <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl mt-4 border border-slate-100 dark:border-slate-700">
-                                    <h4 className="text-xs font-bold text-slate-500 uppercase mb-2">Modo Desenvolvedor (Simulação)</h4>
-                                    <div className="flex flex-col gap-2">
-                                        <button onClick={handleSimulateDowngrade} disabled={loading} className="text-sm text-slate-600 hover:underline text-left">
-                                            Simular Downgrade para Free
-                                        </button>
-                                        {profile.plan !== 'lifetime' && (
-                                            <button onClick={() => handleSimulateUpgrade('lifetime')} disabled={loading} className="text-sm text-slate-600 hover:underline text-left">
-                                                Simular Upgrade para Vitalício
-                                            </button>
-                                        )}
-                                        {profile.plan !== 'monthly' && (
-                                            <button onClick={() => handleSimulateUpgrade('monthly')} disabled={loading} className="text-sm text-slate-600 hover:underline text-left">
-                                                Simular Upgrade para Mensal
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
+
                             </>
                         ) : (
                             <button

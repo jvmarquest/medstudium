@@ -24,7 +24,7 @@ const Achievements: React.FC<Props> = ({ onNavigate }) => {
       bottomNav={<Navbar currentView={View.ACHIEVEMENTS} onNavigate={onNavigate} />}
     >
 
-      <main className="flex flex-col gap-6 p-4 max-w-md mx-auto w-full">
+      <main className="flex flex-col gap-6 p-4 px-6 w-full mx-auto">
         <section className="bg-gradient-to-br from-primary to-blue-600 rounded-2xl p-6 text-white shadow-lg">
           <div className="flex justify-between items-center mb-4">
             <div>
@@ -56,8 +56,8 @@ const Achievements: React.FC<Props> = ({ onNavigate }) => {
               <div
                 key={badge.id}
                 className={`flex flex-col items-center text-center p-4 rounded-2xl border transition-all ${badge.earned
-                    ? 'bg-white dark:bg-card-dark border-slate-200 dark:border-slate-800 shadow-sm'
-                    : 'bg-slate-50 dark:bg-slate-900/50 border-dashed border-slate-300 dark:border-slate-700 opacity-60'
+                  ? 'bg-white dark:bg-card-dark border-slate-200 dark:border-slate-800 shadow-sm'
+                  : 'bg-slate-50 dark:bg-slate-900/50 border-dashed border-slate-300 dark:border-slate-700 opacity-60'
                   }`}
               >
                 <div className={`size-14 rounded-full flex items-center justify-center mb-3 ${badge.earned ? 'bg-primary/10 text-primary' : 'bg-slate-200 dark:bg-slate-800 text-slate-400'

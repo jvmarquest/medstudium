@@ -315,7 +315,7 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate }) => {
       bottomNav={<Navbar currentView={View.REVIEWS} onNavigate={onNavigate} />}
     >
 
-      <main className="flex flex-col gap-6 p-4 max-w-lg mx-auto w-full">
+      <main className="flex flex-col gap-6 p-4 px-6 w-full mx-auto">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/30 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">

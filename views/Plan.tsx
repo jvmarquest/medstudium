@@ -204,7 +204,7 @@ const Plan: React.FC<Props> = ({ onNavigate, onBack }) => {
 
   const customHeader = (
     <div className="bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-      <div className="flex items-center px-4 py-3 lg:py-4 justify-between max-w-md lg:max-w-6xl xl:max-w-7xl mx-auto w-full">
+      <div className="flex items-center px-6 py-3 lg:py-4 justify-between w-full mx-auto">
         <div className="flex items-center gap-3">
           <button
             onClick={() => {
@@ -221,7 +221,7 @@ const Plan: React.FC<Props> = ({ onNavigate, onBack }) => {
         </div>
       </div>
 
-      <div className="px-4 py-2 lg:py-3 max-w-md lg:max-w-6xl xl:max-w-7xl mx-auto w-full">
+      <div className="px-6 py-2 lg:py-3 w-full mx-auto">
         <label className="relative flex items-center w-full">
           <div className="absolute left-3 text-slate-400">
             <span className="material-symbols-outlined text-xl">search</span>
@@ -236,7 +236,7 @@ const Plan: React.FC<Props> = ({ onNavigate, onBack }) => {
         </label>
       </div>
 
-      <div className="flex gap-2 px-4 py-3 overflow-x-auto hide-scrollbar max-w-md lg:max-w-6xl xl:max-w-7xl mx-auto w-full">
+      <div className="flex gap-2 px-6 py-3 overflow-x-auto hide-scrollbar w-full mx-auto">
         <button
           onClick={() => setActiveFilter('Todas')}
           className={`flex h-9 shrink-0 items-center justify-center gap-x-1 rounded-full px-4 text-sm font-semibold transition-colors ${activeFilter === 'Todas'
@@ -268,7 +268,7 @@ const Plan: React.FC<Props> = ({ onNavigate, onBack }) => {
       header={customHeader}
       bottomNav={<Navbar currentView={View.PLAN} onNavigate={onNavigate} />}
     >
-      <div className="flex flex-col gap-4 px-4 py-4 min-h-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white max-w-md lg:max-w-6xl xl:max-w-7xl mx-auto w-full">
+      <div className="flex flex-col gap-4 px-6 py-4 min-h-full bg-background-light dark:bg-background-dark text-slate-900 dark:text-white w-full mx-auto">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <span className="material-symbols-outlined animate-spin text-primary text-4xl mb-2">progress_activity</span>

@@ -14,7 +14,7 @@ export const Navbar: React.FC<NavProps> = ({ currentView, onNavigate }) => {
     { view: View.REVIEWS, icon: 'menu_book', label: 'Estudo' },
     { view: View.ADD_THEME, icon: 'add', label: 'Adicionar' },
     { view: View.ANALYTICS, icon: 'bar_chart', label: 'Estatísticas' },
-    { view: View.SETTINGS, icon: 'person', label: 'Perfil' },
+    { view: View.SETTINGS, icon: 'settings', label: 'Configurações' },
   ];
 
   return (
@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onBack, onCalen
           Sem conexão. Funcionalidades limitadas.
         </div>
       )}
-      <div className="flex items-center justify-between px-4 py-3 lg:py-4 max-w-md lg:max-w-6xl xl:max-w-7xl mx-auto w-full">
+      <div className="flex items-center justify-between px-6 py-3 lg:py-4 w-full mx-auto">
         <div className="flex items-center gap-3">
           {onBack && (
             <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
