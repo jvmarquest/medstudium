@@ -124,25 +124,33 @@ const Premium: React.FC = () => {
                 <button
                     onClick={async () => {
                         if (!session?.user) return;
-                        // Set plan to Free in subscriptions
-                        const { error } = await supabase
-                            .from('subscriptions')
-                            .upsert({
-                                user_id: session.user.id,
-                                status: 'active', // Active purely for existence check, but plan is free
-                                plan: 'free',
-                                // Ensure we don't overwrite existing paid timestamps if they somehow exist, 
-                                // but usually this is for new/expired users.
-                                updated_at: new Date().toISOString()
-                            }, { onConflict: 'user_id' });
 
-                        if (error) {
-                            console.error("Error setting free plan:", error);
-                            alert("Erro ao selecionar plano gratuito.");
-                            return;
+                        try {
+                            const now = new Date();
+                            const expires = new Date(now);
+                            expires.setDate(expires.getDate() + 7);
+
+                            // Update profiles table instead of subscriptions
+                            const { error } = await supabase
+                                .from('profiles')
+                                .update({
+                                    plan: 'free',
+                                    subscription_status: 'active',
+                                    trial_started_at: now.toISOString(),
+                                    trial_expires_at: expires.toISOString(),
+                                })
+                                .eq('id', session.user.id);
+
+                            if (error) {
+                                console.error("Error setting free plan in profiles:", error);
+                                throw error;
+                            }
+
+                            window.location.reload();
+                        } catch (err: any) {
+                            console.error("Critical error selecting free plan:", err);
+                            // Minimal UI feedback could be added here if desired, preventing alert spam
                         }
-
-                        window.location.reload(); // Reload to refresh App state (isFreePlan check)
                     }}
                     className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white text-sm font-medium transition-colors border-b border-transparent hover:border-indigo-600 dark:hover:border-white pb-0.5"
                 >
