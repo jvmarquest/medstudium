@@ -53,11 +53,13 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Active and Trial have App Access. 
         // Free/Expired do NOT (redirect to Premium).
         // Unified Check as requested:
+        // Unified Check as requested:
         const hasAppAccess =
             isPremium === true ||          // Covers 'active', 'dev', 'lifetime' via UserContext
             status === 'active' ||         // Explicit status check
-            status === 'trial';            // 'trial' status = Free Active or Trial period
-        // Note: 'free' status is NOT included because 'free' means 'expired' or 'plain free' without activation
+            status === 'trial' ||         // 'trial' status = Free Active or Trial period
+            status === 'free' ||         // User Request: 'free' status also grants app access
+            status === 'dev';              // 'dev' status grants app access
 
         return {
             isFree,

@@ -117,7 +117,8 @@ const AppContent: React.FC = () => {
         if (currentView !== View.ONBOARDING) setCurrentView(View.ONBOARDING);
       } else {
         // Onboarding Done
-        // Check Access (Reactive)
+        // Check Access (Reactive - Trust PlanContext)
+        // hasAppAccess now includes 'free', 'trial', 'active', 'dev' per user request.
         if (!hasAppAccess) {
           if (currentView !== View.PREMIUM) {
             console.log('[App] Reactive Guard: No Access -> Premium');
