@@ -40,7 +40,7 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
             // Since Stripe Portal isn't fully linked here, we direct to Premium View which might show details
             // or we can direct to a Stripe Customer Portal link if we had one.
             // For this request: "Mostrar 'Gerenciar Assinatura'".
-            buttonAction = () => onNavigate(View.PREMIUM);
+            buttonAction = () => onNavigate(View.MANAGE_SUBSCRIPTION);
         } else if (isTrial) {
             title = 'Teste Gratuito';
             statusLabel = 'Em Teste';

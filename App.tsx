@@ -17,6 +17,7 @@ import { supabase } from './supabase';
 import { Session } from '@supabase/supabase-js';
 import Auth from './views/Auth';
 import Onboarding from './views/Onboarding';
+import ManageSubscription from './views/ManageSubscription';
 import { TrialBanner } from './components/TrialBanner';
 import { PlanProvider, usePlan } from './lib/planContext';
 import { useUser } from './contexts/UserContext';
@@ -331,6 +332,8 @@ const AppContent: React.FC = () => {
         return <Achievements onNavigate={navigateTo} />;
       case View.SETTINGS:
         return <Settings onNavigate={navigateTo} isDarkMode={isDarkMode} onToggleTheme={() => setIsDarkMode(!isDarkMode)} />;
+      case View.MANAGE_SUBSCRIPTION:
+        return <ManageSubscription onNavigate={navigateTo} />;
       case View.ADD_THEME:
         return <AddTheme onNavigate={navigateTo} />;
       case View.THEME_DETAILS:
