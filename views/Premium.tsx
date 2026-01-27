@@ -88,11 +88,12 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate }) => {
 
             console.log("handleFreePlan: Trial activated successfully", data);
 
-            console.log("handleFreePlan: Trial activated successfully", data);
-
             // Refresh Profile to update context immediately
+            // This will trigger the global Loading Spinner (via UserContext update)
             await refreshProfile();
 
+            // After refresh, the App.tsx reactive useEffect SHOULD pick up the change and render Dashboard.
+            // But we also call onNavigate to be sure.
             if (onNavigate) {
                 onNavigate(View.DASHBOARD);
             } else {
@@ -101,6 +102,8 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate }) => {
 
         } catch (error: any) {
             console.error("Erro ao ativar Trial:", error);
+            // AGGRESSIVE FEEDBACK
+            alert(`Erro ao ativar plano: ${error.message || JSON.stringify(error)}. Tente novamente.`);
             setToast({
                 message: `Erro ao ativar período gratuito: ${error.message || 'Tente novamente'}`,
                 type: 'error'
