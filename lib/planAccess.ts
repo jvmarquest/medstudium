@@ -12,8 +12,18 @@ export const useAccess = () => {
     const { isPremium, isTrial, hasAppAccess } = usePlan();
 
     const canAccess = (feature: Feature | string): boolean => {
-        // Active Premium users have access to everything
-        if (isPremium) return true;
+        // Active Paid Premium users have access to everything (Strict: Exclude Trial)
+        // isPremium includes Trial in planContext, so we must differentiate.
+        if (isPremium && !isTrial) return true;
+
+        // Trial Access Logic
+        if (isTrial) {
+            // User Request: Block Analytics for Trial users ("Free" perception)
+            if (feature === Feature.ADVANCED_ANALYTICS) return false;
+
+            // Otherwise, Trial usually grants access
+            return true;
+        }
 
         // Trial users (if NOT marked as premium via context, which they shouldn't be now unless active)
         // If isTrial is distinct from isPremium in new logic?
