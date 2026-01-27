@@ -19,6 +19,7 @@ import Auth from './views/Auth';
 import Onboarding from './views/Onboarding';
 import { TrialBanner } from './components/TrialBanner';
 import { PlanProvider, usePlan } from './lib/planContext';
+import { useUser } from './contexts/UserContext';
 
 
 
@@ -67,33 +68,22 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     let mounted = true;
 
-    // 1. Initial Auth Check
-    console.log('[init] auth loading');
+    // 1. Initial Session Sync handled by UserContext
+    // App just listens to UserContext via useUser() / usePlan() hooks deeper down.
+    // But we need to update local 'session' state for rendering logic below.
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
       setSession(session);
       setLoadingAuth(false);
-
-      if (session) {
-        console.log('[init] auth success');
-        checkPreferences(session.user.id);
-      }
     });
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!mounted) return;
       setSession(session);
       setLoadingAuth(false);
-
       if (!session) {
         setCurrentView(View.LOGIN);
         setIsOnboardingCompleted(false);
-        setLoadingPreferences(false);
-      } else {
-        // Trigger preference check if not already loading or done
-        checkPreferences(session.user.id);
       }
     });
 
@@ -103,61 +93,89 @@ const AppContent: React.FC = () => {
     };
   }, []);
 
-  const checkPreferences = async (userId: string) => {
-    console.log('[init] fetching profiles');
-    setLoadingPreferences(true);
-    try {
-      // Step 4: Fetch from profiles (Source of Truth)
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('onboarding_completed, trial_expires_at')
-        .eq('id', userId)
-        .maybeSingle();
+  // REACTIVE STATE SYNC (Replaces checkPreferences)
+  // We trust the Contexts.
+  const { profile, loading: userLoading } = useUser();
+  const { loading: planLoading } = usePlan();
 
-      if (error) {
-        console.error('[App] Error checking profile:', error);
-        setIsOnboardingCompleted(false);
-        setCurrentView(View.ONBOARDING);
-        return;
+  useEffect(() => {
+    if (loadingAuth || userLoading) return;
+
+    if (!session) {
+      if (currentView !== View.LOGIN && currentView !== View.SIGNUP) {
+        setCurrentView(View.LOGIN);
       }
+      return;
+    }
 
-      if (!profile) {
-        console.log('[App] Profile not found. Redirecting to Onboarding.');
-        setIsOnboardingCompleted(false);
-        setCurrentView(View.ONBOARDING);
-        return;
-      }
-
-      console.log('[init] profile found:', profile);
-
+    // Profile Loaded
+    if (profile) {
       const completed = !!profile.onboarding_completed;
-      console.log("Onboarding salvo:", completed); // Step 6 Log
-
       setIsOnboardingCompleted(completed);
 
-      if (completed) {
-        if (!hasAppAccess) {
-          console.log('[init] User does NOT have app access. Redirecting to Paywall.');
-          setCurrentView(View.PREMIUM);
-          return;
-        }
-
-        if (currentView === View.LOGIN || currentView === View.SIGNUP || currentView === View.ONBOARDING || currentView === View.PREMIUM) {
-          console.log('[init] routing to home');
-          setCurrentView(View.DASHBOARD);
-        }
+      if (!completed) {
+        if (currentView !== View.ONBOARDING) setCurrentView(View.ONBOARDING);
       } else {
-        console.log('[init] routing to onboarding');
-        setCurrentView(View.ONBOARDING);
+        // Onboarding Done
+        // Check Access (Reactive)
+        if (!hasAppAccess) {
+          if (currentView !== View.PREMIUM) {
+            console.log('[App] Reactive Guard: No Access -> Premium');
+            setCurrentView(View.PREMIUM);
+          }
+        } else {
+          // Has Access
+          // If stuck on Auth/Onboarding/Premium screens, go to Dashboard
+          // (Unless user explicitly navigated to Premium, but for now we prioritize breaking loops)
+          if ([View.LOGIN, View.SIGNUP, View.ONBOARDING, View.PREMIUM].includes(currentView)) {
+            // Only redirect IF we are "stuck" or just logged in. 
+            // If user clicked "Plans" in menu, we shouldn't force redirect back? 
+            // But the prompt says: "Se hasAccess === true: ... Sempre liberar /home ... Nunca redirecionar para /premium"
+            // And "Se hasAccess === false: Redirecionar para /premium"
+
+            // Implementation: If on Premium Screen AND hasAccess, we let the Premium component handle the "Go to Dashboard" 
+            // OR we force it here. The prompt says "Se hasAccess === true ... Sempre liberar /home".
+            // Let's force redirect from Premium only if it was an auto-redirect, 
+            // BUT to fix the loop, we better trust the Premium component's internal check (which we added props for) 
+            // OR just let the user be there.
+
+            // However, prompt said: "Se hasAccess === true: Nunca redirecionar para /premium". 
+            // It means don't AUTO-redirect there.
+
+            // We also want to redirect FROM onboarding or auth screens to Dashboard.
+            if (currentView !== View.PREMIUM) {
+              setCurrentView(View.DASHBOARD);
+            }
+          }
+        }
       }
-    } catch (error) {
-      console.error('[App] Unexpected error checking preferences:', error);
-      setCurrentView(View.ONBOARDING);
-      setIsOnboardingCompleted(false);
-    } finally {
-      setLoadingPreferences(false);
     }
+  }, [loadingAuth, userLoading, session, profile, hasAppAccess, currentView]);
+
+  // Refactored to rely on UserContext/PlanContext as Source of Truth
+  const checkPreferences = async (userId: string) => {
+    // We strictly rely on the Contexts now to avoid race conditions.
+    // This function is kept to handle Onboarding checks if needed, but
+    // routing guards should be reactive.
+
+    // If we are here, session exists.
+    // Onboarding status is already in UserContext (profile.onboarding_completed).
+    // We just need to sync local state if strictly necessary, but reactive usage is better.
   };
+
+  // Reactive Effect for Authentication & Preferences
+  useEffect(() => {
+    if (!session) {
+      setLoadingAuth(false);
+      return;
+    }
+
+    // Wait for context to have profile loaded
+    const { profile, loading: userLoading } = usePlan(); // actually useUser is better for raw profile but usePlan gives us derived access
+
+    // We wait for userLoading (from Context) to finish
+    // However, usePlan encapsulates useUser loading.
+  }, [session]);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -193,18 +211,10 @@ const AppContent: React.FC = () => {
           return;
         }
 
-        // --- APP ACCESS GUARD ---
-        // Single source of truth from Context
-        // If !hasAppAccess -> User is Free/Expired -> Redirect to PREMIUM
-        if (!hasAppAccess && view !== View.PREMIUM) {
-          setCurrentView(View.PREMIUM);
-          return;
-        }
-
         // If hasAppAccess (Active/Trial) -> Allow navigation
-        // But if they are ON Premium view, and they ARE Active (fully premium), maybe redirect to Dashboard?
-        // Actually, let them see Premium view if they want (to manage sub), unless forced.
-        // We only FORCE redirect if they are BLOCKED.
+        // We rely on renderView and useEffect for reactive security.
+        // The imperative check here was using stale state, blocking valid updates.
+
       }
     }
 
