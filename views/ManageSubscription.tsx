@@ -36,6 +36,40 @@ const ManageSubscription: React.FC<Props> = ({ onNavigate }) => {
     // User requested: "No botão 'Gerenciar Assinatura': se is_premium true e plan='monthly' => abrir portal"
     // So let's replace the simulation logic for real logic where applicable.
 
+    // Dev helpers
+    const handleSimulateDowngrade = async () => {
+        if (!confirm('Simular Downgrade para Free?')) return;
+        setLoading(true);
+        try {
+            await supabase.from('profiles').update({
+                plan: 'free',
+                is_premium: false,
+                subscription_status: 'canceled',
+                updated_at: new Date().toISOString()
+            }).eq('id', profile?.id);
+            await refreshProfile();
+            alert('Downgrade simulado.');
+        } catch (e) { console.error(e); }
+        setLoading(false);
+    };
+
+    const handleSimulateUpgrade = async (newPlan: 'monthly' | 'lifetime') => {
+        if (!confirm(`Simular Upgrade para ${newPlan}?`)) return;
+        setLoading(true);
+        try {
+            await supabase.from('profiles').update({
+                plan: newPlan,
+                is_premium: true,
+                subscription_status: 'active',
+                updated_at: new Date().toISOString()
+            }).eq('id', profile?.id);
+            await refreshProfile();
+            alert('Upgrade simulado.');
+        } catch (e) { console.error(e); }
+        setLoading(false);
+    };
+
+
     const header = (
         <Header
             title="Gerenciar Assinatura"
@@ -105,7 +139,8 @@ const ManageSubscription: React.FC<Props> = ({ onNavigate }) => {
                     <div className="flex flex-col gap-3">
                         {isPremium ? (
                             <>
-                                {profile.plan === 'monthly' && profile.subscription_status === 'active' && (
+                                {profile.plan === 'monthly' && (
+
                                     <button
                                         onClick={handlePortalSession}
                                         disabled={loading}
