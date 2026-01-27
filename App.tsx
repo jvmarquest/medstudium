@@ -103,37 +103,34 @@ const App: React.FC = () => {
   }, []);
 
   const checkPreferences = async (userId: string) => {
-    console.log('[init] fetching user_preferences');
+    console.log('[init] fetching profiles');
     setLoadingPreferences(true);
     try {
-      // Use maybeSingle() to avoid PGRST116 error if no row exists
-      const { data: prefs, error } = await supabase
-        .from('user_preferences')
-        .select('onboarding_completed')
-        .eq('user_id', userId)
+      // Step 4: Fetch from profiles (Source of Truth)
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('onboarding_completed, trial_expires_at')
+        .eq('id', userId)
         .maybeSingle();
 
       if (error) {
-        console.error('[App] Error checking preferences:', error);
-        // Fail safe: Redirect to Onboarding
+        console.error('[App] Error checking profile:', error);
         setIsOnboardingCompleted(false);
         setCurrentView(View.ONBOARDING);
         return;
       }
 
-      // Explicitly handle "Not Found" case
-      if (!prefs) {
-        console.log('[App] User preferences not found (new user). Redirecting to Onboarding.');
+      if (!profile) {
+        console.log('[App] Profile not found. Redirecting to Onboarding.');
         setIsOnboardingCompleted(false);
         setCurrentView(View.ONBOARDING);
         return;
       }
 
-      console.log('[init] preferences found');
+      console.log('[init] profile found:', profile);
 
-      // Handle existing preferences
-      const completed = !!prefs.onboarding_completed;
-      console.log("Onboarding:", completed); // Requested Log
+      const completed = !!profile.onboarding_completed;
+      console.log("Onboarding salvo:", completed); // Step 6 Log
 
       setIsOnboardingCompleted(completed);
 
@@ -141,24 +138,22 @@ const App: React.FC = () => {
         // --- PAYWALL CHECK ---
         const { data: sub } = await supabase
           .from('subscriptions')
-          .select('status, expires_at')
+          .select('status, plan, expires_at')
           .eq('user_id', userId)
           .maybeSingle();
 
-        // Also check profile for trial
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('trial_expires_at')
-          .eq('id', userId)
-          .maybeSingle();
+        // Used fetched profile for trial logic directly
+
 
         const now = new Date();
         const trialActive = profile?.trial_expires_at && new Date(profile.trial_expires_at) > now;
 
         const isFree = sub?.plan === 'free';
-        // Note: isPremium remains strict (paid or trial).
-        // Free users entering here should NOT be redirected to Paywall,
-        // but they also won't have premium features unlocked.
+
+        const validSub = sub && ['active', 'lifetime'].includes(sub.status);
+        const subActive = validSub && (sub.status === 'lifetime' || (sub.expires_at && new Date(sub.expires_at) > now));
+
+        const premiumActive = trialActive || !!subActive;
 
         setIsPremium(premiumActive);
 

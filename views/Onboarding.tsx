@@ -145,7 +145,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
 
             // Explicitly specify onConflict: 'user_id' to ensure 1 row per user.
 
-            // --- TRIAL LOGIC START ---
+            // --- TRIAL & PROFILE UPDATE START ---
             // Check if user already has a trial_started_at to avoid resetting
             const { data: existingProfile } = await supabase
                 .from('profiles')
@@ -154,26 +154,31 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
                 .single();
 
             const now = new Date();
-            const trialUpdate: any = {};
+            const profileUpdate: any = {
+                onboarding_completed: true,
+                onboarding_completed_at: now.toISOString()
+            };
 
             if (!existingProfile?.trial_started_at) {
                 console.log('[onboarding] Starting 7-day free trial');
                 const expireDate = new Date(now);
                 expireDate.setDate(expireDate.getDate() + 7);
-                trialUpdate.trial_started_at = now.toISOString();
-                trialUpdate.trial_expires_at = expireDate.toISOString();
-
-                // Also update profiles table explicitly if needed, but usually trigger handles it or we do it here
-                // Note: user_preferences is a separate concept from profiles in this app's legacy structure? 
-                // Let's check requirements. "Regras: Salvar no Supabase ... esses campos devem ser criados na tabela PROFILES".
-                // So we need to update PROFILES, not just user_preferences.
-
-                await supabase.from('profiles').upsert({
-                    id: user.id,
-                    ...trialUpdate
-                });
+                profileUpdate.trial_started_at = now.toISOString();
+                profileUpdate.trial_expires_at = expireDate.toISOString();
             }
-            // --- TRIAL LOGIC END ---
+
+            // Update PROFILES table with onboarding status
+            console.log('[onboarding] Updating profiles table with:', profileUpdate);
+            const { error: profileError } = await supabase.from('profiles').upsert({
+                id: user.id,
+                ...profileUpdate
+            });
+
+            if (profileError) {
+                console.error('[onboarding] Error updating profiles:', profileError);
+                throw profileError;
+            }
+            // --- PROFILE UPDATE END ---
 
             const { data: savedData, error: upsertError } = await withTimeout(Promise.resolve(supabase
                 .from('user_preferences')

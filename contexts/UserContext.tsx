@@ -9,6 +9,7 @@ interface UserProfile {
     dias_disponiveis_semana?: number;
     especialidades?: string[];
     prioridades_por_especialidade?: Record<string, string>;
+    onboarding_completed?: boolean;
 }
 
 interface Subscription {
@@ -82,10 +83,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 .eq('user_id', currentSession.user.id)
                 .maybeSingle();
 
-            // Fetch Core Profile for Trial
+            // Fetch Core Profile for Trial & Onboarding
             const { data: coreProfile } = await supabase
                 .from('profiles')
-                .select('trial_expires_at')
+                .select('trial_expires_at, onboarding_completed')
                 .eq('id', currentSession.user.id)
                 .maybeSingle();
 
@@ -94,6 +95,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } else {
                 setTrialExpiresAt(null);
             }
+
+            const isOnboardingCompleted = coreProfile?.onboarding_completed === true;
 
             if (data) {
                 // ... (Parsing logic kept same)
@@ -117,7 +120,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 const finalProfile = {
                     ...data,
                     especialidades: parsedSpecialties,
-                    data_prova: parsedDate
+                    data_prova: parsedDate,
+                    onboarding_completed: isOnboardingCompleted // Override or set from profiles
                 };
 
                 // Sync Name logic ...
@@ -130,13 +134,16 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }
             } else {
                 // Default Profile logic
+                const defaultProfile: UserProfile = {
+                    onboarding_completed: isOnboardingCompleted
+                };
+
                 if (currentSession.user.user_metadata?.full_name || currentSession.user.user_metadata?.name) {
                     const nameToSave = currentSession.user.user_metadata.full_name || currentSession.user.user_metadata.name;
                     supabase.from('user_preferences').upsert({ user_id: currentSession.user.id, nome: nameToSave }).then();
-                    setProfile({ nome: nameToSave });
-                } else {
-                    setProfile({});
+                    defaultProfile.nome = nameToSave;
                 }
+                setProfile(defaultProfile);
             }
 
             // Fetch Subscription
