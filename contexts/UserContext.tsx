@@ -56,28 +56,40 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [trialExpiresAt, setTrialExpiresAt] = useState<string | null>(null);
 
     // Derived premium status
+    // Derived premium status
     const isPremium = React.useMemo(() => {
-        // 1. Check Profile Status (Priority)
-        // This covers 'active' subscription and 'dev' mode
-        if (profile?.subscription_status === 'active') return true;
+        // Validation Rule: plan is 'monthly' or 'lifetime' -> Premium
+        const plan = profile?.plan;
 
-        // 2. Check Trial
-        if (trialExpiresAt && new Date(trialExpiresAt) > new Date()) return true;
+        console.log("[UserContext] Plan Check:", plan);
 
-        // 3. Status 'trial' in profile also grants premium access features generally
-        if (profile?.subscription_status === 'trial') return true;
-
-        // 4. Fallback to Subscription Table (Legacy/Stripe Check)
-        if (!subscription) return false;
-
-        const validStatus = ['active', 'lifetime'].includes(subscription.status);
-        if (!validStatus) return false;
-
-        if (subscription.status === 'active' && subscription.expires_at) {
-            return new Date(subscription.expires_at) > new Date();
+        if (plan === 'monthly' || plan === 'lifetime') {
+            console.log("[UserContext] IS PREMIUM: YES (Plan Match)");
+            return true;
         }
-        return true;
-    }, [subscription, trialExpiresAt, profile]);
+
+        // Feature: Dev Mode / Subscription Status 'active'
+        if (profile?.subscription_status === 'active') {
+            console.log("[UserContext] IS PREMIUM: YES (Status Active)");
+            return true;
+        }
+
+        // Trial Logic
+        if (profile?.subscription_status === 'trial') {
+            // Check expiry if needed, but 'trial' status usually implies access
+            console.log("[UserContext] IS PREMIUM: YES (Trial)");
+            return true;
+        }
+
+        // Legacy/Fallback check
+        if (subscription && ['active', 'lifetime'].includes(subscription.status)) {
+            console.log("[UserContext] IS PREMIUM: YES (Subscription Table)");
+            return true;
+        }
+
+        console.log("[UserContext] IS PREMIUM: NO");
+        return false;
+    }, [subscription, profile]);
 
     const fetchProfile = useCallback(async (currentSession: Session | null) => {
         if (!currentSession?.user) {

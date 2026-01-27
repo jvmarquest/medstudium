@@ -34,29 +34,39 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // 1. Get Status from Profile (Single Source of Truth)
+        // 1. Get Status from Profile (Single Source of Truth)
         const status = profile?.subscription_status || 'free';
+        const userPlan = profile?.plan || 'free';
 
         // 2. Map to Flags
         const isTrial = status === 'trial';
-        const isPremium = status === 'active' || status === 'trial';
-        const isFree = status === 'free' || status === 'expired';
+
+        // CORE RULE: Premium if plan is monthly/lifetime OR status is active/trial
+        const isPremium =
+            userPlan === 'monthly' ||
+            userPlan === 'lifetime' ||
+            status === 'active' ||
+            status === 'trial';
+
+        const isFree = !isPremium;
 
         // 3. Determine Plan Name (for UI display if needed)
+        // Strictly use profile plan if valid
         let plan: 'free' | 'monthly' | 'lifetime' = 'free';
 
-        if (isPremium) {
-            if (profile?.plan === 'lifetime') plan = 'lifetime';
-            else if (profile?.plan === 'monthly') plan = 'monthly';
-            // Default fallback for premium without explicit plan match (e.g. trial)
-            else if (status === 'trial') plan = 'monthly'; // approximate for UI
+        if (userPlan === 'monthly' || userPlan === 'lifetime') {
+            plan = userPlan;
+        } else if (status === 'trial') {
+            // Treat trial as monthly for UI features usually
+            plan = 'monthly';
         }
 
         // Active and Trial have App Access. 
         // Free/Expired do NOT (redirect to Premium).
-        // Unified Check as requested:
+
         // Unified Check as requested:
         const hasAppAccess =
-            isPremium === true ||          // Covers 'active', 'lifetime' via UserContext
+            isPremium === true ||          // Covers 'active', 'lifetime' via UserContext/Plan Logic
             status === 'active' ||         // Explicit status check
             status === 'trial' ||          // 'trial' status = Free Active or Trial period
             status === 'free';             // User Request: 'free' status also grants app access
