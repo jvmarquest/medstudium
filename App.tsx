@@ -94,6 +94,21 @@ const AppContent: React.FC = () => {
     };
   }, []);
 
+  // Handle Billing Redirects
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/billing/success') {
+      // Clear URL
+      window.history.replaceState({}, '', '/');
+      alert('Pagamento processado com sucesso! Seu plano será atualizado em instantes.');
+      // Reload profile to get new status
+      if (session) window.location.reload();
+    } else if (path === '/billing/cancel') {
+      window.history.replaceState({}, '', '/');
+      alert('Pagamento cancelado.');
+    }
+  }, [session]);
+
   // REACTIVE STATE SYNC (Replaces checkPreferences)
   // We trust the Contexts.
   const { profile, loading: userLoading } = useUser();

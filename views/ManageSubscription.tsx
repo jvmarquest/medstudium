@@ -14,82 +14,27 @@ const ManageSubscription: React.FC<Props> = ({ onNavigate }) => {
     const { profile, refreshProfile, loading: userLoading } = useUser();
     const [loading, setLoading] = useState(false);
 
-    const handleSimulateCancel = async () => {
-        if (!profile) return;
-        if (!confirm('Esta é uma simulação de cancelamento. Deseja continuar?')) return;
-
+    const handlePortalSession = async () => {
         setLoading(true);
-        // Simulate canceling by setting status to canceled
-        // In real app, this would call Stripe API
-        const { error } = await supabase
-            .from('profiles')
-            .update({
-                subscription_status: 'canceled',
-                // Keep plan as is or downgrade? Usually plan stays until end of billing cycle.
-                // For sim simplicity: keep plan but status canceled
-            })
-            .eq('id', profile.id);
-
-        if (error) {
-            alert('Erro ao cancelar.');
-            console.error(error);
-        } else {
-            await refreshProfile();
-            alert('Assinatura cancelada com sucesso (Simulação).');
+        try {
+            const { data, error } = await supabase.functions.invoke('create-portal');
+            if (error) throw error;
+            if (data?.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error('Erro ao abrir portal.');
+            }
+        } catch (err: any) {
+            console.error('Portal Error:', err);
+            alert('Erro ao abrir gerenciamento de assinatura.');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
-    const handleSimulateUpgrade = async (plan: 'monthly' | 'lifetime') => {
-        if (!profile) return;
-        if (!confirm(`Simular assinatura do plano ${plan}?`)) return;
-
-        setLoading(true);
-        const { error } = await supabase
-            .from('profiles')
-            .update({
-                plan: plan,
-                subscription_status: 'active',
-                is_premium: true,
-                // Reset trial if any
-                trial_expires_at: null
-            })
-            .eq('id', profile.id);
-
-        if (error) {
-            alert('Erro ao simular upgrade.');
-            console.error(error);
-        } else {
-            await refreshProfile();
-            alert(`Upgrade para ${plan} realizado com sucesso (Simulação).`);
-        }
-        setLoading(false);
-    };
-
-    const handleSimulateDowngrade = async () => {
-        // Simulate reverting to Free
-        if (!profile) return;
-        if (!confirm(`Simular downgrade para Gratuito?`)) return;
-
-        setLoading(true);
-        const { error } = await supabase
-            .from('profiles')
-            .update({
-                plan: 'free',
-                subscription_status: 'free',
-                is_premium: false
-            })
-            .eq('id', profile.id);
-
-        if (error) {
-            alert('Erro ao simular downgrade.');
-            console.error(error);
-        } else {
-            await refreshProfile();
-            alert(`Downgrade para Gratuito realizado (Simulação).`);
-        }
-        setLoading(false);
-    };
+    // ... existing simulation handlers if needed or remove them.
+    // User requested: "No botão 'Gerenciar Assinatura': se is_premium true e plan='monthly' => abrir portal"
+    // So let's replace the simulation logic for real logic where applicable.
 
     const header = (
         <Header
@@ -162,12 +107,20 @@ const ManageSubscription: React.FC<Props> = ({ onNavigate }) => {
                             <>
                                 {profile.plan === 'monthly' && profile.subscription_status === 'active' && (
                                     <button
-                                        onClick={handleSimulateCancel}
+                                        onClick={handlePortalSession}
                                         disabled={loading}
-                                        className="w-full py-3 border border-red-200 text-red-600 hover:bg-red-50 rounded-xl font-bold transition-colors disabled:opacity-50"
+                                        className="w-full py-3 bg-white border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-bold transition-colors disabled:opacity-50 shadow-sm"
                                     >
-                                        Cancelar Renovação (Simulação)
+                                        Gerenciar Assinatura (Portal)
                                     </button>
+                                )}
+
+                                {profile.plan === 'lifetime' && (
+                                    <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                                        <p className="text-sm text-indigo-800 dark:text-indigo-200 font-medium text-center">
+                                            Plano vitalício não possui cobranças recorrentes. 🎉
+                                        </p>
+                                    </div>
                                 )}
 
                                 {/* Simulation Tools for Dev */}

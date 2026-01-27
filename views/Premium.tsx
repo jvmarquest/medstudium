@@ -4,6 +4,7 @@ import { useUser } from '../contexts/UserContext';
 import { Check } from 'lucide-react';
 import { View } from '../types';
 import { isUserPremium } from '../lib/premiumUtils';
+import { createCheckoutSession } from '../lib/checkout';
 
 interface PremiumProps {
     onNavigate?: (view: View) => void;
@@ -27,24 +28,19 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate }) => {
         }
     }, [profile, userLoading, onNavigate]);
 
+    import { createCheckoutSession } from '../lib/checkout';
+
+    // ...
+
     const handleSubscribe = async (plan: 'monthly' | 'lifetime') => {
         if (!session?.user) return;
 
         setLoading(plan);
         try {
-            const { data, error } = await supabase.functions.invoke('create-checkout', {
-                body: { plan }
-            });
-
-            if (error) throw error;
-            if (data?.url) {
-                window.location.href = data.url;
-            } else {
-                throw new Error('Erro ao gerar link de pagamento');
-            }
+            await createCheckoutSession(plan);
         } catch (err: any) {
             console.error('Erro no checkout:', err);
-            setToast({ message: 'Falha ao iniciar pagamento. Tente novamente.', type: 'error' });
+            setToast({ message: err.message || 'Falha ao iniciar pagamento.', type: 'error' });
             setTimeout(() => setToast(null), 3000);
         } finally {
             setLoading(null);
