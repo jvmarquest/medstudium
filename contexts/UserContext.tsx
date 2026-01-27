@@ -213,51 +213,53 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (err) {
             console.error('Error fetching data:', err);
         } finally {
-            const refreshUserData = useCallback(async () => {
-                setLoading(true); // Force loading state for UI feedback
-                setDataVersion(prev => prev + 1);
-                try {
-                    const { data: { session: currentSession } } = await supabase.auth.getSession();
-                    if (currentSession) {
-                        await fetchProfile(currentSession);
-                    } else {
-                        setLoading(false); // If no session, stop loading
-                    }
-                } catch (e) {
-                    console.error(e);
-                    setLoading(false);
-                }
-                // Note: fetchProfile handles setting loading(false) at the end of its execution?
-                // Let's verify fetchProfile implementation.
-                // Looking at line 216 in previous view_file: yes, fetchProfile has finally { setLoading(false) }.
-                // So this is safe.
-            }, [fetchProfile]);
+            setLoading(false);
+        }
+    }, []);
 
-            const refreshProfile = async () => {
-                await refreshUserData();
-            };
+    const [dataVersion, setDataVersion] = useState(0);
 
-            useEffect(() => {
-                supabase.auth.getSession().then(({ data: { session } }) => {
-                    setSession(session);
-                    fetchProfile(session);
-                });
+    const refreshUserData = useCallback(async () => {
+        setLoading(true); // Force loading state for UI feedback
+        setDataVersion(prev => prev + 1);
+        try {
+            const { data: { session: currentSession } } = await supabase.auth.getSession();
+            if (currentSession) {
+                await fetchProfile(currentSession);
+            } else {
+                setLoading(false);
+            }
+        } catch (e) {
+            console.error(e);
+            setLoading(false);
+        }
+    }, [fetchProfile]);
 
-                const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-                    setSession(session);
-                    fetchProfile(session);
-                });
+    const refreshProfile = async () => {
+        await refreshUserData();
+    };
 
-                return () => {
-                    subscription.unsubscribe();
-                };
-            }, [fetchProfile]);
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+            fetchProfile(session);
+        });
 
-            return (
-                <UserContext.Provider value={{ profile, loading, refreshProfile, session, dataVersion, refreshUserData, subscription, isPremium, trialExpiresAt }}>
-                    {children}
-                </UserContext.Provider>
-            );
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session);
+            fetchProfile(session);
+        });
+
+        return () => {
+            subscription.unsubscribe();
         };
+    }, [fetchProfile]);
 
-        export const useUser = () => useContext(UserContext);
+    return (
+        <UserContext.Provider value={{ profile, loading, refreshProfile, session, dataVersion, refreshUserData, subscription, isPremium, trialExpiresAt }}>
+            {children}
+        </UserContext.Provider>
+    );
+};
+
+export const useUser = () => useContext(UserContext);
