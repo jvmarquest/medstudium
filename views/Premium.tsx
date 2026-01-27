@@ -34,26 +34,47 @@ const Premium: React.FC = () => {
     };
 
     const handleFreePlan = async () => {
-        if (!session?.user) return;
+        if (!session?.user) {
+            console.error("handleFreePlan: No session user found");
+            return;
+        }
 
+        console.log("handleFreePlan: Starting...", { userId: session.user.id });
         setFreeLoading(true);
+
         try {
-            const { error } = await supabase
+            // Updated update logic as requested
+            const updatePayload = {
+                plan: 'free',
+                is_premium: false, // Ensure column exists!
+                subscription_status: 'active', // Keeping this for compatibility if used elsewhere
+                updated_at: new Date().toISOString()
+            };
+
+            console.log("handleFreePlan: Sending update to profiles...", updatePayload);
+
+            const { data, error } = await supabase
                 .from('profiles')
-                .update({
-                    plan: 'free',
-                    subscription_status: 'active',
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', session.user.id);
+                .update(updatePayload)
+                .eq('id', session.user.id)
+                .select(); // Select to verify return
 
-            if (error) throw error;
+            if (error) {
+                console.error("handleFreePlan: Supabase Error Update:", error);
+                throw error;
+            }
 
+            console.log("handleFreePlan: Update success", data);
             window.location.href = '/';
+
         } catch (error: any) {
-            console.error("Erro ao selecionar plano gratuito:", error);
-            setToast({ message: "Erro ao salvar plano gratuito. Tente novamente.", type: 'error' });
-            setTimeout(() => setToast(null), 3000);
+            console.error("Erro ao selecionar plano gratuito (Catch):", error);
+            // Show real error message
+            setToast({
+                message: `Erro ao salvar: ${error.message || error.details || 'Tente novamente'}`,
+                type: 'error'
+            });
+            setTimeout(() => setToast(null), 5000);
         } finally {
             setFreeLoading(false);
         }
