@@ -6,6 +6,7 @@ import { View } from '../types';
 import { isUserPremium } from '../lib/premiumUtils';
 import { createCheckoutSession } from '../lib/checkout';
 
+
 interface PremiumProps {
     onNavigate?: (view: View) => void;
 }
@@ -28,7 +29,7 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate }) => {
         }
     }, [profile, userLoading, onNavigate]);
 
-    import { createCheckoutSession } from '../lib/checkout';
+
 
     // ...
 
