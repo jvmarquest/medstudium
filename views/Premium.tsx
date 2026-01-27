@@ -229,11 +229,12 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate }) => {
                             if (!confirm('ATIVAR MODO DEV: Isso simulará um plano premium (Active / Dev). Continuar?')) return;
 
                             try {
-                                // 1. Update Profile (User Request: Strict Values)
+                                // 1. Update Profile (Compatible with DB Constraints)
+                                // We simulate a "Lifetime" plan which is valid in the boolean check.
                                 const { error } = await supabase.from('profiles').update({
-                                    plan: 'premium',        // Requested: 'premium'
-                                    is_premium: true,       // Requested: true
-                                    subscription_status: 'dev', // Requested: 'dev'
+                                    plan: 'lifetime',       // Valid DB value
+                                    is_premium: true,
+                                    subscription_status: 'active', // Valid DB value
                                     updated_at: new Date().toISOString()
                                 }).eq('id', session.user.id);
 

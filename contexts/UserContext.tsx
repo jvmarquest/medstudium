@@ -60,7 +60,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // 1. Check Profile Status (Priority)
         // This covers 'active' subscription and 'dev' mode
         if (profile?.subscription_status === 'active') return true;
-        if (profile?.plan === 'dev') return true;
 
         // 2. Check Trial
         if (trialExpiresAt && new Date(trialExpiresAt) > new Date()) return true;

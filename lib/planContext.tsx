@@ -6,7 +6,7 @@ interface PlanContextData {
     isTrial: boolean;
     isPremium: boolean;
     hasAppAccess: boolean;
-    plan: 'free' | 'monthly' | 'lifetime' | 'dev' | 'premium';
+    plan: 'free' | 'monthly' | 'lifetime';
     loading: boolean;
 }
 
@@ -38,17 +38,17 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // 2. Map to Flags
         const isTrial = status === 'trial';
-        const isPremium = status === 'active' || status === 'trial' || status === 'dev'; // Added 'dev'
+        const isPremium = status === 'active' || status === 'trial';
         const isFree = status === 'free' || status === 'expired';
 
         // 3. Determine Plan Name (for UI display if needed)
-        let plan: 'free' | 'monthly' | 'lifetime' | 'dev' | 'premium' = 'free';
+        let plan: 'free' | 'monthly' | 'lifetime' = 'free';
 
         if (isPremium) {
-            if (profile?.plan === 'dev') plan = 'dev';
-            else if (profile?.plan === 'premium') plan = 'premium'; // Added 'premium'
-            else if (profile?.plan === 'lifetime') plan = 'lifetime';
-            else plan = 'monthly';
+            if (profile?.plan === 'lifetime') plan = 'lifetime';
+            else if (profile?.plan === 'monthly') plan = 'monthly';
+            // Default fallback for premium without explicit plan match (e.g. trial)
+            else if (status === 'trial') plan = 'monthly'; // approximate for UI
         }
 
         // Active and Trial have App Access. 
@@ -56,11 +56,10 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Unified Check as requested:
         // Unified Check as requested:
         const hasAppAccess =
-            isPremium === true ||          // Covers 'active', 'dev', 'lifetime' via UserContext
+            isPremium === true ||          // Covers 'active', 'lifetime' via UserContext
             status === 'active' ||         // Explicit status check
-            status === 'trial' ||         // 'trial' status = Free Active or Trial period
-            status === 'free' ||         // User Request: 'free' status also grants app access
-            status === 'dev';              // 'dev' status grants app access
+            status === 'trial' ||          // 'trial' status = Free Active or Trial period
+            status === 'free';             // User Request: 'free' status also grants app access
 
         return {
             isFree,
