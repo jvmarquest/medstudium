@@ -217,13 +217,26 @@ const AddTheme: React.FC<Props> = ({ onNavigate }) => {
       if (themeError) {
         console.error('Error saving theme to DB:', themeError);
 
-        // Handle trigger exception for limit
+        // 1. Plan Limit Error (Trigger Exception)
         if (themeError.message && themeError.message.includes('Limite do plano gratuito')) {
           setShowUpgradeModal(true);
           return;
         }
 
-        alert('Erro ao salvar tema. Tente novamente.');
+        // 2. Connection Error
+        if (themeError.message && (themeError.message.includes('fetch') || themeError.message.includes('connection') || !isOnline)) {
+          alert('Erro de conexão. Verifique sua internet e tente novamente.');
+          return;
+        }
+
+        // 3. Auth/Permission Error
+        if (themeError.code === '42501' || themeError.code === 'PGRST301') {
+          alert('Sessão expirada ou sem permissão. Faça login novamente.');
+          return;
+        }
+
+        // 4. Other DB Errors
+        alert(`Não foi possível salvar: ${themeError.message || 'Erro desconhecido'}`);
         return;
       }
 
