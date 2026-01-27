@@ -7,14 +7,12 @@ interface TrialBannerProps {
 }
 
 export const TrialBanner: React.FC<TrialBannerProps> = ({ onNavigate }) => {
-    const { trialExpiresAt, subscription } = useUser();
+    const { trialExpiresAt, isPremium } = useUser();
 
     if (!trialExpiresAt) return null;
 
-    // If user has an active paid subscription, don't show info even if trial date exists (legacy)
-    // Actually our checking logic is: isPremium tries trial first. 
-    // If subscription is active, we shouldn't show "You are in trial" if they already paid.
-    if (subscription && ['active', 'lifetime'].includes(subscription.status)) return null;
+    // Strict Check: If Premium (Lifetime/Monthly/Active), NEVER show trial banner
+    if (isPremium) return null;
 
     const now = new Date();
     const expires = new Date(trialExpiresAt);

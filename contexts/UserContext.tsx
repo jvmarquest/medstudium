@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '../supabase';
 import { Session } from '@supabase/supabase-js';
+import { isUserPremium } from '../lib/premiumUtils';
 
 interface UserProfile {
     nome?: string;
@@ -57,39 +58,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Derived premium status
     // Derived premium status
+    // Derived premium status
     const isPremium = React.useMemo(() => {
-        // Validation Rule: plan is 'monthly' or 'lifetime' -> Premium
-        const plan = profile?.plan;
-
-        console.log("[UserContext] Plan Check:", plan);
-
-        if (plan === 'monthly' || plan === 'lifetime') {
-            console.log("[UserContext] IS PREMIUM: YES (Plan Match)");
-            return true;
-        }
-
-        // Feature: Dev Mode / Subscription Status 'active'
-        if (profile?.subscription_status === 'active') {
-            console.log("[UserContext] IS PREMIUM: YES (Status Active)");
-            return true;
-        }
-
-        // Trial Logic
-        if (profile?.subscription_status === 'trial') {
-            // Check expiry if needed, but 'trial' status usually implies access
-            console.log("[UserContext] IS PREMIUM: YES (Trial)");
-            return true;
-        }
-
-        // Legacy/Fallback check
-        if (subscription && ['active', 'lifetime'].includes(subscription.status)) {
-            console.log("[UserContext] IS PREMIUM: YES (Subscription Table)");
-            return true;
-        }
-
-        console.log("[UserContext] IS PREMIUM: NO");
-        return false;
-    }, [subscription, profile]);
+        // Use Centralized Helper
+        const result = isUserPremium(profile);
+        console.log("[UserContext] Premium Check (Helper):", { result, plan: profile?.plan });
+        return result;
+    }, [profile]);
 
     const fetchProfile = useCallback(async (currentSession: Session | null) => {
         if (!currentSession?.user) {
@@ -178,7 +153,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     ...data,
                     especialidades: parsedSpecialties,
                     data_prova: parsedDate,
-                    onboarding_completed: isOnboardingCompleted
+                    onboarding_completed: isOnboardingCompleted,
+                    // CRITICAL FIX: Merge Core Profile Data (Plan, Status)
+                    // otherwise these are lost if user_preferences exists
+                    plan: coreProfile?.plan || 'free',
+                    subscription_status: coreProfile?.subscription_status || 'free',
+                    is_premium: coreProfile?.is_premium || false
                 };
 
                 // Sync Name logic ...

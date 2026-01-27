@@ -3,6 +3,7 @@ import { supabase } from '../supabase';
 import { useUser } from '../contexts/UserContext';
 import { Check } from 'lucide-react';
 import { View } from '../types';
+import { isUserPremium } from '../lib/premiumUtils';
 
 interface PremiumProps {
     onNavigate?: (view: View) => void;
@@ -16,10 +17,8 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate }) => {
 
     // Block access for Active (Premium) users
     // Trial users can still see this screen to engage with upgrade options.
-    // Block access for Active (Premium) users
-    // Trial users can still see this screen to engage with upgrade options.
     React.useEffect(() => {
-        if (!userLoading && profile?.subscription_status === 'active') {
+        if (!userLoading && isUserPremium(profile)) {
             if (onNavigate) {
                 onNavigate(View.DASHBOARD);
             } else {

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { useUser } from '../contexts/UserContext';
+import { isUserPremium } from './premiumUtils';
 
 interface PlanContextData {
     isFree: boolean;
