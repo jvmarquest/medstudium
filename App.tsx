@@ -19,6 +19,7 @@ import Auth from './views/Auth';
 import Onboarding from './views/Onboarding';
 import ManageSubscription from './views/ManageSubscription';
 import { TrialBanner } from './components/TrialBanner';
+import { FreePlanBanner } from './components/FreePlanBanner';
 import { PlanProvider, usePlan } from './lib/planContext';
 import { useUser } from './contexts/UserContext';
 
@@ -367,6 +368,7 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex flex-col h-[100dvh] w-full overflow-hidden bg-background-light dark:bg-background-dark pt-safe">
       <TrialBanner onNavigate={navigateTo} />
+      <FreePlanBanner onNavigate={navigateTo} />
       <div className="flex-1 min-h-0">
         {renderView()}
       </div>
