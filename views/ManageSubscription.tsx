@@ -177,6 +177,20 @@ const ManageSubscription: React.FC<Props> = ({ onNavigate }) => {
                     </div>
                 </div>
 
+                {/* Debug Info (Auto-added to diagnose RLS issues) */}
+                <div className="mt-4 p-4 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 opacity-75">
+                    <p className="text-[10px] font-mono text-slate-500 mb-2 uppercase tracking-wider">Diagnóstico de Assinatura (Debug)</p>
+                    <pre className="text-[10px] text-slate-600 dark:text-slate-400 overflow-x-auto whitespace-pre-wrap font-mono select-all">
+                        {JSON.stringify({
+                            calculated_isPremium: isPremium,
+                            db_plan: profile?.plan,
+                            db_status: profile?.subscription_status,
+                            db_is_premium: profile?.is_premium,
+                            user_id: profile?.id
+                        }, null, 2)}
+                    </pre>
+                </div>
+
             </div>
         </PageLayout>
     );
