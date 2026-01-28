@@ -17,7 +17,6 @@ import { Session } from '@supabase/supabase-js';
 import Auth from './views/Auth';
 import Onboarding from './views/Onboarding';
 import ManageSubscription from './views/ManageSubscription';
-import { TrialBanner } from './components/TrialBanner';
 import { FreePlanBanner } from './components/FreePlanBanner';
 import { LifetimeSuccessModal } from './components/LifetimeSuccessModal';
 import { supabase } from './supabase';
@@ -453,7 +452,6 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="flex flex-col h-[100dvh] w-full overflow-hidden bg-background-light dark:bg-background-dark pt-safe">
-      <TrialBanner onNavigate={navigateTo} />
       <FreePlanBanner onNavigate={navigateTo} />
       <LifetimeSuccessModal
         isOpen={showLifetimeModal}
