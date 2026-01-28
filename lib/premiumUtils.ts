@@ -11,6 +11,7 @@ import { UserProfile } from '../types';
 export const isUserPremium = (profile: Partial<UserProfile> | null): boolean => {
     if (!profile || !profile.plan) return false;
 
-    // Strict Rule: Premium = plan is NOT free
-    return ['monthly', 'lifetime'].includes(profile.plan);
+    // Strict Rule: Premium = plan is NOT free (Case Insensitive)
+    const p = profile.plan.toLowerCase().trim();
+    return ['monthly', 'lifetime'].includes(p);
 };

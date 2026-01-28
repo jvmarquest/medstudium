@@ -92,8 +92,11 @@ const ManageSubscription: React.FC<Props> = ({ onNavigate }) => {
     }
 
     // isPremium is now derived from context above
-    const planName = profile.plan === 'lifetime' ? 'Vitalício'
-        : profile.plan === 'monthly' ? 'Mensal'
+    // Normalize plan for display comparisons
+    const p = (profile.plan || 'free').toLowerCase().trim();
+
+    const planName = p === 'lifetime' ? 'Vitalício'
+        : p === 'monthly' ? 'Mensal'
             : 'Gratuito';
 
     const statusLabel = profile.subscription_status === 'active' ? 'Ativo'
@@ -119,17 +122,17 @@ const ManageSubscription: React.FC<Props> = ({ onNavigate }) => {
                         </span>
                     </div>
 
-                    {profile.plan === 'monthly' && (
+                    {p === 'monthly' && (
                         <p className="text-sm text-slate-500 mb-4">
                             Renovação automática mensal. {profile.subscription_status === 'canceled' && '(Renovação desativada)'}
                         </p>
                     )}
-                    {profile.plan === 'lifetime' && (
+                    {p === 'lifetime' && (
                         <p className="text-sm text-slate-500 mb-4">
                             Acesso vitalício sem cobranças recorrentes.
                         </p>
                     )}
-                    {profile.plan === 'free' && (
+                    {p === 'free' && (
                         <p className="text-sm text-slate-500 mb-4">
                             Plano básico com funcionalidades limitadas.
                         </p>
@@ -142,7 +145,7 @@ const ManageSubscription: React.FC<Props> = ({ onNavigate }) => {
                     <div className="flex flex-col gap-3">
                         {isPremium ? (
                             <>
-                                {profile.plan === 'monthly' && (
+                                {p === 'monthly' && (
 
                                     <button
                                         onClick={handlePortalSession}
@@ -153,7 +156,7 @@ const ManageSubscription: React.FC<Props> = ({ onNavigate }) => {
                                     </button>
                                 )}
 
-                                {profile.plan === 'lifetime' && (
+                                {p === 'lifetime' && (
                                     <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
                                         <p className="text-sm text-indigo-800 dark:text-indigo-200 font-medium text-center">
                                             Plano vitalício não possui cobranças recorrentes. 🎉

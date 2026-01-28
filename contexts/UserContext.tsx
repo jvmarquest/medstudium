@@ -157,7 +157,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     onboarding_completed: isOnboardingCompleted || (data.onboarding_completed === true),
                     // CRITICAL FIX: Merge Core Profile Data (Plan, Status)
                     // otherwise these are lost if user_preferences exists
-                    plan: coreProfile?.plan || 'free',
+                    // CRITICAL FIX: Merge Core Profile Data (Plan, Status)
+                    // otherwise these are lost if user_preferences exists
+                    plan: (coreProfile?.plan || 'free') as any,
                     subscription_status: coreProfile?.subscription_status || 'free',
                     is_premium: coreProfile?.is_premium || false,
                     current_period_end: coreProfile?.current_period_end
