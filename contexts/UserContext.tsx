@@ -91,7 +91,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // 1. Fetch Core Profile
             let { data: coreProfile, error: profileError } = await supabase
                 .from('profiles')
-                .select('trial_expires_at, trial_started_at, onboarding_completed, plan, subscription_status, is_premium, current_period_end')
+                .select('*')
                 .eq('id', userId)
                 .maybeSingle() as any;
 

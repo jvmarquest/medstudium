@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { NetworkProvider } from './contexts/NetworkContext';
-import { UserProvider } from './contexts/UserContext';
+import { UserProvider, useUser } from './contexts/UserContext';
 import DebugOverlay from './components/DebugOverlay';
 import { View, Theme } from './types';
 import Premium from './views/Premium';
@@ -20,6 +20,7 @@ import Onboarding from './views/Onboarding';
 import ManageSubscription from './views/ManageSubscription';
 import { TrialBanner } from './components/TrialBanner';
 import { FreePlanBanner } from './components/FreePlanBanner';
+import { supabase } from './supabase';
 import { PlanProvider, usePlan } from './lib/planContext';
 
 
