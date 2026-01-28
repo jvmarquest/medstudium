@@ -68,6 +68,8 @@ const DebugOverlay = () => {
             <button
                 onClick={() => window.location.reload()}
                 style={{ marginTop: "10px", width: '100%', padding: "5px", background: "#3b82f6", border: "none", color: "white", borderRadius: "3px", cursor: 'pointer' }}
+            >
+                Force Reload
             </button>
         </div >
     );
