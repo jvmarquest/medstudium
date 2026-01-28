@@ -185,9 +185,9 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate, onBack }) => {
                                 disabled={loading === 'monthly' || freeLoading}
                                 className="w-full bg-indigo-600 text-white rounded-xl px-4 py-3 font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {loading === 'monthly' ? 'Processando...' : 'Assinar Mensal'}
+                                {loading === 'monthly' ? 'Processando...' : 'Assinar Plano Mensal'}
                             </button>
-                            <p className="mt-3 text-xs text-slate-400 dark:text-slate-500 font-medium">
+                            <p className="mt-4 text-sm text-slate-500 dark:text-slate-300 font-bold">
                                 Cancele quando quiser.
                             </p>
                         </div>
