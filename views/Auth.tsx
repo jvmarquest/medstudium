@@ -125,7 +125,7 @@ const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode }) => {
         <div className="flex flex-col flex-1 px-4 pb-8 max-w-[480px] mx-auto w-full">
           <div className="flex flex-col items-center pt-4 pb-6">
             <h1 className="text-[28px] md:text-[32px] font-bold leading-tight text-center">
-              {mode === View.LOGIN ? 'Bem-vindo de volta' : 'Crie sua conta'}
+              {mode === View.LOGIN ? 'Bem-vindo (a)' : 'Crie sua conta'}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal pt-2 text-center max-w-xs">
               {mode === View.LOGIN
