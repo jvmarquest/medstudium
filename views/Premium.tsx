@@ -179,7 +179,7 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate, onBack }) => {
                                 ))}
                             </ul>
                         </div>
-                        <div className="p-8 bg-slate-50 dark:bg-slate-800/50">
+                        <div className="p-8 bg-slate-50 dark:bg-slate-800/50 flex flex-col items-center">
                             <button
                                 onClick={() => handleSubscribe('monthly')}
                                 disabled={loading === 'monthly' || freeLoading}
@@ -187,6 +187,9 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate, onBack }) => {
                             >
                                 {loading === 'monthly' ? 'Processando...' : 'Assinar Mensal'}
                             </button>
+                            <p className="mt-3 text-xs text-slate-400 dark:text-slate-500 font-medium">
+                                Cancele quando quiser.
+                            </p>
                         </div>
                     </div>
 
