@@ -62,6 +62,34 @@ serve(async (req) => {
             );
         }
 
+        // SIMULATION MODE
+        if (profile.stripe_subscription_id.startsWith('sim_')) {
+            console.log('Simulating cancellation for mock ID');
+
+            // Mock a date 30 days from now or use current_period_end if exists
+            const mockDate = profile.current_period_end
+                ? new Date(profile.current_period_end)
+                : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+            await supabaseClient
+                .from('profiles')
+                .update({
+                    subscription_status: 'canceled_pending',
+                    current_period_end: mockDate.toISOString(),
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', user.id);
+
+            return new Response(
+                JSON.stringify({
+                    success: true,
+                    subscription_status: 'canceled_pending',
+                    current_period_end: Math.floor(mockDate.getTime() / 1000)
+                }),
+                { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+        }
+
         // 3. Initialize Stripe
         const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') as string, {
             apiVersion: '2022-11-15',
