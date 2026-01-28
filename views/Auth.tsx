@@ -58,7 +58,11 @@ const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode }) => {
         onAuthSuccess();
       }
     } catch (err: any) {
-      setError(err.message || 'Ocorreu um erro. Tente novamente.');
+      let msg = err.message || 'Ocorreu um erro. Tente novamente.';
+      if (msg === 'Invalid login credentials') {
+        msg = 'Credenciais de login inválidas.';
+      }
+      setError(msg);
       setLoading(false);
     } finally {
       // Don't set loading false immediately on success to prevent UI flicker before redirect?
