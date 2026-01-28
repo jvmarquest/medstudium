@@ -171,7 +171,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     plan: (coreProfile?.plan || 'free') as any,
                     subscription_status: coreProfile?.subscription_status || 'free',
                     is_premium: coreProfile?.is_premium || false,
-                    current_period_end: coreProfile?.current_period_end
+                    // Ensure we are passing the date from coreProfile
+                    current_period_end: coreProfile?.current_period_end,
+                    trial_expires_at: coreProfile?.trial_expires_at
                 };
 
                 console.log('[UserContext] Deep Log:', {
