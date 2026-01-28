@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { NetworkProvider } from './contexts/NetworkContext';
 import { UserProvider, useUser } from './contexts/UserContext';
-import DebugOverlay from './components/DebugOverlay';
 import { View, Theme } from './types';
 import Premium from './views/Premium';
 import Dashboard from './views/Dashboard';
@@ -466,7 +465,6 @@ const App: React.FC = () => {
       <UserProvider>
         <PlanProvider>
           <AppContent />
-          <DebugOverlay />
         </PlanProvider>
       </UserProvider>
     </NetworkProvider>
