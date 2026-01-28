@@ -12,6 +12,7 @@ interface Props {
 export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
     const { profile, loading: userLoading, refreshProfile } = useUser();
     const [showCancelModal, setShowCancelModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [processing, setProcessing] = useState(false);
 
     const handleCancelSubscription = async () => {
@@ -24,7 +25,7 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
 
             await refreshProfile();
             setShowCancelModal(false);
-            alert('Assinatura cancelada com sucesso. Seu acesso continua até o fim do período.');
+            setShowSuccessModal(true);
         } catch (err: any) {
             console.error('Cancel Error:', err);
             // Try to extract dynamic error message
@@ -212,6 +213,30 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
                                     Voltar
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-card-dark rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-50 duration-200 text-center">
+                        <div className="p-6 flex flex-col items-center">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4 text-green-500">
+                                <span className="material-symbols-outlined text-2xl">check_circle</span>
+                            </div>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Assinatura Cancelada</h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">
+                                Assinatura cancelada com sucesso. Seu acesso continua até o fim do período.
+                            </p>
+
+                            <button
+                                onClick={() => setShowSuccessModal(false)}
+                                className="w-full py-3 rounded-xl font-bold text-white bg-slate-900 hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-dark transition-colors"
+                            >
+                                Entendido
+                            </button>
                         </div>
                     </div>
                 </div>
