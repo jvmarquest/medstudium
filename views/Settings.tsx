@@ -536,6 +536,13 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
           </div>
         </div>
 
+        {/* Support Email */}
+        <div className="px-2 pt-2 pb-8">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            Email para suporte: <span className="text-slate-700 dark:text-slate-300 font-bold">joaovictor.mteixeira@gmail.com</span>
+          </p>
+        </div>
+
         {/* Profile Editing Modal */}
         {isEditingProfile && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
