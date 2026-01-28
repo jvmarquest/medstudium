@@ -60,12 +60,21 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Derived premium status
     // Derived premium status
     // Derived premium status
+    // Derived premium status
     const isPremium = React.useMemo(() => {
         // Use Centralized Helper
-        const result = isUserPremium(profile);
-        console.log("[UserContext] Premium Check (Helper):", { result, plan: profile?.plan });
+        // Fail-safe: Check subscription table directly
+        const subStatus = subscription?.status;
+        const result = isUserPremium(profile, subStatus);
+
+        console.log("[UserContext] Premium Check (Helper):", {
+            result,
+            plan: profile?.plan,
+            subStatus: subStatus
+        });
+
         return result;
-    }, [profile]);
+    }, [profile, subscription]);
 
     const fetchProfile = useCallback(async (currentSession: Session | null) => {
         if (!currentSession?.user) {
