@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { NetworkProvider } from './contexts/NetworkContext';
 import { UserProvider } from './contexts/UserContext';
+import DebugOverlay from './components/DebugOverlay';
 import { View, Theme } from './types';
 import Premium from './views/Premium';
 import Dashboard from './views/Dashboard';
@@ -13,7 +14,6 @@ import Settings from './views/Settings';
 import FocusMode from './views/FocusMode';
 import AddTheme from './views/AddTheme';
 import ThemeDetails from './views/ThemeDetails';
-import { supabase } from './supabase';
 import { Session } from '@supabase/supabase-js';
 import Auth from './views/Auth';
 import Onboarding from './views/Onboarding';
@@ -21,7 +21,6 @@ import ManageSubscription from './views/ManageSubscription';
 import { TrialBanner } from './components/TrialBanner';
 import { FreePlanBanner } from './components/FreePlanBanner';
 import { PlanProvider, usePlan } from './lib/planContext';
-import { useUser } from './contexts/UserContext';
 
 
 
@@ -466,6 +465,7 @@ const App: React.FC = () => {
       <UserProvider>
         <PlanProvider>
           <AppContent />
+          <DebugOverlay />
         </PlanProvider>
       </UserProvider>
     </NetworkProvider>
