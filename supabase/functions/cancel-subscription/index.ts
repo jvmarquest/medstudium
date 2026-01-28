@@ -22,9 +22,15 @@ serve(async (req) => {
         )
 
         // Supabase Admin Client (Bypass RLS for status updates)
+        const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+        if (!serviceRoleKey) {
+            console.error('Missing SUPABASE_SERVICE_ROLE_KEY');
+            throw new Error('Server misconfiguration: Missing Service Role Key');
+        }
+
         const supabaseAdmin = createClient(
             Deno.env.get('SUPABASE_URL') ?? '',
-            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+            serviceRoleKey
         )
 
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
@@ -77,7 +83,7 @@ serve(async (req) => {
                 ? new Date(profile.current_period_end)
                 : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
-            await supabaseAdmin
+            const { error: updateError } = await supabaseAdmin
                 .from('profiles')
                 .update({
                     subscription_status: 'canceled_pending',
@@ -85,6 +91,11 @@ serve(async (req) => {
                     updated_at: new Date().toISOString()
                 })
                 .eq('id', user.id);
+
+            if (updateError) {
+                console.error('Simulation Update Error:', updateError);
+                throw new Error(`Database error during simulation: ${updateError.message}`);
+            }
 
             return new Response(
                 JSON.stringify({
@@ -142,7 +153,7 @@ serve(async (req) => {
         }
 
         // Optimistic update
-        await supabaseAdmin
+        const { error: optimisticError } = await supabaseAdmin
             .from('profiles')
             .update({
                 subscription_status: 'canceled_pending',
@@ -150,6 +161,14 @@ serve(async (req) => {
                 updated_at: new Date().toISOString()
             })
             .eq('id', user.id)
+
+        if (optimisticError) {
+            console.error('Optimistic Update Error:', optimisticError);
+            // Don't fail the request since Stripe worked, but warn or return partial success?
+            // Ideally we want to fail so frontend knows something is up, but Stripe IS canceled.
+            // We'll throw so frontend shows error, but Stripe is effectively cancelled.
+            throw new Error(`Stripe canceled but Database update failed: ${optimisticError.message}`);
+        }
 
         return new Response(
             JSON.stringify({
