@@ -63,8 +63,8 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
                 title = 'Plano Mensal';
 
                 if (status === 'canceled_pending') {
-                    statusLabel = 'Cancelado (Agendado)';
-                    statusColor = 'text-orange-600 bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400';
+                    statusLabel = 'Inativo';
+                    statusColor = 'text-slate-500 bg-slate-100 dark:bg-slate-800 dark:text-slate-400';
                     showButton = false; // No action needed until it expires
                     infoText = 'Acesso Premium mantido até o fim do ciclo.';
                 } else if (status === 'active') {
