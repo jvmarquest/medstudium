@@ -64,13 +64,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const isPremium = React.useMemo(() => {
         // Use Centralized Helper
         // Fail-safe: Check subscription table directly
-        const subStatus = subscription?.status;
-        const result = isUserPremium(profile, subStatus);
+        const result = isUserPremium(profile);
 
         console.log("[UserContext] Premium Check (Helper):", {
             result,
-            plan: profile?.plan,
-            subStatus: subStatus
+            plan: profile?.plan
         });
 
         return result;
