@@ -19,6 +19,8 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
         try {
             const { data, error } = await supabase.functions.invoke('cancel-subscription');
             if (error) throw error;
+            if (data && !data.success) throw new Error(data.error);
+
 
             await refreshProfile();
             setShowCancelModal(false);

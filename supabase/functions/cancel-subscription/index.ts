@@ -25,7 +25,10 @@ serve(async (req) => {
 
         if (authError || !user) {
             console.error('Auth Error:', authError);
-            throw new Error('Unauthorized')
+            return new Response(
+                JSON.stringify({ success: false, error: 'Unauthorized: User not found or session invalid.' }),
+                { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+            );
         }
 
         // 2. Get Profile & Subscription ID
@@ -37,15 +40,26 @@ serve(async (req) => {
 
         if (profileError || !profile) {
             console.error('Profile Error:', profileError);
-            throw new Error('Profile not found')
+            return new Response(
+                JSON.stringify({ success: false, error: 'Profile not found. Please contact support.' }),
+                { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+            );
         }
 
         if (profile.plan !== 'monthly') {
-            throw new Error('Only monthly plans can be canceled.')
+            return new Response(
+                JSON.stringify({ success: false, error: 'Apenas planos mensais podem ser cancelados por aqui.' }),
+                { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+            );
         }
 
         if (!profile.stripe_subscription_id) {
-            throw new Error('No active subscription found to cancel.')
+            // Edge case: User is marked as monthly but no ID. Correct it.
+            await supabaseClient.from('profiles').update({ plan: 'free', is_premium: false }).eq('id', user.id);
+            return new Response(
+                JSON.stringify({ success: false, error: 'Assinatura não encontrada. Seu perfil foi atualizado para Gratuito.' }),
+                { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+            );
         }
 
         // 3. Initialize Stripe
@@ -64,12 +78,9 @@ serve(async (req) => {
         } catch (stripeError: any) {
             console.error('Stripe Error:', stripeError);
 
-            // Handle "No such subscription" error (resource_missing)
-            // If it's missing in Stripe, we should treat it as already canceled/deleted effectively.
             if (stripeError.code === 'resource_missing') {
-                console.warn('Subscription missing in Stripe. Updating local DB to reflect canceled state.');
+                console.warn('Subscription missing in Stripe. Updating local DB.');
 
-                // Force update local DB to canceled
                 await supabaseClient
                     .from('profiles')
                     .update({
@@ -83,18 +94,20 @@ serve(async (req) => {
                 return new Response(
                     JSON.stringify({
                         success: true,
-                        message: 'Subscription was already deleted in Stripe. Local status updated to Canceled.',
+                        message: 'Assinatura não existia mais no Stripe. Status atualizado localmente.',
                         subscription_status: 'canceled'
                     }),
                     { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
                 )
             } else {
-                // Re-throw other Stripe errors
-                throw new Error(`Stripe Error: ${stripeError.message}`);
+                return new Response(
+                    JSON.stringify({ success: false, error: `Erro no Stripe: ${stripeError.message}` }),
+                    { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+                );
             }
         }
 
-        // Optimistic update to avoid race condition with webhook for UI responsiveness
+        // Optimistic update
         await supabaseClient
             .from('profiles')
             .update({
@@ -116,8 +129,8 @@ serve(async (req) => {
     } catch (error: any) {
         console.error('Function Error:', error)
         return new Response(
-            JSON.stringify({ error: error.message }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+            JSON.stringify({ success: false, error: `Erro Interno: ${error.message}` }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
         )
     }
 })
