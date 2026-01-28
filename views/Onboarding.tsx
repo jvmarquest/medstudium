@@ -291,7 +291,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
 
     // Step 1: Date
     const renderStep1 = () => (
-        <div className="animate-fade-in px-4 py-4 max-w-md lg:max-w-5xl mx-auto w-full">
+        <div className="animate-fade-in px-6 py-10 max-w-md lg:max-w-7xl mx-auto w-full">
             <div className="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-start">
                 <div>
                     <div className="px-2 mb-8">
@@ -396,7 +396,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
 
     // Step 2: Specialties
     const renderStep3 = () => (
-        <div className="animate-fade-in px-6 pt-8 pb-32 max-w-md lg:max-w-5xl mx-auto w-full">
+        <div className="animate-fade-in px-8 pt-12 pb-32 max-w-md lg:max-w-7xl mx-auto w-full">
             <section>
                 <h1 className="text-slate-900 dark:text-white tracking-tight text-3xl lg:text-4xl font-extrabold leading-tight">
                     Quais especialidades serão cobradas?
@@ -498,7 +498,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
 
     // Step 3: Availability
     const renderStep4 = () => (
-        <div className="animate-fade-in flex flex-col px-6 pt-8 max-w-md lg:max-w-5xl mx-auto w-full">
+        <div className="animate-fade-in flex flex-col px-8 pt-12 max-w-md lg:max-w-7xl mx-auto w-full">
             <section className="pb-8">
                 <h2 className="text-slate-900 dark:text-white tracking-tight text-3xl lg:text-4xl font-extrabold leading-tight pb-3">Qual sua disponibilidade?</h2>
                 <p className="text-slate-600 dark:text-slate-400 text-base lg:text-lg font-medium leading-relaxed">
@@ -595,17 +595,6 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
                 </div>
             </section>
 
-            <div className="mt-8 p-6 bg-primary/5 rounded-2xl border border-primary/10 flex gap-4">
-                <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary">
-                    <span className="material-symbols-outlined text-2xl">badge</span>
-                </div>
-                <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white text-base">Perfil Personalizado</h4>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                        Seu nome será exibido na tela inicial e nos seus certificados de progresso.
-                    </p>
-                </div>
-            </div>
         </div>
     );
 
@@ -614,43 +603,58 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
     // --- Dynamic Header per Step ---
 
     const renderHeader = () => {
-        // Common back button
-        const backBtn = (
-            <button
-                onClick={prevStep}
-                className="text-slate-500 dark:text-slate-400 flex items-center justify-center size-10 -ml-2 rounded-full active:scale-95 transition-transform"
-            >
-                <span className="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
-            </button>
-        );
-
-        const showClose = profile?.onboarding_completed;
-
-        const closeBtn = showClose ? (
-            <button
-                onClick={() => onNavigate(View.SETTINGS)}
-                className="text-slate-500 dark:text-slate-400 flex items-center justify-center size-10 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title="Sair do onboarding"
-            >
-                <span className="material-symbols-outlined text-2xl">close</span>
-            </button>
-        ) : <div className="w-6"></div>;
-
         // Standardized Header Layout (Continuous Bar)
-        const renderStandardHeader = (stepNum: number, percentage: number) => (
-            <header className="bg-background-light dark:bg-background-dark shrink-0 z-10">
-                <div className="max-w-md lg:max-w-5xl mx-auto w-full px-4 pt-6 pb-2">
-                    <div className="flex items-center justify-between mb-4">
-                        {backBtn}
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Passo {stepNum} de 4</span>
-                        {closeBtn}
+        const renderStandardHeader = (stepNum: number, percentage: number) => {
+            const showClose = profile?.onboarding_completed;
+
+            return (
+                <header className="bg-background-light dark:bg-background-dark shrink-0 z-10 w-full">
+                    <div className="max-w-md lg:max-w-7xl mx-auto w-full px-6 lg:px-12 pt-8 pb-4">
+                        <div className="flex items-center justify-between mb-8">
+                            {/* Left Slot: Back Button */}
+                            <div className="w-12 flex justify-start">
+                                <button
+                                    onClick={prevStep}
+                                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center size-10 -ml-2 rounded-full active:scale-90 transition-all hover:bg-slate-100 dark:hover:bg-slate-800"
+                                >
+                                    <span className="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
+                                </button>
+                            </div>
+
+                            {/* Middle Slot: Step Indicator */}
+                            <div className="flex-1 text-center">
+                                <span className="text-[10px] lg:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
+                                    Passo {stepNum} <span className="mx-1 opacity-50"> de </span> 4
+                                </span>
+                            </div>
+
+                            {/* Right Slot: Close Button or Spacer */}
+                            <div className="w-12 flex justify-end">
+                                {showClose ? (
+                                    <button
+                                        onClick={() => onNavigate(View.SETTINGS)}
+                                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center size-10 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                                        title="Sair do onboarding"
+                                    >
+                                        <span className="material-symbols-outlined text-[22px]">close</span>
+                                    </button>
+                                ) : (
+                                    <div className="size-10"></div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Progress Bar Container */}
+                        <div className="relative h-1.5 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full overflow-hidden">
+                            <div
+                                className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-700 ease-out shadow-[0_0_10px_rgba(var(--primary-rgb),0.3)]"
+                                style={{ width: `${percentage}%` }}
+                            ></div>
+                        </div>
                     </div>
-                    <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${percentage}%` }}></div>
-                    </div>
-                </div>
-            </header>
-        );
+                </header>
+            );
+        };
 
         if (step === 1) {
             // Step 1: Now standardized to Continuous Bar (25%)
@@ -692,7 +696,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
         if (step === 1) {
             return (
                 <footer className={footerClass}>
-                    <div className="max-w-md lg:max-w-5xl mx-auto w-full px-6">
+                    <div className="max-w-md lg:max-w-7xl mx-auto w-full px-8 lg:px-12">
                         <button onClick={nextStep} className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-primary/25 flex items-center justify-center gap-2">
                             Próximo
                             <span className="material-symbols-outlined text-xl">arrow_forward</span>
@@ -709,7 +713,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
         if (step === 2) {
             return (
                 <footer className={footerClass}>
-                    <div className="max-w-md lg:max-w-5xl mx-auto w-full flex flex-col items-center gap-4 px-6">
+                    <div className="max-w-md lg:max-w-7xl mx-auto w-full flex flex-col items-center gap-6 px-8 lg:px-12">
                         <button onClick={nextStep} className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-primary/25">
                             Próximo
                         </button>
@@ -723,7 +727,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
         if (step === 3) {
             return (
                 <footer className={footerClass}>
-                    <div className="max-w-md lg:max-w-5xl mx-auto w-full flex flex-col items-center gap-4 px-6">
+                    <div className="max-w-md lg:max-w-7xl mx-auto w-full flex flex-col items-center gap-6 px-8 lg:px-12">
                         <button onClick={nextStep} className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-primary/25">
                             Próximo
                         </button>
@@ -737,7 +741,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
         if (step === 4) {
             return (
                 <footer className={footerClass}>
-                    <div className="max-w-md lg:max-w-5xl mx-auto w-full flex flex-col items-center gap-4 px-6">
+                    <div className="max-w-md lg:max-w-7xl mx-auto w-full flex flex-col items-center gap-6 px-8 lg:px-12">
                         <button
                             onClick={handleFinish}
                             disabled={loading}
