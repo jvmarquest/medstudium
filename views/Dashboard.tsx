@@ -159,15 +159,20 @@ const Dashboard: React.FC<Props> = ({ onNavigate }) => {
 
 
   const header = (
-    <header className="bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 w-full">
-      <div className="flex items-center justify-between px-6 py-3 lg:py-4 w-full mx-auto">
-        <div className="flex items-center gap-3">
+    <header className="bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 w-full relative">
+      <div className="flex items-center justify-between px-6 py-3 lg:py-4 w-full mx-auto relative">
+        <div className="flex items-center gap-3 relative z-10 w-1/3">
           <div className="flex flex-col">
             <h2 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider leading-none">{greeting}</h2>
-            <h1 className="text-lg lg:text-xl font-bold text-slate-900 dark:text-white leading-tight">{userName}</h1>
+            <h1 className="text-sm lg:text-base font-bold text-slate-900 dark:text-white leading-tight truncate">{userName}</h1>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20">
+          <img src="/favicon_io/apple-touch-icon.png" className="h-9 w-9 rounded-lg shadow-sm" alt="Logo" />
+        </div>
+
+        <div className="flex items-center gap-2 relative z-10 w-1/3 justify-end">
           <button onClick={() => onNavigate(View.PLAN)} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">
             <span className="material-symbols-outlined text-2xl">calendar_month</span>
           </button>
@@ -211,25 +216,6 @@ const Dashboard: React.FC<Props> = ({ onNavigate }) => {
             </section>
 
 
-            <section className="bg-white dark:bg-surface-dark rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-[20px]">bolt</span>
-                  <h3 className="text-sm font-bold">Carga Diária</h3>
-                </div>
-                <span className={`text-xs font-bold px-2 py-0.5 rounded ${loadStatus.label === 'Alta' ? 'bg-red-100 text-red-600' : loadStatus.label === 'Média' ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'}`}>
-                  {loadStatus.label}
-                </span>
-              </div>
-              <div className="h-3 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div className={`h-full rounded-full transition-all duration-500 ${loadStatus.label === 'Alta' ? 'bg-red-500' : loadStatus.label === 'Média' ? 'bg-orange-500' : 'bg-green-500'}`} style={{ width: `${loadStatus.percentage}%` }}></div>
-              </div>
-              <p className="text-xs text-slate-500 mt-2 text-right">{loadStatus.percentage}% da capacidade diária</p>
-            </section>
-          </div>
-
-          {/* Right Column: Reviews + Themes */}
-          <div className="flex flex-col gap-6">
             <section className="bg-gradient-to-br from-surface-dark to-[#0f172a] rounded-xl p-5 shadow-lg border border-slate-800 relative overflow-hidden">
               <div className="flex flex-col gap-4 relative z-10">
                 <div>
@@ -258,6 +244,25 @@ const Dashboard: React.FC<Props> = ({ onNavigate }) => {
                   {todayThemes.length === 0 ? 'Sem revisões' : 'Iniciar Sessão'}
                 </button>
               </div>
+            </section>
+          </div>
+
+          {/* Right Column: Reviews + Themes */}
+          <div className="flex flex-col gap-6">
+            <section className="bg-white dark:bg-surface-dark rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-[20px]">bolt</span>
+                  <h3 className="text-sm font-bold">Carga Diária</h3>
+                </div>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded ${loadStatus.label === 'Alta' ? 'bg-red-100 text-red-600' : loadStatus.label === 'Média' ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'}`}>
+                  {loadStatus.label}
+                </span>
+              </div>
+              <div className="h-3 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div className={`h-full rounded-full transition-all duration-500 ${loadStatus.label === 'Alta' ? 'bg-red-500' : loadStatus.label === 'Média' ? 'bg-orange-500' : 'bg-green-500'}`} style={{ width: `${loadStatus.percentage}%` }}></div>
+              </div>
+              <p className="text-xs text-slate-500 mt-2 text-right">{loadStatus.percentage}% da capacidade diária</p>
             </section>
 
             <section>

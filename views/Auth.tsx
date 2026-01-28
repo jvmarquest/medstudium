@@ -103,18 +103,23 @@ const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode }) => {
 
 
   const header = (
-    <div className="flex items-center justify-between p-4 pb-2 bg-background-light dark:bg-background-dark">
-      {mode === View.SIGNUP ? (
-        <button
-          onClick={onToggleMode}
-          className="flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-        >
-          <span className="material-symbols-outlined text-2xl">arrow_back</span>
-        </button>
-      ) : (
-        <div className="size-12" />
-      )}
-      <h2 className="text-lg font-bold leading-tight flex-1 text-center pr-12">MedStudium</h2>
+    <div className="flex items-center justify-between p-4 pb-2 bg-background-light dark:bg-background-dark relative">
+      <div className="relative z-10 w-12">
+        {mode === View.SIGNUP && (
+          <button
+            onClick={onToggleMode}
+            className="flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+          >
+            <span className="material-symbols-outlined text-2xl">arrow_back</span>
+          </button>
+        )}
+      </div>
+
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20 pt-2">
+        <img src="/favicon_io/apple-touch-icon.png" className="h-10 w-10 rounded-lg shadow-sm" alt="Logo" />
+      </div>
+
+      <div className="w-12" />
     </div>
   );
 
