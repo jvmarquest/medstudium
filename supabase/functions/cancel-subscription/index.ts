@@ -55,10 +55,44 @@ serve(async (req) => {
         })
 
         // 4. Cancel at period end
-        const subscription = await stripe.subscriptions.update(
-            profile.stripe_subscription_id,
-            { cancel_at_period_end: true }
-        )
+        let subscription;
+        try {
+            subscription = await stripe.subscriptions.update(
+                profile.stripe_subscription_id,
+                { cancel_at_period_end: true }
+            )
+        } catch (stripeError: any) {
+            console.error('Stripe Error:', stripeError);
+
+            // Handle "No such subscription" error (resource_missing)
+            // If it's missing in Stripe, we should treat it as already canceled/deleted effectively.
+            if (stripeError.code === 'resource_missing') {
+                console.warn('Subscription missing in Stripe. Updating local DB to reflect canceled state.');
+
+                // Force update local DB to canceled
+                await supabaseClient
+                    .from('profiles')
+                    .update({
+                        subscription_status: 'canceled',
+                        plan: 'free',
+                        is_premium: false,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', user.id);
+
+                return new Response(
+                    JSON.stringify({
+                        success: true,
+                        message: 'Subscription was already deleted in Stripe. Local status updated to Canceled.',
+                        subscription_status: 'canceled'
+                    }),
+                    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                )
+            } else {
+                // Re-throw other Stripe errors
+                throw new Error(`Stripe Error: ${stripeError.message}`);
+            }
+        }
 
         // Optimistic update to avoid race condition with webhook for UI responsiveness
         await supabaseClient

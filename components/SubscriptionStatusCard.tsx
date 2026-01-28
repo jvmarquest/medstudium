@@ -25,7 +25,9 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
             alert('Assinatura cancelada com sucesso. Seu acesso continua até o fim do período.');
         } catch (err: any) {
             console.error('Cancel Error:', err);
-            alert('Erro ao cancelar assinatura. Tente novamente.');
+            // Try to extract dynamic error message
+            const msg = err.message || 'Erro ao cancelar assinatura. Tente novamente.';
+            alert(msg);
         } finally {
             setProcessing(false);
         }
