@@ -42,12 +42,9 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // 2. Map to Flags
         const isTrial = status === 'trial';
 
-        // CORE RULE: Premium if plan is monthly/lifetime OR status is active/trial
-        const isPremium =
-            userPlan === 'monthly' ||
-            userPlan === 'lifetime' ||
-            status === 'active' ||
-            status === 'trial';
+        // CORE RULE: Premium if plan is monthly/lifetime
+        // We now rely on the helper which implements: plan !== 'free'
+        const isPremium = isUserPremium(profile);
 
         const isFree = !isPremium;
 
@@ -58,7 +55,10 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (userPlan === 'monthly' || userPlan === 'lifetime') {
             plan = userPlan;
         } else if (status === 'trial') {
-            // Treat trial as monthly for UI features usually
+            // Treat trial as monthly for UI features usually, but strictly it is 'free' plan with 'trial' status
+            // if we are keeping isPremium = false for Trial.
+            // However, UI might expects 'monthly' for badges. 
+            // Let's keep it as 'monthly' for UI purposes if in Trial, BUT be aware isPremium is FALSE for trial now.
             plan = 'monthly';
         }
 
@@ -66,11 +66,12 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Free/Expired do NOT (redirect to Premium).
 
         // Unified Check as requested:
+        // Unified Check:
         const hasAppAccess =
-            isPremium === true ||          // Covers 'active', 'lifetime' via UserContext/Plan Logic
-            status === 'active' ||         // Explicit status check
-            status === 'trial' ||          // 'trial' status = Free Active or Trial period
-            status === 'free';             // User Request: 'free' status also grants app access
+            isPremium === true ||          // Monthly/Lifetime
+            status === 'active' ||         // Active Subscription
+            status === 'trial' ||          // Standard Trial
+            status === 'free';             // User Request: 'free' status also grants app access (freemium)
 
         return {
             isFree,

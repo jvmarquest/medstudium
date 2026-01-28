@@ -11,8 +11,11 @@ interface Props {
 }
 
 const ManageSubscription: React.FC<Props> = ({ onNavigate }) => {
-    const { profile, refreshProfile, loading: userLoading } = useUser();
+    const { profile, refreshProfile, loading: userLoading, isPremium: contextIsPremium } = useUser();
     const [loading, setLoading] = useState(false);
+    // ...
+    // Use derived isPremium to ensure consistency with new global rules
+    const isPremium = contextIsPremium;
 
     const handlePortalSession = async () => {
         setLoading(true);
@@ -88,7 +91,7 @@ const ManageSubscription: React.FC<Props> = ({ onNavigate }) => {
         );
     }
 
-    const isPremium = profile.is_premium;
+    // isPremium is now derived from context above
     const planName = profile.plan === 'lifetime' ? 'Vitalício'
         : profile.plan === 'monthly' ? 'Mensal'
             : 'Gratuito';

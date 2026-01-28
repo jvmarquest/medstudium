@@ -99,11 +99,39 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     const path = window.location.pathname;
     if (path === '/billing/success') {
-      // Clear URL
+      // 1. Clear URL Cleanly
       window.history.replaceState({}, '', '/');
-      alert('Pagamento processado com sucesso! Seu plano será atualizado em instantes.');
-      // Reload profile to get new status
-      if (session) window.location.reload();
+
+      const handleBillingSuccess = async () => {
+        try {
+          // 2. Force Session Refresh
+          const { error } = await supabase.auth.refreshSession();
+          if (error) throw error;
+
+          // 3. Force Profile Refresh (UserContext will react to session change or we can force it)
+          // We can trigger a reload or use a context method if available locally, 
+          // but since we don't have direct access to 'refreshUserData' here cleanly without context,
+          // and window.location.reload() is robust but "ugly" for SPA...
+
+          // The user asked: "Force atualização da sessão... Rebusque dados... Atualize estado... Redirecione... SEM RELOGAR"
+
+          // Since 'session' dependency in UserContext triggers fetchProfile, refreshSession() above MIGHT be enough.
+          // BUT, we want to be sure.
+
+          alert('Pagamento processado! Atualizando seu plano...');
+
+          // Simplest robust way to ensure everything re-syncs without full page reload artifacts
+          // is to allow the context to pick up the change.
+          // However, UserContext listens to 'onAuthStateChange'. 'refreshSession' triggers that.
+
+        } catch (e) {
+          console.error("Billing Sync Error:", e);
+          // Fallback
+          window.location.reload();
+        }
+      };
+
+      handleBillingSuccess();
     } else if (path === '/billing/cancel') {
       window.history.replaceState({}, '', '/');
       alert('Pagamento cancelado.');

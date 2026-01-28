@@ -9,10 +9,8 @@ import { UserProfile } from '../types';
  * 2. subscription_status is 'active'
  */
 export const isUserPremium = (profile: Partial<UserProfile> | null): boolean => {
-    if (!profile) return false;
+    if (!profile || !profile.plan) return false;
 
-    return (
-        profile.is_premium === true ||
-        profile.subscription_status === 'active'
-    );
+    // Strict Rule: Premium = plan is NOT free
+    return ['monthly', 'lifetime'].includes(profile.plan);
 };
