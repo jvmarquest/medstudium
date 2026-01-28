@@ -24,12 +24,11 @@ serve(async (req) => {
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
 
         if (authError || !user) {
+            console.error('Auth Error:', authError);
             throw new Error('Unauthorized')
         }
 
         // 2. Get Profile & Subscription ID
-        // Note: Using service role key for profile access might be safer if RLS restricts reading stripe_subscription_id, 
-        // but typically user can read own profile. Let's use user client first.
         const { data: profile, error: profileError } = await supabaseClient
             .from('profiles')
             .select('stripe_subscription_id, plan')
@@ -37,6 +36,7 @@ serve(async (req) => {
             .single()
 
         if (profileError || !profile) {
+            console.error('Profile Error:', profileError);
             throw new Error('Profile not found')
         }
 
@@ -65,6 +65,7 @@ serve(async (req) => {
             .from('profiles')
             .update({
                 subscription_status: 'canceled_pending',
+                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
                 updated_at: new Date().toISOString()
             })
             .eq('id', user.id)
@@ -79,7 +80,7 @@ serve(async (req) => {
         )
 
     } catch (error: any) {
-        console.error(error)
+        console.error('Function Error:', error)
         return new Response(
             JSON.stringify({ error: error.message }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }

@@ -109,14 +109,12 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
         let dateLabel = null;
         if (isTrial && profile.trial_expires_at) {
             const date = new Date(profile.trial_expires_at).toLocaleDateString('pt-BR');
-            dateLabel = `Trial até: ${date}`;
+            dateLabel = `Teste até ${date}`;
         } else if (profile.current_period_end && (status === 'canceled_pending' || status === 'active')) {
-            // If we have period end from webhook
-            // We can check if `current_period_end` exists on profile type (Assuming it might not yet, but I added it to webhook update)
-            // I need to cast or ensure profile includes it. I didn't update types.ts for `current_period_end`!
-            // I will safely access it.
             const date = new Date(profile.current_period_end).toLocaleDateString('pt-BR');
-            dateLabel = status === 'canceled_pending' ? `Expira em: ${date}` : `Renova em: ${date}`;
+            // If canceled_pending -> "Expira em: ..."
+            // If active -> "Renova em: ..."
+            dateLabel = status === 'canceled_pending' ? `Expira em ${date}` : `Renova em ${date}`;
         }
 
         return {
