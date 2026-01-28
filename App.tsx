@@ -33,7 +33,8 @@ const AppContent: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isOnboardingCompleted, setIsOnboardingCompleted] = useState<boolean>(false);
   // Removed local duplicate state: isPremium, isFreePlan
-  const { hasAppAccess, isPremium: contextIsPremium, isTrial } = usePlan();
+  const { profile, loading: userLoading, refreshUserData } = useUser();
+  const { hasAppAccess, isPremium: contextIsPremium, isTrial, loading: planLoading } = usePlan();
   const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
   const [loadingPreferences, setLoadingPreferences] = useState<boolean>(false);
   const [appError, setAppError] = useState<string | null>(null);
@@ -197,8 +198,6 @@ const AppContent: React.FC = () => {
 
   // REACTIVE STATE SYNC (Replaces checkPreferences)
   // We trust the Contexts.
-  // const { profile, loading: userLoading } = useUser(); // This line was moved up
-  // const { loading: planLoading } = usePlan(); // This line was moved up
 
   useEffect(() => {
     if (loadingAuth || userLoading) return;
