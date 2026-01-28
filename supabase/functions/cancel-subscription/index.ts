@@ -21,6 +21,12 @@ serve(async (req) => {
             { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
         )
 
+        // Supabase Admin Client (Bypass RLS for status updates)
+        const supabaseAdmin = createClient(
+            Deno.env.get('SUPABASE_URL') ?? '',
+            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        )
+
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
 
         if (authError || !user) {
@@ -71,7 +77,7 @@ serve(async (req) => {
                 ? new Date(profile.current_period_end)
                 : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
-            await supabaseClient
+            await supabaseAdmin
                 .from('profiles')
                 .update({
                     subscription_status: 'canceled_pending',
@@ -109,7 +115,7 @@ serve(async (req) => {
             if (stripeError.code === 'resource_missing') {
                 console.warn('Subscription missing in Stripe. Updating local DB.');
 
-                await supabaseClient
+                await supabaseAdmin
                     .from('profiles')
                     .update({
                         subscription_status: 'canceled',
@@ -136,7 +142,7 @@ serve(async (req) => {
         }
 
         // Optimistic update
-        await supabaseClient
+        await supabaseAdmin
             .from('profiles')
             .update({
                 subscription_status: 'canceled_pending',
