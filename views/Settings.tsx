@@ -180,15 +180,8 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
         .update({ data_prova: tempDate })
         .eq('user_id', user.id);
 
-      // Update profiles (if column exists there, good practice to sync if structure allows)
-      // Assuming profiles has data_prova based on UserContext interface
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ data_prova: tempDate })
-        .eq('id', user.id);
-
-      if (prefsError && profileError) {
-        console.error('Error saving exam date:', prefsError, profileError);
+      if (prefsError) {
+        console.error('Error saving exam date:', prefsError);
         alert('Erro ao salvar data da prova.');
       } else {
         await refreshProfile();
