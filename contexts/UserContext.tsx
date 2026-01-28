@@ -163,6 +163,13 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     current_period_end: coreProfile?.current_period_end
                 };
 
+                console.log('[UserContext] Deep Log:', {
+                    corePlan: coreProfile?.plan,
+                    prefPlan: (data as any).plan, // legacy check
+                    finalPlan: finalProfile.plan,
+                    premium: finalProfile.is_premium
+                });
+
                 // Sync Name logic ...
                 if (!finalProfile.nome && (currentSession.user.user_metadata?.full_name || currentSession.user.user_metadata?.name)) {
                     const nameToSave = currentSession.user.user_metadata.full_name || currentSession.user.user_metadata.name;

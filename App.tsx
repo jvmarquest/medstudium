@@ -108,21 +108,41 @@ const AppContent: React.FC = () => {
           const { error } = await supabase.auth.refreshSession();
           if (error) throw error;
 
-          // 3. Force Profile Refresh (UserContext will react to session change or we can force it)
-          // We can trigger a reload or use a context method if available locally, 
-          // but since we don't have direct access to 'refreshUserData' here cleanly without context,
-          // and window.location.reload() is robust but "ugly" for SPA...
+          // Poll for Status Update (Webhooks take 2-5s)
+          let attempts = 0;
+          let confirmed = false;
 
-          // The user asked: "Force atualização da sessão... Rebusque dados... Atualize estado... Redirecione... SEM RELOGAR"
+          while (attempts < 5) { // Try for ~10 seconds
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) break;
 
-          // Since 'session' dependency in UserContext triggers fetchProfile, refreshSession() above MIGHT be enough.
-          // BUT, we want to be sure.
+            // Check DB directly
+            const { data: check } = await supabase
+              .from('profiles')
+              .select('plan')
+              .eq('id', user.id)
+              .maybeSingle();
 
-          alert('Pagamento processado! Atualizando seu plano...');
+            console.log(`[Billing] Poll attempt ${attempts + 1}:`, check?.plan);
 
-          // Simplest robust way to ensure everything re-syncs without full page reload artifacts
-          // is to allow the context to pick up the change.
-          // However, UserContext listens to 'onAuthStateChange'. 'refreshSession' triggers that.
+            if (check && ['monthly', 'lifetime'].includes(check.plan)) {
+              confirmed = true;
+              break;
+            }
+
+            // Wait 2s
+            await new Promise(r => setTimeout(r, 2000));
+            attempts++;
+          }
+
+          if (confirmed) {
+            alert('Pagamento confirmado e plano atualizado!');
+            // Reload to ensure all contexts (User, Plan) are universally reset
+            window.location.reload();
+          } else {
+            // If technically failed to confirm, still reload to give it a best shot
+            window.location.reload();
+          }
 
         } catch (e) {
           console.error("Billing Sync Error:", e);
