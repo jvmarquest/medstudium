@@ -169,7 +169,7 @@ const Dashboard: React.FC<Props> = ({ onNavigate }) => {
         </div>
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20">
-          <img src="/favicon_io/apple-touch-icon.png" className="h-9 w-9 rounded-lg shadow-sm" alt="Logo" />
+          <img src="/favicon_io/usar.png" className="h-9 w-9 rounded-lg" alt="Logo" />
         </div>
 
         <div className="flex items-center gap-2 relative z-10 w-1/3 justify-end">
