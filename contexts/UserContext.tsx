@@ -252,6 +252,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     useEffect(() => {
+        // 1. Auth Listener
         supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
             fetchProfile(session);
@@ -262,10 +263,44 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
             fetchProfile(session);
         });
 
+        // 2. Realtime Listener (Auto-update on DB Change)
+        let channel: any = null;
+        if (session?.user) {
+            channel = supabase
+                .channel(`public:profiles:${session.user.id}`)
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'profiles',
+                        filter: `id=eq.${session.user.id}`,
+                    },
+                    (payload) => {
+                        console.log('[UserContext] Realtime Update:', payload);
+                        fetchProfile(session);
+                    }
+                )
+                .subscribe();
+        }
+
+        // 3. Window Focus Listener (Auto-update on Tab Switch)
+        const handleFocus = () => {
+            if (session) {
+                console.log('[UserContext] Window Focus - Refreshing Profile');
+                fetchProfile(session);
+            }
+        };
+        window.addEventListener('visibilitychange', handleFocus);
+        window.addEventListener('focus', handleFocus);
+
         return () => {
             subscription.unsubscribe();
+            if (channel) supabase.removeChannel(channel);
+            window.removeEventListener('visibilitychange', handleFocus);
+            window.removeEventListener('focus', handleFocus);
         };
-    }, [fetchProfile]);
+    }, [fetchProfile, session?.user?.id]);
 
     return (
         <UserContext.Provider value={{ profile, loading, refreshProfile, session, dataVersion, refreshUserData, subscription, isPremium, trialExpiresAt }}>

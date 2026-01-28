@@ -44,7 +44,8 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // CORE RULE: Premium if plan is monthly/lifetime
         // We now rely on the helper which implements: plan !== 'free'
-        const isPremium = isUserPremium(profile);
+        // CRITICAL: Consume isPremium directly from UserContext Global State
+        const isPremium = userContextIsPremium;
 
         const isFree = !isPremium;
 

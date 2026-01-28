@@ -134,34 +134,64 @@ const AppContent: React.FC = () => {
             await new Promise(r => setTimeout(r, 2000));
             attempts++;
           }
+          // Clear URL
+          window.history.replaceState({}, '', '/');
 
-          if (confirmed) {
-            alert('Pagamento confirmado e plano atualizado!');
-            // Reload to ensure all contexts (User, Plan) are universally reset
-            window.location.reload();
-          } else {
-            // If technically failed to confirm, still reload to give it a best shot
-            window.location.reload();
-          }
+          const syncSubscription = async () => {
+            let attempts = 0;
+            const maxAttempts = 10;
 
-        } catch (e) {
-          console.error("Billing Sync Error:", e);
-          // Fallback
-          window.location.reload();
+            // Loop to wait for webhook
+            while (attempts < maxAttempts) {
+              console.log(`[Billing] Sync attempt ${attempts + 1}/${maxAttempts}`);
+
+              await supabase.auth.refreshSession();
+              await refreshUserData(); // This triggers fetchProfile -> updates isPremium
+
+              // Check context state (we need to access likely updated state, 
+              // but since state updates are async, we might need to rely on the fetch result directly or just wait)
+              // For simplicity, we wait a bit and rely on the next iteration or the fact that isPremium updates.
+
+              // Actually, we can check the DB directly here for immediate feedback loop
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                const { data: profile } = await supabase
+                  .from('profiles')
+                  .select('plan, is_premium, subscription_status')
+                  .eq('id', user.id)
+                  .single();
+
+                // Check using utility to be consistent
+                if (profile && (profile.plan === 'monthly' || profile.plan === 'lifetime' || profile.is_premium)) {
+                  alert('Pagamento confirmado e plano atualizado!');
+                  // Force reload to ensure all contexts are clean
+                  window.location.href = '/';
+                  return;
+                }
+              }
+
+              attempts++;
+              await new Promise(r => setTimeout(r, 2000)); // Wait 2s
+            }
+
+            alert('Pagamento processado. Se o plano não atualizar imediatamente, aguarde alguns instantes.');
+            window.location.href = '/';
+          };
+
+          // Show temporary feedback (can be improved with a toast/modal, using alert for now as requested/consistent)
+          // We run async
+          syncSubscription();
+
+        } else if (path === '/billing/cancel') {
+          window.history.replaceState({}, '', '/');
+          alert('Pagamento cancelado.');
         }
-      };
-
-      handleBillingSuccess();
-    } else if (path === '/billing/cancel') {
-      window.history.replaceState({}, '', '/');
-      alert('Pagamento cancelado.');
-    }
-  }, [session]);
+      }, [refreshUserData]);
 
   // REACTIVE STATE SYNC (Replaces checkPreferences)
   // We trust the Contexts.
-  const { profile, loading: userLoading } = useUser();
-  const { loading: planLoading } = usePlan();
+  // const { profile, loading: userLoading } = useUser(); // This line was moved up
+  // const { loading: planLoading } = usePlan(); // This line was moved up
 
   useEffect(() => {
     if (loadingAuth || userLoading) return;
