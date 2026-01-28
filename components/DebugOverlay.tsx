@@ -30,7 +30,7 @@ const DebugOverlay = () => {
         return (
             <div
                 onClick={() => setExpanded(true)}
-                style={{ position: 'fixed', bottom: '10px', right: '10px', padding: '5px 10px', background: 'red', color: 'white', zIndex: 9999, fontSize: '10px', cursor: 'pointer', borderRadius: '4px' }}
+                style={{ position: 'fixed', top: '10px', left: '10px', padding: '5px 10px', background: 'red', color: 'white', zIndex: 99999, fontSize: '12px', cursor: 'pointer', borderRadius: '4px', fontWeight: 'bold' }}
             >
                 DEBUG
             </div>
@@ -38,7 +38,7 @@ const DebugOverlay = () => {
     }
 
     return (
-        <div style={{ position: 'fixed', bottom: '10px', right: '10px', width: '320px', maxHeight: '400px', overflowY: 'auto', backgroundColor: 'rgba(0,0,0,0.9)', color: '#0f0', padding: '10px', borderRadius: '8px', zIndex: 9999, fontSize: '10px', fontFamily: 'monospace' }}>
+        <div style={{ position: 'fixed', top: '10px', left: '10px', width: '320px', maxHeight: '80vh', overflowY: 'auto', backgroundColor: 'rgba(0,0,0,0.95)', color: '#0f0', padding: '10px', borderRadius: '8px', zIndex: 99999, fontSize: '10px', fontFamily: 'monospace', boxShadow: '0 0 10px rgba(0,255,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                 <strong>DEBUG CONTEXT</strong>
                 <button onClick={() => setExpanded(false)} style={{ color: 'white' }}>MINIMIZE</button>
@@ -68,8 +68,9 @@ const DebugOverlay = () => {
             <button
                 onClick={() => window.location.reload()}
                 style={{ marginTop: "10px", width: '100%', padding: "5px", background: "#3b82f6", border: "none", color: "white", borderRadius: "3px", cursor: 'pointer' }}
-            >
-                Force Reload
             </button>
+        </div >
+    );
+};
 
-            export default DebugOverlay;
+export default DebugOverlay;
