@@ -171,7 +171,7 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate, onBack }) => {
                                 <span className="ml-2 text-slate-500 dark:text-slate-400">/mês</span>
                             </div>
                             <ul className="mt-8 space-y-4">
-                                {['Acesso ilimitado a questões', 'Sem anúncios', 'Estatísticas avançadas', 'Suporte prioritário'].map((benefit, index) => (
+                                {['Sem limite de temas', 'Sem limite de novas revisões', 'Estatísticas avançadas', 'Suporte prioritário'].map((benefit, index) => (
                                     <li key={index} className="flex items-center">
                                         <Check className="h-5 w-5 text-green-500 mr-3 shrink-0" />
                                         <span className="text-slate-600 dark:text-slate-300">{benefit}</span>
@@ -203,7 +203,7 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate, onBack }) => {
                                 <span className="ml-2 text-slate-500 dark:text-slate-400">único</span>
                             </div>
                             <ul className="mt-8 space-y-4">
-                                {['Acesso Vitalício', 'Todas as atualizações futuras', 'Sem renovações automáticas', 'Badge exclusivo de Membro Fundador'].map((benefit, index) => (
+                                {['Todas as vantagens do plano mensal', 'Sem renovação automática', 'Para sempre'].map((benefit, index) => (
                                     <li key={index} className="flex items-center">
                                         <Check className="h-5 w-5 text-indigo-600 mr-3 shrink-0" />
                                         <span className="text-slate-600 dark:text-slate-300">{benefit}</span>
