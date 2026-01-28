@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onBack, onCalen
           Sem conexão. Funcionalidades limitadas.
         </div>
       )}
-      <div className="flex items-center justify-between px-6 py-3 lg:py-4 w-full mx-auto relative">
+      <div className="flex items-center justify-between px-6 py-4 lg:py-5 w-full mx-auto relative">
         <div className="flex items-center gap-3 relative z-10 w-1/3">
           {onBack && (
             <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">

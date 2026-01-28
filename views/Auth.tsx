@@ -103,7 +103,7 @@ const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode }) => {
 
 
   const header = (
-    <div className="flex items-center justify-between p-4 pb-2 bg-background-light dark:bg-background-dark relative">
+    <div className="flex items-center justify-between px-4 py-8 bg-background-light dark:bg-background-dark relative">
       <div className="relative z-10 w-12">
         {mode === View.SIGNUP && (
           <button
@@ -115,8 +115,8 @@ const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode }) => {
         )}
       </div>
 
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20 pt-2">
-        <img src="/favicon_io/apple-touch-icon.png" className="h-10 w-10 rounded-lg shadow-sm" alt="Logo" />
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20">
+        <img src="/favicon_io/apple-touch-icon.png" className="h-12 w-12 rounded-lg shadow-sm" alt="Logo" />
       </div>
 
       <div className="w-12" />

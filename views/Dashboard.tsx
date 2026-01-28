@@ -160,7 +160,7 @@ const Dashboard: React.FC<Props> = ({ onNavigate }) => {
 
   const header = (
     <header className="bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 w-full relative">
-      <div className="flex items-center justify-between px-6 py-3 lg:py-4 w-full mx-auto relative">
+      <div className="flex items-center justify-between px-6 py-4 lg:py-5 w-full mx-auto relative">
         <div className="flex items-center gap-3 relative z-10 w-1/3">
           <div className="flex flex-col">
             <h2 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider leading-none">{greeting}</h2>
