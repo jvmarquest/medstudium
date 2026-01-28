@@ -365,9 +365,9 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] w-full overflow-hidden bg-background-light dark:bg-background-dark">
+    <div className="flex flex-col h-[100dvh] w-full overflow-hidden bg-background-light dark:bg-background-dark pt-safe">
       <TrialBanner onNavigate={navigateTo} />
-      <div className="flex-1 min-h-0 pt-safe">
+      <div className="flex-1 min-h-0">
         {renderView()}
       </div>
     </div>

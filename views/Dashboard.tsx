@@ -133,12 +133,15 @@ const Dashboard: React.FC<Props> = ({ onNavigate }) => {
 
     const timer = setInterval(() => {
       const now = new Date();
-      const target = new Date(examDateStr + 'T00:00:00');
+      const target = examDateStr.includes('-')
+        ? new Date(examDateStr + 'T00:00:00')
+        : new Date(examDateStr.split('/').reverse().join('-') + 'T00:00:00');
+
       const diff = target.getTime() - now.getTime();
 
-      if (diff <= 0) {
+      if (diff <= 0 || isNaN(diff)) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        clearInterval(timer);
+        if (!isNaN(diff)) clearInterval(timer);
         return;
       }
 
