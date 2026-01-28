@@ -230,7 +230,7 @@ const AppContent: React.FC = () => {
       }
     }
 
-    if (session && isOnboardingCompleted && contextIsPremium) {
+    if (session && isOnboardingCompleted) {
       setViewHistory(prev => [...prev, { view: currentView, themeId: selectedThemeId }]);
     }
 
@@ -352,7 +352,7 @@ const AppContent: React.FC = () => {
       case View.MANAGE_SUBSCRIPTION:
         return <ManageSubscription onNavigate={navigateTo} />;
       case View.ADD_THEME:
-        return <AddTheme onNavigate={navigateTo} />;
+        return <AddTheme onNavigate={navigateTo} onBack={handleGoBack} />;
       case View.THEME_DETAILS:
         return <ThemeDetails themeId={selectedThemeId} onNavigate={navigateTo} />;
       case View.ONBOARDING:

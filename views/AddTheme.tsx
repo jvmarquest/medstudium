@@ -12,9 +12,10 @@ import { UpgradeModal } from '../components/UpgradeModal';
 
 interface Props {
   onNavigate: (view: View) => void;
+  onBack: () => void;
 }
 
-const AddTheme: React.FC<Props> = ({ onNavigate }) => {
+const AddTheme: React.FC<Props> = ({ onNavigate, onBack }) => {
   console.log("AddTheme loaded");
   const { isOnline } = useNetwork();
   const { session, profile } = useUser(); // Using Context
@@ -308,7 +309,7 @@ const AddTheme: React.FC<Props> = ({ onNavigate }) => {
   const header = (
     <header className="shrink-0 bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 z-20">
       <div className="flex items-center justify-between px-6 py-3 lg:py-4 w-full mx-auto">
-        <button onClick={() => onNavigate(View.DASHBOARD)} className="flex items-center justify-center w-10 h-10 -ml-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+        <button onClick={onBack} className="flex items-center justify-center w-10 h-10 -ml-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
           <span className="material-symbols-outlined text-2xl">arrow_back</span>
         </button>
         <h1 className="text-lg lg:text-xl font-bold leading-tight tracking-tight flex-1 text-center pr-8">Cadastrar Novo Tema</h1>
