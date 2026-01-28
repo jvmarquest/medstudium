@@ -54,10 +54,10 @@ serve(async (req) => {
         }
 
         if (!profile.stripe_subscription_id) {
-            // Edge case: User is marked as monthly but no ID. Correct it.
-            await supabaseClient.from('profiles').update({ plan: 'free', is_premium: false }).eq('id', user.id);
+            // Edge case: User is marked as monthly but no ID. 
+            // Do NOT auto-downgrade, just error out so we don't mess up manual testing states.
             return new Response(
-                JSON.stringify({ success: false, error: 'Assinatura não encontrada. Seu perfil foi atualizado para Gratuito.' }),
+                JSON.stringify({ success: false, error: 'Assinatura não encontrada. Contate o suporte ou verifique seus dados.' }),
                 { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
             );
         }

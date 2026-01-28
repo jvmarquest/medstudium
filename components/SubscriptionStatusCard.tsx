@@ -13,6 +13,8 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
     const { profile, loading: userLoading, refreshProfile } = useUser();
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
     const [processing, setProcessing] = useState(false);
 
     const handleCancelSubscription = async () => {
@@ -30,13 +32,16 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
             console.error('Cancel Error:', err);
             // Try to extract dynamic error message
             const msg = err.message || 'Erro ao cancelar assinatura. Tente novamente.';
-            alert(msg);
+            setErrorMessage(msg);
+            setShowErrorModal(true);
         } finally {
             setProcessing(false);
         }
     };
 
     const statusData = useMemo(() => {
+        // ... (existing helper logic same as before, no changes needed here in this replace block if it wraps around)
+        // Re-implementing logic to ensure we capture the previously fixed "Inativo" label
         if (userLoading || !profile) return null;
 
         const isPremium = isUserPremium(profile);
@@ -63,7 +68,7 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
                 title = 'Plano Mensal';
 
                 if (status === 'canceled_pending') {
-                    statusLabel = 'Inativo';
+                    statusLabel = 'Inativo'; // FIXED: Label changed to Inativo
                     statusColor = 'text-slate-500 bg-slate-100 dark:bg-slate-800 dark:text-slate-400';
                     showButton = false; // No action needed until it expires
                     infoText = 'Acesso Premium mantido até o fim do ciclo.';
@@ -71,9 +76,6 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
                     statusLabel = 'Ativo';
                     buttonText = 'Cancelar Assinatura';
                     buttonAction = () => setShowCancelModal(true);
-                } else {
-                    // Fallback
-                    statusLabel = 'Ativo';
                 }
             }
         } else if (isTrial) {
@@ -84,6 +86,9 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
             buttonAction = () => onNavigate(View.PREMIUM);
         } else {
             // Free / Expired
+            // Fallback for "Free" plan but valid date?
+            // User requested: "Monthly Plan + Inactive + Expires On" vs "Plano Gratuito + Renova em"
+            // If we are here, isPremium is false.
             if (status === 'expired') {
                 statusLabel = 'Expirado';
                 statusColor = 'text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-400';
@@ -117,8 +122,6 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
             dateLabel = `Teste até ${date}`;
         } else if (profile.current_period_end && (status === 'canceled_pending' || status === 'active')) {
             const date = new Date(profile.current_period_end).toLocaleDateString('pt-BR');
-            // If canceled_pending -> "Expira em: ..."
-            // If active -> "Renova em: ..."
             dateLabel = status === 'canceled_pending' ? `Expira em ${date}` : `Renova em ${date}`;
         }
 
@@ -236,6 +239,30 @@ export const SubscriptionStatusCard: React.FC<Props> = ({ onNavigate }) => {
                                 className="w-full py-3 rounded-xl font-bold text-white bg-slate-900 hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-dark transition-colors"
                             >
                                 Entendido
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Error/Alert Modal */}
+            {showErrorModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-card-dark rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-50 duration-200 text-center">
+                        <div className="p-6 flex flex-col items-center">
+                            <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4 text-red-500">
+                                <span className="material-symbols-outlined text-2xl">error</span>
+                            </div>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Atenção</h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">
+                                {errorMessage}
+                            </p>
+
+                            <button
+                                onClick={() => setShowErrorModal(false)}
+                                className="w-full py-3 rounded-xl font-bold text-white bg-slate-900 hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-dark transition-colors"
+                            >
+                                Fechar
                             </button>
                         </div>
                     </div>
