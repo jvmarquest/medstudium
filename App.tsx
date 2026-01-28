@@ -182,11 +182,18 @@ const AppContent: React.FC = () => {
           // We run async
           syncSubscription();
 
-        } else if (path === '/billing/cancel') {
+        } catch (error) {
+          console.error("[Billing] Error during success handling:", error);
+          alert("Ocorreu um erro ao processar seu pagamento. Por favor, tente novamente ou entre em contato com o suporte.");
           window.history.replaceState({}, '', '/');
-          alert('Pagamento cancelado.');
         }
-      }, [refreshUserData]);
+      };
+      handleBillingSuccess(); // Call the async function
+    } else if (path === '/billing/cancel') {
+      window.history.replaceState({}, '', '/');
+      alert('Pagamento cancelado.');
+    }
+  }, []); // Removed refreshUserData from dependencies as it's not defined in this scope and causes issues.
 
   // REACTIVE STATE SYNC (Replaces checkPreferences)
   // We trust the Contexts.

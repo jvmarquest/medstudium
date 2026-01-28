@@ -21,7 +21,7 @@ const PlanContext = createContext<PlanContextData>({
 });
 
 export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { profile, loading: userLoading, subscription } = useUser();
+    const { profile, loading: userLoading, subscription, isPremium: userContextIsPremium } = useUser();
 
     const planState = useMemo(() => {
         if (userLoading) {
@@ -82,7 +82,7 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
             plan,
             loading: false
         };
-    }, [profile, userLoading]);
+    }, [profile, userLoading, userContextIsPremium]);
 
     return (
         <PlanContext.Provider value={planState}>
