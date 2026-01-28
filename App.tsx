@@ -19,6 +19,7 @@ import Onboarding from './views/Onboarding';
 import ManageSubscription from './views/ManageSubscription';
 import { TrialBanner } from './components/TrialBanner';
 import { FreePlanBanner } from './components/FreePlanBanner';
+import { LifetimeSuccessModal } from './components/LifetimeSuccessModal';
 import { supabase } from './supabase';
 import { PlanProvider, usePlan } from './lib/planContext';
 
@@ -37,6 +38,8 @@ const AppContent: React.FC = () => {
   const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
   const [loadingPreferences, setLoadingPreferences] = useState<boolean>(false);
   const [appError, setAppError] = useState<string | null>(null);
+  const [showLifetimeModal, setShowLifetimeModal] = useState(false);
+  const [successPlanType, setSuccessPlanType] = useState<'monthly' | 'lifetime' | 'free'>('lifetime');
 
   // Ref to track loading status inside timeout closure
   const loadingRef = React.useRef({ auth: true, prefs: false });
@@ -163,9 +166,9 @@ const AppContent: React.FC = () => {
 
                 // Check using utility to be consistent
                 if (profile && (profile.plan === 'monthly' || profile.plan === 'lifetime' || profile.is_premium)) {
-                  alert('Pagamento confirmado e plano atualizado!');
-                  // Force reload to ensure all contexts are clean
-                  window.location.href = '/';
+                  setSuccessPlanType((profile.plan as any) || 'monthly');
+                  setShowLifetimeModal(true);
+                  // We don't reload immediately anymore
                   return;
                 }
               }
@@ -452,6 +455,14 @@ const AppContent: React.FC = () => {
     <div className="flex flex-col h-[100dvh] w-full overflow-hidden bg-background-light dark:bg-background-dark pt-safe">
       <TrialBanner onNavigate={navigateTo} />
       <FreePlanBanner onNavigate={navigateTo} />
+      <LifetimeSuccessModal
+        isOpen={showLifetimeModal}
+        planType={successPlanType}
+        onClose={() => {
+          setShowLifetimeModal(false);
+          window.location.href = '/';
+        }}
+      />
       <div className="flex-1 min-h-0">
         {renderView()}
       </div>
