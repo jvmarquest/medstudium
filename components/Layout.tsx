@@ -66,13 +66,13 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onBack, onCalen
   const { isOnline } = useNetwork();
 
   return (
-    <header className="bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 w-full relative">
+    <header className="bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 w-full relative h-16 lg:h-20">
       {!isOnline && (
         <div className="bg-red-500 text-white text-[10px] font-bold text-center py-1">
           Sem conexão. Funcionalidades limitadas.
         </div>
       )}
-      <div className="flex items-center justify-between px-6 py-4 lg:py-5 w-full mx-auto relative gap-3">
+      <div className="flex items-center justify-between px-6 w-full mx-auto relative gap-3 h-full">
         {/* Left Side: Back + Logo + Titles */}
         <div className="flex items-center gap-3 relative z-10 flex-1 min-w-0">
           {onBack && (
@@ -81,8 +81,8 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onBack, onCalen
             </button>
           )}
 
-          <div className="relative h-6 lg:h-8 w-auto">
-            <img src="/logo.svg" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-full w-auto object-contain" alt="Logo" />
+          <div className="flex items-center h-full">
+            <img src="/logo.svg" className="h-[70%] w-auto object-contain" alt="Logo" />
           </div>
 
           <div className="flex flex-col min-w-0">

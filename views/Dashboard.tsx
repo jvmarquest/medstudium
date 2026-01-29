@@ -160,8 +160,8 @@ const Dashboard: React.FC<Props> = ({ onNavigate, onHistory }) => {
 
 
   const header = (
-    <header className="bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 w-full relative">
-      <div className="flex items-center justify-between px-6 py-4 lg:py-5 w-full mx-auto relative">
+    <header className="bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 w-full relative h-16 lg:h-20">
+      <div className="flex items-center justify-between px-6 w-full mx-auto relative h-full">
         <div className="flex items-center gap-3 relative z-10 w-1/3">
           <div className="flex flex-col">
             <h2 className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider leading-none">{greeting}</h2>
@@ -169,8 +169,8 @@ const Dashboard: React.FC<Props> = ({ onNavigate, onHistory }) => {
           </div>
         </div>
 
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20">
-          <img src="/logo.svg" className="h-6 lg:h-8 w-auto object-contain" alt="Logo" />
+        <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 flex items-center justify-center z-20">
+          <img src="/logo.svg" className="h-[70%] w-auto object-contain" alt="Logo" />
         </div>
 
         <div className="flex items-center gap-2 relative z-10 w-1/3 justify-end">

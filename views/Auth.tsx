@@ -103,7 +103,7 @@ const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode }) => {
 
 
   const header = (
-    <div className="flex items-center justify-between px-4 py-8 bg-background-light dark:bg-background-dark relative">
+    <div className="flex items-center justify-between px-4 bg-background-light dark:bg-background-dark relative h-16 lg:h-20 shrink-0 border-b border-slate-200 dark:border-slate-800">
       <div className="relative z-10 w-12">
         {mode === View.SIGNUP && (
           <button
@@ -115,8 +115,8 @@ const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode }) => {
         )}
       </div>
 
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20">
-        <img src="/logo.svg" className="h-8 lg:h-10 w-auto object-contain" alt="Logo" />
+      <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 flex items-center justify-center z-20">
+        <img src="/logo.svg" className="h-[70%] w-auto object-contain" alt="Logo" />
       </div>
 
       <div className="w-12" />
