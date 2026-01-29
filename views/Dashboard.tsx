@@ -15,6 +15,8 @@ const Dashboard: React.FC<Props> = ({ onNavigate }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [examDateStr, setExamDateStr] = useState<string | null>(null);
   const [todayThemes, setTodayThemes] = useState<Theme[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyThemes, setHistoryThemes] = useState<any[]>([]);
 
   // Load State
   const [loadStatus, setLoadStatus] = useState({ label: 'Nenhuma', percentage: 0 });
@@ -128,6 +130,29 @@ const Dashboard: React.FC<Props> = ({ onNavigate }) => {
     updateGreeting();
   }, [profile, session, dataVersion]);
 
+  const fetchHistory = async () => {
+    if (!session?.user) return;
+    try {
+      const { data, error } = await supabase
+        .from('themes')
+        .select('id, nome, especialidade, created_at')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setHistoryThemes(data || []);
+    } catch (err) {
+      console.error('Error fetching history:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (showHistory) {
+      fetchHistory();
+    }
+  }, [showHistory]);
+
   useEffect(() => {
     if (!examDateStr) return;
 
@@ -173,6 +198,13 @@ const Dashboard: React.FC<Props> = ({ onNavigate }) => {
         </div>
 
         <div className="flex items-center gap-2 relative z-10 w-1/3 justify-end">
+          <button
+            onClick={() => setShowHistory(true)}
+            className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300 relative group"
+            title="Histórico"
+          >
+            <span className="material-symbols-outlined text-2xl">history</span>
+          </button>
           <button onClick={() => onNavigate(View.PLAN)} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-300">
             <span className="material-symbols-outlined text-2xl">calendar_month</span>
           </button>
@@ -300,6 +332,48 @@ const Dashboard: React.FC<Props> = ({ onNavigate }) => {
           </div>
         </div>
       </div>
+
+      {/* History Modal */}
+      {showHistory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowHistory(false)}>
+          <div className="bg-white dark:bg-surface-dark rounded-2xl shadow-xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-slate-800 animate-slide-up" onClick={e => e.stopPropagation()}>
+            <div className="p-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+              <h3 className="text-lg font-bold">Histórico de Adições</h3>
+              <button onClick={() => setShowHistory(false)} className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="p-0 overflow-y-auto max-h-[60vh]">
+              {historyThemes.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                  <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">history</span>
+                  <p className="text-slate-500 text-sm">Nenhum tema adicionado recentemente.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {historyThemes.map(item => (
+                    <div key={item.id} className="p-4 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <div className="size-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined">
+                          {item.especialidade === 'Cardiologia' ? 'cardiology' : 'medical_services'}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-bold truncate text-slate-900 dark:text-white">{item.nome}</h4>
+                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                          <span>{item.especialidade}</span>
+                          <span>•</span>
+                          <span>{new Date(item.created_at).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </PageLayout>
   );
 };
