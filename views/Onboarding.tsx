@@ -10,7 +10,7 @@ interface OnboardingProps {
 
 const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
     const { refreshProfile, profile } = useUser();
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(0);
 
     const [loading, setLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
@@ -81,7 +81,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
     };
 
     const prevStep = () => {
-        if (step > 1) setStep(step - 1);
+        if (step > 0) setStep(step - 1);
         else onNavigate(View.DASHBOARD); // Or back to where they came from
     };
 
@@ -279,9 +279,29 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
 
     // --- Renders ---
 
+    // Welcome Step
+    const renderWelcomeStep = () => (
+        <div className="animate-fade-in flex flex-col items-center justify-center px-8 py-20 text-center min-h-[60vh]">
+            <div className="mb-10 relative">
+                <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150"></div>
+                <img
+                    src="/favicon_io/usar.png"
+                    className="relative w-32 h-32 lg:w-40 lg:h-40 rounded-3xl shadow-2xl animate-float"
+                    alt="MedStudium Logo"
+                />
+            </div>
+            <h1 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-4">
+                Bem-vindo ao <span className="text-primary">MedStudium</span>
+            </h1>
+            <p className="text-lg lg:text-xl text-slate-600 dark:text-slate-400 font-medium max-w-sm leading-relaxed">
+                Sua jornada para a residência médica começa agora. Vamos personalizar seu plano de estudos?
+            </p>
+        </div>
+    );
+
     // Header Progress Bar
     const renderProgressBar = () => {
-        const percentage = (step / 4) * 100;
+        const percentage = step === 0 ? 0 : (step / 4) * 100;
         return (
             <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mt-4">
                 <div className="bg-primary h-full rounded-full transition-all duration-500" style={{ width: `${percentage}% ` }}></div>
@@ -600,9 +620,34 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
 
     // --- Dynamic Header & Footer per Step ---
 
-    // --- Dynamic Header per Step ---
-
     const renderHeader = () => {
+        if (step === 0) {
+            const showClose = profile?.onboarding_completed;
+            return (
+                <header className="bg-background-light dark:bg-background-dark shrink-0 z-10 w-full">
+                    <div className="max-w-md lg:max-w-7xl mx-auto w-full px-6 lg:px-12 pt-8 pb-4">
+                        <div className="flex items-center justify-between">
+                            <div className="w-12"></div>
+                            <div className="flex-1 text-center">
+                                <span className="text-[10px] lg:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
+                                    Boas-vindas
+                                </span>
+                            </div>
+                            <div className="w-12 flex justify-end">
+                                {showClose && (
+                                    <button
+                                        onClick={() => onNavigate(View.SETTINGS)}
+                                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center justify-center size-10 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                                    >
+                                        <span className="material-symbols-outlined text-[22px]">close</span>
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            );
+        }
         // Standardized Header Layout (Continuous Bar)
         const renderStandardHeader = (stepNum: number, percentage: number) => {
             const showClose = profile?.onboarding_completed;
@@ -686,11 +731,26 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
         // Progress Dots Helper
         const renderDots = (activeStep: number) => (
             <div className="flex gap-1.5">
-                {[1, 2, 3, 4].map(num => (
+                {[0, 1, 2, 3, 4].map(num => (
                     <div key={num} className={`h-1.5 rounded-full ${num === activeStep ? 'w-4 bg-primary' : 'w-1.5 bg-slate-300 dark:bg-slate-700'}`}></div>
                 ))}
             </div>
         );
+
+        // Step 0 Footer
+        if (step === 0) {
+            return (
+                <footer className={footerClass}>
+                    <div className="max-w-md lg:max-w-7xl mx-auto w-full flex flex-col items-center gap-6 px-8 lg:px-12">
+                        <button onClick={nextStep} className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-primary/25 flex items-center justify-center gap-2">
+                            Começar
+                            <span className="material-symbols-outlined text-xl">arrow_forward</span>
+                        </button>
+                        {renderDots(0)}
+                    </div>
+                </footer>
+            );
+        }
 
         // Step 1 Footer
         if (step === 1) {
@@ -761,6 +821,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
             header={renderHeader()}
             footer={renderFooter()}
         >
+            {step === 0 && renderWelcomeStep()}
             {step === 1 && renderStep1()}
             {step === 2 && renderStep3()}
             {step === 3 && renderStep4()}
