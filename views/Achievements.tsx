@@ -6,9 +6,10 @@ import { PageLayout } from '../components/PageLayout';
 
 interface Props {
   onNavigate: (view: View) => void;
+  onHistory: () => void;
 }
 
-const Achievements: React.FC<Props> = ({ onNavigate }) => {
+const Achievements: React.FC<Props> = ({ onNavigate, onHistory }) => {
   const badges = [
     { id: 1, title: 'Início Promissor', desc: 'Completou a primeira revisão', icon: 'stars', earned: true, date: '22/10/24' },
     { id: 2, title: 'Foco Total', desc: '7 dias seguidos de estudo', icon: 'local_fire_department', earned: true, date: 'Ontem' },
@@ -20,7 +21,7 @@ const Achievements: React.FC<Props> = ({ onNavigate }) => {
 
   return (
     <PageLayout
-      header={<Header title="Conquistas" subtitle="Seu legado acadêmico" onBack={() => onNavigate(View.DASHBOARD)} />}
+      header={<Header title="Conquistas" subtitle="Seu legado acadêmico" onBack={() => onNavigate(View.DASHBOARD)} onHistory={onHistory} />}
       bottomNav={<Navbar currentView={View.ACHIEVEMENTS} onNavigate={onNavigate} />}
     >
 

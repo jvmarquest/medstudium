@@ -10,10 +10,11 @@ import { useUser } from '../contexts/UserContext';
 
 interface Props {
   themeId: string | null;
-  onNavigate: (view: View) => void;
+  onNavigate: (view: View, themeId?: string) => void;
+  onHistory: () => void;
 }
 
-const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate }) => {
+const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
   const { isOnline } = useNetwork();
   const { refreshUserData } = useUser();
   const [theme, setTheme] = React.useState<Theme | null>(null);

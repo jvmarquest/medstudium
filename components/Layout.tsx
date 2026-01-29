@@ -59,9 +59,10 @@ interface HeaderProps {
   onBack?: () => void;
   onCalendar?: () => void;
   onInfo?: () => void;
+  onHistory?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ title, subtitle, onBack, onCalendar, onInfo }) => {
+export const Header: React.FC<HeaderProps> = ({ title, subtitle, onBack, onCalendar, onInfo, onHistory }) => {
   const { isOnline } = useNetwork();
 
   return (
@@ -93,6 +94,11 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onBack, onCalen
           {onInfo && (
             <button onClick={onInfo} className="p-2 rounded-full hover:bg-slate-200 text-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
               <span className="material-symbols-outlined text-2xl">info</span>
+            </button>
+          )}
+          {onHistory && (
+            <button onClick={onHistory} className="p-2 rounded-full hover:bg-slate-200 text-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
+              <span className="material-symbols-outlined text-2xl">history</span>
             </button>
           )}
           {onCalendar && (

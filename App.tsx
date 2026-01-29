@@ -19,6 +19,7 @@ import Onboarding from './views/Onboarding';
 import ManageSubscription from './views/ManageSubscription';
 import { FreePlanBanner } from './components/FreePlanBanner';
 import { LifetimeSuccessModal } from './components/LifetimeSuccessModal';
+import { HistoryModal } from './components/HistoryModal';
 import { supabase } from './supabase';
 import { PlanProvider, usePlan } from './lib/planContext';
 
@@ -39,6 +40,7 @@ const AppContent: React.FC = () => {
   const [appError, setAppError] = useState<string | null>(null);
   const [showLifetimeModal, setShowLifetimeModal] = useState(false);
   const [successPlanType, setSuccessPlanType] = useState<'monthly' | 'lifetime' | 'free'>('lifetime');
+  const [showHistory, setShowHistory] = useState(false);
 
   // Ref to track loading status inside timeout closure
   const loadingRef = React.useRef({ auth: true, prefs: false });
@@ -423,23 +425,23 @@ const AppContent: React.FC = () => {
         return <Premium onNavigate={navigateTo} onBack={handleGoBack} />;
 
       case View.DASHBOARD:
-        return <Dashboard onNavigate={navigateTo} />;
+        return <Dashboard onNavigate={navigateTo} onHistory={() => setShowHistory(true)} />;
       case View.REVIEWS:
-        return <ReviewList onNavigate={navigateTo} />;
+        return <ReviewList onNavigate={navigateTo} onHistory={() => setShowHistory(true)} />;
       case View.PLAN:
-        return <Plan onNavigate={navigateTo} onBack={handleGoBack} />;
+        return <Plan onNavigate={navigateTo} onBack={handleGoBack} onHistory={() => setShowHistory(true)} />;
       case View.ANALYTICS:
-        return <Analytics onNavigate={navigateTo} />;
+        return <Analytics onNavigate={navigateTo} onHistory={() => setShowHistory(true)} />;
       case View.ACHIEVEMENTS:
-        return <Achievements onNavigate={navigateTo} />;
+        return <Achievements onNavigate={navigateTo} onHistory={() => setShowHistory(true)} />;
       case View.SETTINGS:
-        return <Settings onNavigate={navigateTo} isDarkMode={isDarkMode} onToggleTheme={() => setIsDarkMode(!isDarkMode)} />;
+        return <Settings onNavigate={navigateTo} isDarkMode={isDarkMode} onToggleTheme={() => setIsDarkMode(!isDarkMode)} onHistory={() => setShowHistory(true)} />;
       case View.MANAGE_SUBSCRIPTION:
         return <ManageSubscription onNavigate={navigateTo} />;
       case View.ADD_THEME:
-        return <AddTheme onNavigate={navigateTo} onBack={handleGoBack} />;
+        return <AddTheme onNavigate={navigateTo} onBack={handleGoBack} onHistory={() => setShowHistory(true)} />;
       case View.THEME_DETAILS:
-        return <ThemeDetails themeId={selectedThemeId} onNavigate={navigateTo} />;
+        return <ThemeDetails themeId={selectedThemeId} onNavigate={navigateTo} onHistory={() => setShowHistory(true)} />;
       case View.ONBOARDING:
         // Should not happen if isOnboardingCompleted is true (handled by logic above or navigateTo)
         return <Dashboard onNavigate={navigateTo} />;
@@ -464,6 +466,7 @@ const AppContent: React.FC = () => {
       <div className="flex-1 min-h-0">
         {renderView()}
       </div>
+      <HistoryModal isOpen={showHistory} onClose={() => setShowHistory(false)} />
     </div>
   );
 };

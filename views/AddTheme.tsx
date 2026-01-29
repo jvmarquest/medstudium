@@ -11,11 +11,12 @@ import { useAccess, Feature } from '../lib/planAccess';
 import { UpgradeModal } from '../components/UpgradeModal';
 
 interface Props {
-  onNavigate: (view: View) => void;
+  onNavigate: (view: View, themeId?: string) => void;
   onBack: () => void;
+  onHistory: () => void;
 }
 
-const AddTheme: React.FC<Props> = ({ onNavigate, onBack }) => {
+const AddTheme: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
   console.log("AddTheme loaded");
   const { isOnline } = useNetwork();
   const { session, profile } = useUser(); // Using Context
@@ -307,23 +308,11 @@ const AddTheme: React.FC<Props> = ({ onNavigate, onBack }) => {
   const difficultyBg = difficulty === 'Fácil' ? 'bg-green-500' : difficulty === 'Médio' ? 'bg-orange-500' : 'bg-red-500';
 
   const header = (
-    <header className="shrink-0 bg-background-light dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 z-20 relative">
-      <div className="flex items-center justify-between px-6 py-3 lg:py-4 w-full mx-auto relative">
-        <div className="relative z-10 w-1/4">
-          <button onClick={onBack} className="flex items-center justify-center w-10 h-10 -ml-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
-            <span className="material-symbols-outlined text-2xl">arrow_back</span>
-          </button>
-        </div>
-
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20">
-          <img src="/favicon_io/usar.png" className="h-14 w-14 object-contain rounded-lg" alt="Logo" />
-        </div>
-
-        <div className="relative z-10 w-1/4 flex justify-end">
-          {/* Spacer or additional action */}
-        </div>
-      </div>
-    </header>
+    <Header
+      title="Novo Tema"
+      onBack={onBack}
+      onHistory={onHistory}
+    />
   );
 
   return (

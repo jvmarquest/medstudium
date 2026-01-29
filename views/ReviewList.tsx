@@ -7,9 +7,10 @@ import { useUser } from '../contexts/UserContext';
 
 interface Props {
   onNavigate: (view: View, themeId?: string) => void;
+  onHistory: () => void;
 }
 
-const ReviewList: React.FC<Props> = ({ onNavigate }) => {
+const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
   const { profile, session, dataVersion, refreshUserData } = useUser();
   const [reviewThemes, setReviewThemes] = useState<Theme[]>([]);
   const [tomorrowThemes, setTomorrowThemes] = useState<Theme[]>([]);
@@ -260,7 +261,7 @@ const ReviewList: React.FC<Props> = ({ onNavigate }) => {
   const finishTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
   const header = (
-    <Header title="Revisões Diárias" subtitle={`${greeting}, ${userName}`} onCalendar={() => onNavigate(View.PLAN)} />
+    <Header title="Revisões Diárias" subtitle={`${greeting}, ${userName}`} onCalendar={() => onNavigate(View.PLAN)} onHistory={onHistory} />
   );
 
   return (

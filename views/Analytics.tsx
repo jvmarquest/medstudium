@@ -9,9 +9,10 @@ import { useAccess, Feature } from '../lib/planAccess';
 
 interface Props {
   onNavigate: (view: View) => void;
+  onHistory: () => void;
 }
 
-const Analytics: React.FC<Props> = ({ onNavigate }) => {
+const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
   const { session, profile, dataVersion } = useUser();
   const { canAccess } = useAccess();
   // removed isPremium from destructuring above since we use canAccess now
@@ -181,7 +182,7 @@ const Analytics: React.FC<Props> = ({ onNavigate }) => {
   if (!loading && !canAccess(Feature.ADVANCED_ANALYTICS)) {
     return (
       <PageLayout
-        header={<Header title="Análise" subtitle="Recurso Premium" onCalendar={() => onNavigate(View.PLAN)} />}
+        header={<Header title="Análise" subtitle="Recurso Premium" onCalendar={() => onNavigate(View.PLAN)} onHistory={onHistory} />}
         bottomNav={<Navbar currentView={View.ANALYTICS} onNavigate={onNavigate} />}
       >
         <div className="flex flex-col items-center justify-center p-8 text-center bg-white dark:bg-card-dark m-4 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-800">

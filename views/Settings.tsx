@@ -8,12 +8,13 @@ import { useUser } from '../contexts/UserContext';
 import { SubscriptionStatusCard } from '../components/SubscriptionStatusCard';
 
 interface Props {
-  onNavigate: (view: View) => void;
+  onNavigate: (view: View, themeId?: string) => void;
   isDarkMode: boolean;
   onToggleTheme: () => void;
+  onHistory: () => void;
 }
 
-const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) => {
+const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme, onHistory }) => {
   const { profile, refreshProfile } = useUser(); // De-structure profile here
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -286,7 +287,7 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme }) =>
   };
 
   const header = (
-    <Header title="Configurações" onBack={() => onNavigate(View.DASHBOARD)} onCalendar={() => onNavigate(View.PLAN)} />
+    <Header title="Configurações" subtitle="Perfil & Preferências" onHistory={onHistory} />
   );
 
   return (

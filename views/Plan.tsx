@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { View, Theme } from '../types';
-import { Navbar } from '../components/Layout';
+import { Navbar, Header } from '../components/Layout';
 import { PageLayout } from '../components/PageLayout';
 import { supabase } from '../supabase';
 import { useUser } from '../contexts/UserContext';
 
 interface Props {
   onNavigate: (view: View, themeId?: string) => void;
-  onBack?: () => void;
+  onBack: () => void;
+  onHistory: () => void;
 }
 
-const Plan: React.FC<Props> = ({ onNavigate, onBack }) => {
+const Plan: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
   const { session, profile, dataVersion } = useUser();
   const [themes, setThemes] = useState<Theme[]>([]);
   const [filteredThemes, setFilteredThemes] = useState<Theme[]>([]);
@@ -203,23 +204,13 @@ const Plan: React.FC<Props> = ({ onNavigate, onBack }) => {
   };
 
   const customHeader = (
-    <div className="bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-      <div className="flex items-center px-6 py-3 lg:py-4 justify-between w-full mx-auto">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => {
-              if (onBack) onBack();
-              else onNavigate(View.DASHBOARD);
-            }}
-            className="p-2 -ml-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors mr-1"
-            aria-label="Voltar"
-          >
-            <span className="material-symbols-outlined text-2xl">arrow_back</span>
-          </button>
-          <span className="material-symbols-outlined text-primary text-2xl">menu_book</span>
-          <h1 className="text-lg lg:text-xl font-bold tracking-tight">Plano de Estudo</h1>
-        </div>
-      </div>
+    <div className="flex flex-col">
+      <Header
+        title="Plano de Estudo"
+        subtitle="Sua Jornada de Aprendizado"
+        onBack={onBack}
+        onHistory={onHistory}
+      />
 
       <div className="px-6 py-2 lg:py-3 w-full mx-auto">
         <label className="relative flex items-center w-full">
@@ -260,7 +251,7 @@ const Plan: React.FC<Props> = ({ onNavigate, onBack }) => {
           </button>
         ))}
       </div>
-    </div>
+    </div >
   );
 
   return (
