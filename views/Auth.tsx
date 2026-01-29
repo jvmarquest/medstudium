@@ -116,7 +116,7 @@ const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode }) => {
       </div>
 
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20">
-        <img src="/favicon_io/usar.png" className="h-14 w-auto rounded-lg" alt="Logo" />
+        <img src="/favicon_io/usar.png" className="h-[73px] w-auto rounded-lg" alt="Logo" />
       </div>
 
       <div className="w-12" />
