@@ -286,7 +286,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
                 <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150"></div>
                 <img
                     src="/favicon_io/usar.png"
-                    className="relative w-28 h-28 lg:w-40 lg:h-40 rounded-3xl shadow-2xl animate-float"
+                    className="relative h-20 lg:h-32 w-auto rounded-3xl shadow-2xl animate-float object-contain"
                     alt="MedStudium Logo"
                 />
             </div>

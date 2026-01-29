@@ -71,24 +71,25 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onBack, onCalen
           Sem conexão. Funcionalidades limitadas.
         </div>
       )}
-      <div className="flex items-center justify-between px-6 py-4 lg:py-5 w-full mx-auto relative">
-        <div className="flex items-center gap-3 relative z-10 w-1/3">
+      <div className="flex items-center justify-between px-6 py-4 lg:py-5 w-full mx-auto relative gap-3">
+        {/* Left Side: Back + Logo + Titles */}
+        <div className="flex items-center gap-3 relative z-10 flex-1 min-w-0">
           {onBack && (
-            <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+            <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors shrink-0">
               <span className="material-symbols-outlined text-2xl">arrow_back</span>
             </button>
           )}
+
+          <img src="/favicon_io/usar.png" className="h-9 w-auto rounded-lg shrink-0" alt="Logo" />
+
           <div className="flex flex-col min-w-0">
             {subtitle && <h2 className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">{subtitle}</h2>}
             <h1 className="text-sm lg:text-base font-bold text-slate-900 dark:text-white leading-tight truncate">{title}</h1>
           </div>
         </div>
 
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20 pointer-events-none">
-          <img src="/favicon_io/usar.png" className="h-9 lg:h-14 w-auto rounded-lg" alt="Logo" />
-        </div>
-
-        <div className="flex items-center gap-1 relative z-10 w-1/3 justify-end">
+        {/* Right Side: Actions */}
+        <div className="flex items-center gap-1 relative z-10 shrink-0">
           {onInfo && (
             <button onClick={onInfo} className="p-2 rounded-full hover:bg-slate-200 text-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
               <span className="material-symbols-outlined text-2xl">info</span>
