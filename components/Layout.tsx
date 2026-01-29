@@ -74,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onBack, onCalen
       )}
       <div className="flex items-center justify-between px-6 w-full mx-auto relative gap-3 h-full">
         {/* Left Side: Back + Logo + Titles */}
-        <div className="flex items-center gap-3 relative z-10 flex-1 min-w-0">
+        <div className="flex items-center gap-3 relative z-10 flex-1 min-w-0 h-full">
           {onBack && (
             <button onClick={onBack} className="p-2 -ml-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors shrink-0">
               <span className="material-symbols-outlined text-2xl">arrow_back</span>
