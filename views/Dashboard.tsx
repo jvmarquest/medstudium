@@ -170,7 +170,7 @@ const Dashboard: React.FC<Props> = ({ onNavigate, onHistory }) => {
         </div>
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20">
-          <img src="/favicon_io/usar.png" className="h-14 w-14 object-contain rounded-lg" alt="Logo" />
+          <img src="/logo.svg" className="h-6 lg:h-8 w-auto object-contain" alt="Logo" />
         </div>
 
         <div className="flex items-center gap-2 relative z-10 w-1/3 justify-end">

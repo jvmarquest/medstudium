@@ -81,7 +81,9 @@ export const Header: React.FC<HeaderProps> = ({ title, subtitle, onBack, onCalen
             </button>
           )}
 
-          <img src="/favicon_io/usar.png" className="h-9 w-9 object-contain rounded-lg shrink-0" alt="Logo" />
+          <div className="relative h-6 lg:h-8 w-auto">
+            <img src="/logo.svg" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-full w-auto object-contain" alt="Logo" />
+          </div>
 
           <div className="flex flex-col min-w-0">
             {subtitle && <h2 className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">{subtitle}</h2>}
