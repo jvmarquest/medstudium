@@ -209,7 +209,7 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
       header={
         <Header
           title="Análise"
-          subtitle="Seu progresso num relance"
+          subtitle="Seu progresso"
           onCalendar={() => onNavigate(View.PLAN)}
           onInfo={() => setShowInfoModal(true)}
         />
