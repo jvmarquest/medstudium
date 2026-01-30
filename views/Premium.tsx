@@ -162,14 +162,35 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate, onBack }) => {
 
                 <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:max-w-4xl w-full">
                     {/* Monthly Plan */}
-                    <div className="bg-white dark:bg-card-dark rounded-2xl shadow-xl overflow-hidden border border-slate-100 dark:border-slate-800 flex flex-col transition-colors">
+                    <div className="bg-white dark:bg-card-dark rounded-2xl shadow-xl overflow-hidden border border-slate-100 dark:border-slate-800 flex flex-col transition-colors relative">
+                        <div className="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-br-xl shadow-sm z-10 animate-pulse">
+                            OFERTA ESPECIAL: 30% OFF
+                        </div>
                         <div className="p-8 flex-1">
                             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Mensal</h3>
                             <p className="mt-4 text-slate-500 dark:text-slate-400">Flexibilidade para seus estudos.</p>
-                            <div className="mt-6 flex items-baseline">
-                                <span className="text-5xl font-extrabold text-slate-900 dark:text-white">R$ 17,90</span>
-                                <span className="ml-2 text-slate-500 dark:text-slate-400">/mês</span>
+
+                            <div className="mt-6">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-xl line-through text-slate-400 dark:text-slate-500 font-medium">R$ 17,90</span>
+                                    <span className="bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Desconto Aplicado</span>
+                                </div>
+                                <div className="flex items-baseline">
+                                    <span className="text-5xl font-extrabold text-slate-900 dark:text-white">R$ 12,49</span>
+                                    <span className="ml-2 text-slate-500 dark:text-slate-400">/mês</span>
+                                </div>
+                                <div className="mt-3 flex flex-col gap-1.5 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                                    <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xs">
+                                        <span className="material-symbols-outlined text-[16px]">info</span>
+                                        <span>Duração da promoção: 1 mês</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-bold text-xs">
+                                        <span className="material-symbols-outlined text-[16px]">event_busy</span>
+                                        <span>Oferta encerra em 28/02/2026</span>
+                                    </div>
+                                </div>
                             </div>
+
                             <ul className="mt-8 space-y-4">
                                 {['Sem limite de temas', 'Sem limite de novas revisões', 'Estatísticas avançadas', 'Suporte prioritário'].map((benefit, index) => (
                                     <li key={index} className="flex items-center">
