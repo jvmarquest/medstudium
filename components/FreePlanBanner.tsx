@@ -8,12 +8,12 @@ interface FreePlanBannerProps {
 }
 
 export const FreePlanBanner: React.FC<FreePlanBannerProps> = ({ onNavigate }) => {
-    const { isFree, isTrial } = usePlan();
-    const { session } = useUser();
+    const { isFree, loading } = usePlan();
+    const { session, loading: userLoading } = useUser();
 
     // Only show if user is on Free plan and NOT in a trial
     // The TrialBanner handles the trial state.
-    if (!session || !isFree) return null;
+    if (loading || userLoading || !session || !isFree) return null;
 
     return (
         <div className="flex-none sticky top-0 left-0 right-0 z-[999] bg-gradient-to-r from-red-600 to-red-800 text-white px-4 py-2.5 flex items-center justify-between text-sm md:text-base shadow-xl border-b border-red-500/50 backdrop-blur-md bg-opacity-95">

@@ -12,7 +12,7 @@ interface PlanContextData {
 }
 
 const PlanContext = createContext<PlanContextData>({
-    isFree: true,
+    isFree: false,
     isTrial: false,
     isPremium: false,
     hasAppAccess: false,
@@ -26,9 +26,10 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const planState = useMemo(() => {
         if (userLoading) {
             return {
-                isFree: true,
+                isFree: false,
                 isTrial: false,
                 isPremium: false,
+                hasAppAccess: false,
                 plan: 'free' as const,
                 loading: true
             };
