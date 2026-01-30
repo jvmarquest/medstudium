@@ -216,16 +216,37 @@ const Premium: React.FC<PremiumProps> = ({ onNavigate, onBack }) => {
 
                     {/* Lifetime Plan */}
                     <div className="bg-white dark:bg-card-dark rounded-2xl shadow-xl overflow-hidden border-2 border-indigo-600 relative flex flex-col transition-colors">
-                        <div className="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
-                            MELHOR VALOR
+                        <div className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-bl-xl shadow-sm z-10 animate-pulse">
+                            OFERTA LIMITADA: 40% OFF
                         </div>
                         <div className="p-8 flex-1">
-                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Vitalício</h3>
-                            <p className="mt-4 text-slate-500 dark:text-slate-400">Pague uma vez, use para sempre.</p>
-                            <div className="mt-6 flex items-baseline">
-                                <span className="text-5xl font-extrabold text-slate-900 dark:text-white">R$ 237,90</span>
-                                <span className="ml-2 text-slate-500 dark:text-slate-400">único</span>
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Vitalício</h3>
+                                <span className="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Melhor Valor</span>
                             </div>
+                            <p className="mt-4 text-slate-500 dark:text-slate-400">Pague uma vez, use para sempre.</p>
+
+                            <div className="mt-6">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-xl line-through text-slate-400 dark:text-slate-500 font-medium">R$ 237,90</span>
+                                    <span className="bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Desconto Aplicado</span>
+                                </div>
+                                <div className="flex items-baseline">
+                                    <span className="text-5xl font-extrabold text-slate-900 dark:text-white">R$ 142,74</span>
+                                    <span className="ml-2 text-slate-500 dark:text-slate-400">único</span>
+                                </div>
+                                <div className="mt-3 flex flex-col gap-1.5 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                                    <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xs">
+                                        <span className="material-symbols-outlined text-[16px]">info</span>
+                                        <span>Duração da promoção: 1 mês</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-bold text-xs">
+                                        <span className="material-symbols-outlined text-[16px]">event_busy</span>
+                                        <span>Oferta encerra em 28/02/2026</span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <ul className="mt-8 space-y-4">
                                 {['Todas as vantagens do plano mensal', 'Sem renovação automática', 'Para sempre'].map((benefit, index) => (
                                     <li key={index} className="flex items-center">
