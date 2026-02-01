@@ -17,6 +17,7 @@ import { Session } from '@supabase/supabase-js';
 import Auth from './views/Auth';
 import Onboarding from './views/Onboarding';
 import ManageSubscription from './views/ManageSubscription';
+import LandingPage from './views/LandingPage';
 import { FreePlanBanner } from './components/FreePlanBanner';
 import { LifetimeSuccessModal } from './components/LifetimeSuccessModal';
 import { HistoryModal } from './components/HistoryModal';
@@ -26,7 +27,7 @@ import { PlanProvider, usePlan } from './lib/planContext';
 
 
 const AppContent: React.FC = () => {
-  const [currentView, setCurrentView] = useState<View>(View.LOGIN);
+  const [currentView, setCurrentView] = useState<View>(View.LANDING);
 
   const [selectedThemeId, setSelectedThemeId] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -88,7 +89,7 @@ const AppContent: React.FC = () => {
       setSession(session);
       setLoadingAuth(false);
       if (!session) {
-        setCurrentView(View.LOGIN);
+        setCurrentView(View.LANDING);
         setIsOnboardingCompleted(false);
       }
     });
@@ -206,8 +207,8 @@ const AppContent: React.FC = () => {
     if (loadingAuth || userLoading) return;
 
     if (!session) {
-      if (currentView !== View.LOGIN && currentView !== View.SIGNUP) {
-        setCurrentView(View.LOGIN);
+      if (currentView !== View.LOGIN && currentView !== View.SIGNUP && currentView !== View.LANDING) {
+        setCurrentView(View.LANDING);
       }
       return;
     }
@@ -291,8 +292,8 @@ const AppContent: React.FC = () => {
   const navigateTo = (view: View, themeId?: string) => {
     // STRICT NAVIGATION GUARDS
     if (!session) {
-      if (view !== View.LOGIN && view !== View.SIGNUP) {
-        setCurrentView(View.LOGIN);
+      if (view !== View.LOGIN && view !== View.SIGNUP && view !== View.LANDING) {
+        setCurrentView(View.LANDING);
         return;
       }
     } else {
@@ -380,10 +381,11 @@ const AppContent: React.FC = () => {
       );
     }
 
-    // 2. Not Logged In -> Auth Screens (STRICT)
+    // 2. Not Logged In -> Landing or Auth Screens (STRICT)
     if (!session) {
-      if (currentView !== View.SIGNUP) return <Auth mode={View.LOGIN} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.SIGNUP)} />;
-      return <Auth mode={View.SIGNUP} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.LOGIN)} />;
+      if (currentView === View.SIGNUP) return <Auth mode={View.SIGNUP} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.LOGIN)} />;
+      if (currentView === View.LOGIN) return <Auth mode={View.LOGIN} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.SIGNUP)} />;
+      return <LandingPage onNavigate={navigateTo} />;
     }
 
     // 3. Preferences / User / Plan Loading
@@ -447,6 +449,8 @@ const AppContent: React.FC = () => {
         return <Dashboard onNavigate={navigateTo} />;
       case View.FOCUS:
         return <FocusMode themeId={selectedThemeId} onNavigate={navigateTo} />;
+      case View.LANDING:
+        return <LandingPage onNavigate={navigateTo} />;
       default:
         return <Dashboard onNavigate={navigateTo} />;
     }
