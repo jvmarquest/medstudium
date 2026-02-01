@@ -7,9 +7,10 @@ interface Props {
   mode: View.LOGIN | View.SIGNUP;
   onAuthSuccess: () => void;
   onToggleMode: () => void;
+  onBack?: () => void;
 }
 
-const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode }) => {
+const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode, onBack }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -114,9 +115,9 @@ const Auth: React.FC<Props> = ({ mode, onAuthSuccess, onToggleMode }) => {
   const header = (
     <div className="flex items-center justify-between px-4 bg-background-light dark:bg-background-dark relative h-16 lg:h-20 shrink-0 border-b border-slate-200 dark:border-slate-800">
       <div className="relative z-10 w-12">
-        {mode === View.SIGNUP && (
+        {onBack && (
           <button
-            onClick={onToggleMode}
+            onClick={onBack}
             className="flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
           >
             <span className="material-symbols-outlined text-2xl">arrow_back</span>

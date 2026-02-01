@@ -383,8 +383,8 @@ const AppContent: React.FC = () => {
 
     // 2. Not Logged In -> Landing or Auth Screens (STRICT)
     if (!session) {
-      if (currentView === View.SIGNUP) return <Auth mode={View.SIGNUP} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.LOGIN)} />;
-      if (currentView === View.LOGIN) return <Auth mode={View.LOGIN} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.SIGNUP)} />;
+      if (currentView === View.SIGNUP) return <Auth mode={View.SIGNUP} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.LOGIN)} onBack={() => navigateTo(View.LANDING)} />;
+      if (currentView === View.LOGIN) return <Auth mode={View.LOGIN} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.SIGNUP)} onBack={() => navigateTo(View.LANDING)} />;
       return <LandingPage onNavigate={navigateTo} />;
     }
 
