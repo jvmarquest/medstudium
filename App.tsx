@@ -242,8 +242,8 @@ const AppContent: React.FC = () => {
           }
 
           // 2. Loop & Auth Guard
-          // If stuck on Auth/Onboarding screens, go to Dashboard
-          if ([View.LOGIN, View.SIGNUP, View.ONBOARDING].includes(currentView)) {
+          // If stuck on Auth/Onboarding/Landing screens, go to Dashboard
+          if ([View.LOGIN, View.SIGNUP, View.ONBOARDING, View.LANDING].includes(currentView)) {
             setCurrentView(View.DASHBOARD);
           }
         }
@@ -383,8 +383,8 @@ const AppContent: React.FC = () => {
 
     // 2. Not Logged In -> Landing or Auth Screens (STRICT)
     if (!session) {
-      if (currentView === View.SIGNUP) return <Auth mode={View.SIGNUP} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.LOGIN)} onBack={() => navigateTo(View.LANDING)} />;
-      if (currentView === View.LOGIN) return <Auth mode={View.LOGIN} onAuthSuccess={() => { }} onToggleMode={() => navigateTo(View.SIGNUP)} onBack={() => navigateTo(View.LANDING)} />;
+      if (currentView === View.SIGNUP) return <Auth mode={View.SIGNUP} onAuthSuccess={() => setCurrentView(View.DASHBOARD)} onToggleMode={() => navigateTo(View.LOGIN)} onBack={() => navigateTo(View.LANDING)} />;
+      if (currentView === View.LOGIN) return <Auth mode={View.LOGIN} onAuthSuccess={() => setCurrentView(View.DASHBOARD)} onToggleMode={() => navigateTo(View.SIGNUP)} onBack={() => navigateTo(View.LANDING)} />;
       return <LandingPage onNavigate={navigateTo} />;
     }
 
