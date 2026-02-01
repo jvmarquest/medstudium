@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View } from '../types';
 import {
     CheckCircle2,
@@ -22,16 +22,13 @@ interface LandingPageProps {
 }
 
 const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        setScrolled(e.currentTarget.scrollTop > 20);
+    };
 
     const menuItems = [
         { name: 'Início', href: '#home' },
@@ -42,12 +39,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
     ];
 
     return (
-        <div className="min-h-screen bg-white dark:bg-background-dark text-slate-900 dark:text-white selection:bg-primary selection:text-white overflow-x-hidden">
+        <div
+            ref={containerRef}
+            onScroll={handleScroll}
+            className="h-full overflow-y-auto overflow-x-hidden bg-white dark:bg-background-dark text-slate-900 dark:text-white selection:bg-primary selection:text-white"
+        >
             {/* Navbar */}
             <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-background-dark/80 backdrop-blur-md shadow-lg py-3' : 'bg-transparent py-5'
                 }`}>
                 <div className="container mx-auto px-6 flex items-center justify-between">
-                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}>
                         <div className="size-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
                             <span className="material-symbols-outlined text-white text-2xl">local_hospital</span>
                         </div>
