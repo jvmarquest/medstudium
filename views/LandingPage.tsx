@@ -555,56 +555,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             {/* Footer */}
             <footer id="contact" className="bg-slate-50 dark:bg-background-dark pt-20 pb-10 border-t dark:border-border-dark">
                 <div className="container mx-auto px-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16">
-                        <div className="col-span-2 lg:col-span-2">
-                            <div className="flex items-center gap-2 mb-6">
-                                <div className="size-8 bg-primary rounded-lg flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-white text-xl">local_hospital</span>
-                                </div>
-                                <span className="text-xl font-black tracking-tight dark:text-white">
-                                    Med<span className="text-primary">Studium</span>
-                                </span>
+                    <div className="flex flex-col items-center mb-16">
+                        <div className="flex items-center gap-2 mb-6">
+                            <div className="size-8 bg-primary rounded-lg flex items-center justify-center">
+                                <span className="material-symbols-outlined text-white text-xl">local_hospital</span>
                             </div>
-                            <p className="text-slate-500 dark:text-slate-400 max-w-xs mb-8 font-medium">
-                                Organizando e potencializando o estudo médico para as provas de residência mais concorridas do país.
-                            </p>
-                            <div className="flex gap-4">
-                                {['facebook', 'instagram', 'twitter', 'linkedin'].map(social => (
-                                    <div key={social} className="size-10 rounded-full border dark:border-border-dark flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all cursor-pointer">
-                                        <span className="material-symbols-outlined text-xl">{social}</span>
-                                    </div>
-                                ))}
-                            </div>
+                            <span className="text-xl font-black tracking-tight dark:text-white">
+                                Med<span className="text-primary">Studium</span>
+                            </span>
                         </div>
-
-                        <div>
-                            <h4 className="font-black mb-6 uppercase text-xs tracking-widest text-slate-400">Produto</h4>
-                            <ul className="space-y-4 text-slate-600 dark:text-slate-400 font-bold text-sm">
-                                <li><a href="#home" className="hover:text-primary transition-colors">Início</a></li>
-                                <li><a href="#features" className="hover:text-primary transition-colors">Funcionalidades</a></li>
-                                <li><a href="#pricing" className="hover:text-primary transition-colors">Preços</a></li>
-                                <li><a href="#testimonials" className="hover:text-primary transition-colors">Depoimentos</a></li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h4 className="font-black mb-6 uppercase text-xs tracking-widest text-slate-400">Suporte</h4>
-                            <ul className="space-y-4 text-slate-600 dark:text-slate-400 font-bold text-sm">
-                                <li><a href="#" className="hover:text-primary transition-colors">Central de Ajuda</a></li>
-                                <li><a href="#" className="hover:text-primary transition-colors">FAQ</a></li>
-                                <li><a href="#" className="hover:text-primary transition-colors">Contato</a></li>
-                                <li><a href="#" className="hover:text-primary transition-colors">Status</a></li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h4 className="font-black mb-6 uppercase text-xs tracking-widest text-slate-400">Legal</h4>
-                            <ul className="space-y-4 text-slate-600 dark:text-slate-400 font-bold text-sm">
-                                <li><a href="#" className="hover:text-primary transition-colors">Privacidade</a></li>
-                                <li><a href="#" className="hover:text-primary transition-colors">Termos de Uso</a></li>
-                                <li><a href="#" className="hover:text-primary transition-colors">Cookies</a></li>
-                            </ul>
-                        </div>
+                        <p className="text-slate-500 dark:text-slate-400 max-w-sm text-center font-medium">
+                            Organizando e potencializando o estudo médico para as provas de residência mais concorridas do país.
+                        </p>
                     </div>
 
                     <hr className="dark:border-border-dark mb-10" />
