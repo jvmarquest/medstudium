@@ -29,7 +29,7 @@ import { PlanProvider, usePlan } from './lib/planContext';
 // --- WRAPPERS FOR PARAMS ---
 const ThemeDetailsWrapper: React.FC<{ onNavigate: any, onHistory: any }> = (props) => {
   const { id } = useParams();
-  if (!id) return <Navigate to="/plan" />;
+  if (!id) return <Navigate to="/plano" />;
   return <ThemeDetails themeId={id} {...props} />;
 };
 
@@ -51,7 +51,7 @@ const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 
   if (!session) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/entrar" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
@@ -155,24 +155,25 @@ const AppContent: React.FC = () => {
   }, [navigate, refreshUserData]);
 
   // --- NAVIGATION ADAPTER ---
+  // --- NAVIGATION ADAPTER ---
   const navigateTo = (view: View, themeId?: string) => {
     switch (view) {
-      case View.LOGIN: navigate('/login'); break;
-      case View.SIGNUP: navigate('/signup'); break;
-      case View.DASHBOARD: navigate('/dashboard'); break;
-      case View.REVIEWS: navigate('/reviews'); break;
-      case View.PLAN: navigate('/plan'); break;
-      case View.ANALYTICS: navigate('/analytics'); break;
-      case View.ACHIEVEMENTS: navigate('/achievements'); break;
-      case View.SETTINGS: navigate('/settings'); break;
-      case View.MANAGE_SUBSCRIPTION: navigate('/subscription'); break;
-      case View.ADD_THEME: navigate('/add-theme'); break;
-      case View.THEME_DETAILS: themeId ? navigate(`/theme/${themeId}`) : navigate('/plan'); break;
-      case View.ONBOARDING: navigate('/onboarding'); break;
+      case View.LOGIN: navigate('/entrar'); break;
+      case View.SIGNUP: navigate('/cadastro'); break;
+      case View.DASHBOARD: navigate('/inicio'); break;
+      case View.REVIEWS: navigate('/revisoes'); break;
+      case View.PLAN: navigate('/plano'); break;
+      case View.ANALYTICS: navigate('/desempenho'); break;
+      case View.ACHIEVEMENTS: navigate('/conquistas'); break;
+      case View.SETTINGS: navigate('/configuracoes'); break;
+      case View.MANAGE_SUBSCRIPTION: navigate('/assinatura'); break;
+      case View.ADD_THEME: navigate('/novo-tema'); break;
+      case View.THEME_DETAILS: themeId ? navigate(`/tema/${themeId}`) : navigate('/plano'); break;
+      case View.ONBOARDING: navigate('/boas-vindas'); break;
       case View.PREMIUM: navigate('/premium'); break;
       case View.LANDING: navigate('/'); break;
-      case View.FOCUS: themeId ? navigate(`/focus/${themeId}`) : navigate('/focus'); break; // Handle optional ID
-      default: navigate('/dashboard');
+      case View.FOCUS: themeId ? navigate(`/foco/${themeId}`) : navigate('/foco'); break; // Handle optional ID
+      default: navigate('/inicio');
     }
   };
 
@@ -206,23 +207,23 @@ const AppContent: React.FC = () => {
       <div className="flex-1 min-h-0">
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={!session ? <LandingPage onNavigate={navigateTo} /> : <Navigate to="/dashboard" />} />
-          <Route path="/login" element={!session ? <Auth mode={View.LOGIN} onAuthSuccess={() => navigate('/dashboard')} onToggleMode={() => navigate('/signup')} onBack={() => navigate('/')} /> : <Navigate to="/dashboard" />} />
-          <Route path="/signup" element={!session ? <Auth mode={View.SIGNUP} onAuthSuccess={() => navigate('/dashboard')} onToggleMode={() => navigate('/login')} onBack={() => navigate('/')} /> : <Navigate to="/dashboard" />} />
+          <Route path="/" element={!session ? <LandingPage onNavigate={navigateTo} /> : <Navigate to="/inicio" />} />
+          <Route path="/entrar" element={!session ? <Auth mode={View.LOGIN} onAuthSuccess={() => navigate('/inicio')} onToggleMode={() => navigate('/cadastro')} onBack={() => navigate('/')} /> : <Navigate to="/inicio" />} />
+          <Route path="/cadastro" element={!session ? <Auth mode={View.SIGNUP} onAuthSuccess={() => navigate('/inicio')} onToggleMode={() => navigate('/entrar')} onBack={() => navigate('/')} /> : <Navigate to="/inicio" />} />
 
           {/* Protected Routes */}
-          <Route path="/dashboard" element={<RequireAuth><Dashboard onNavigate={navigateTo} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
-          <Route path="/reviews" element={<RequireAuth><ReviewList onNavigate={navigateTo} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
-          <Route path="/plan" element={<RequireAuth><Plan onNavigate={navigateTo} onBack={handleGoBack} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
-          <Route path="/analytics" element={<RequireAuth><Analytics onNavigate={navigateTo} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
-          <Route path="/achievements" element={<RequireAuth><Achievements onNavigate={navigateTo} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
-          <Route path="/settings" element={<RequireAuth><Settings onNavigate={navigateTo} isDarkMode={isDarkMode} onToggleTheme={() => setIsDarkMode(!isDarkMode)} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
-          <Route path="/subscription" element={<RequireAuth><ManageSubscription onNavigate={navigateTo} /></RequireAuth>} />
-          <Route path="/add-theme" element={<RequireAuth><AddTheme onNavigate={navigateTo} onBack={handleGoBack} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
-          <Route path="/theme/:id" element={<RequireAuth><ThemeDetailsWrapper onNavigate={navigateTo} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
+          <Route path="/inicio" element={<RequireAuth><Dashboard onNavigate={navigateTo} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
+          <Route path="/revisoes" element={<RequireAuth><ReviewList onNavigate={navigateTo} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
+          <Route path="/plano" element={<RequireAuth><Plan onNavigate={navigateTo} onBack={handleGoBack} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
+          <Route path="/desempenho" element={<RequireAuth><Analytics onNavigate={navigateTo} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
+          <Route path="/conquistas" element={<RequireAuth><Achievements onNavigate={navigateTo} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
+          <Route path="/configuracoes" element={<RequireAuth><Settings onNavigate={navigateTo} isDarkMode={isDarkMode} onToggleTheme={() => setIsDarkMode(!isDarkMode)} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
+          <Route path="/assinatura" element={<RequireAuth><ManageSubscription onNavigate={navigateTo} /></RequireAuth>} />
+          <Route path="/novo-tema" element={<RequireAuth><AddTheme onNavigate={navigateTo} onBack={handleGoBack} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
+          <Route path="/tema/:id" element={<RequireAuth><ThemeDetailsWrapper onNavigate={navigateTo} onHistory={() => setShowHistory(true)} /></RequireAuth>} />
 
           {/* Onboarding & Premium Guards */}
-          <Route path="/onboarding" element={
+          <Route path="/boas-vindas" element={
             <RequireAuth>
               {/* Note: In real logic, redirect if already completed? Use logic from previous App.tsx if desired */}
               <Onboarding onNavigate={(v) => navigateTo(v)} />
@@ -232,9 +233,9 @@ const AppContent: React.FC = () => {
           <Route path="/premium" element={<RequireAuth><Premium onNavigate={navigateTo} onBack={handleGoBack} /></RequireAuth>} />
 
           {/* Focus Mode (Optional ID) */}
-          <Route path="/focus/:id" element={<RequireAuth><FocusModeWrapper onNavigate={navigateTo} /></RequireAuth>} />
+          <Route path="/foco/:id" element={<RequireAuth><FocusModeWrapper onNavigate={navigateTo} /></RequireAuth>} />
           {/* Fallback for focus without ID if needed */}
-          <Route path="/focus" element={<RequireAuth><FocusModeWrapper onNavigate={navigateTo} /></RequireAuth>} />
+          <Route path="/foco" element={<RequireAuth><FocusModeWrapper onNavigate={navigateTo} /></RequireAuth>} />
 
           {/* Catch All */}
           <Route path="*" element={<Navigate to="/" replace />} />
