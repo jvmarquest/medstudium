@@ -383,12 +383,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                     </li>
                                 ))}
                             </ul>
-                            <button
-                                onClick={() => onNavigate(View.SIGNUP)}
-                                className="w-full py-4 bg-slate-100 dark:bg-background-dark text-slate-900 dark:text-white rounded-2xl font-bold hover:bg-slate-200 dark:hover:bg-surface-highlight transition-all"
-                            >
-                                Começar Agora
-                            </button>
                         </div>
 
                         {/* Monthly Plan */}
@@ -426,12 +420,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                     </li>
                                 ))}
                             </ul>
-                            <button
-                                onClick={() => onNavigate(View.SIGNUP)}
-                                className="w-full py-4 bg-primary text-white rounded-2xl font-bold shadow-xl shadow-primary/30 hover:bg-primary-dark transition-all hover:-translate-y-1"
-                            >
-                                Assinar Premium
-                            </button>
                         </div>
 
                         {/* Lifetime Plan */}
@@ -468,12 +456,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                     </li>
                                 ))}
                             </ul>
-                            <button
-                                onClick={() => onNavigate(View.SIGNUP)}
-                                className="w-full py-4 bg-white text-slate-900 rounded-2xl font-bold hover:bg-slate-200 transition-all border-none"
-                            >
-                                Aproveitar Oferta
-                            </button>
                         </div>
                     </div>
 
