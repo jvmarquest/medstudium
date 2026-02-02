@@ -185,7 +185,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                     <div className="size-3 rounded-full bg-green-400"></div>
                                 </div>
                                 <div className="mx-auto bg-white dark:bg-background-dark px-4 py-1 rounded-lg border dark:border-border-dark text-[10px] text-slate-400 font-medium">
-                                    app.medstudium.com.br
+                                    www.medstudium.com.br
                                 </div>
                             </div>
 
@@ -199,7 +199,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                         <img
                                             src={slide}
                                             alt={`MedStudium Screenshot ${index + 1}`}
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-contain"
                                         />
                                     </div>
                                 ))}
