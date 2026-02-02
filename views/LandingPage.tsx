@@ -48,13 +48,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-background-dark/80 backdrop-blur-md shadow-lg py-3' : 'bg-transparent py-5'
                 }`}>
                 <div className="container mx-auto px-6 flex items-center justify-between">
-                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        <div className="size-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
-                            <span className="material-symbols-outlined text-white text-2xl">local_hospital</span>
-                        </div>
-                        <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                            Med<span className="text-primary">Studium</span>
-                        </span>
+                    <div className="flex items-center h-10 lg:h-12 cursor-pointer" onClick={() => containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}>
+                        <img src="/logo.svg" className="h-full w-auto object-contain" alt="MedStudium Logo" />
                     </div>
 
                     {/* Desktop Menu */}
@@ -556,13 +551,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             <footer id="contact" className="bg-slate-50 dark:bg-background-dark pt-20 pb-10 border-t dark:border-border-dark">
                 <div className="container mx-auto px-6">
                     <div className="flex flex-col items-center mb-16">
-                        <div className="flex items-center gap-2 mb-6">
-                            <div className="size-8 bg-primary rounded-lg flex items-center justify-center">
-                                <span className="material-symbols-outlined text-white text-xl">local_hospital</span>
-                            </div>
-                            <span className="text-xl font-black tracking-tight dark:text-white">
-                                Med<span className="text-primary">Studium</span>
-                            </span>
+                        <div className="flex items-center h-8 mb-6">
+                            <img src="/logo.svg" className="h-full w-auto object-contain dark:invert" alt="MedStudium Logo" />
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 max-w-sm text-center font-medium">
                             Organizando e potencializando o estudo médico para as provas de residência mais concorridas do país.
