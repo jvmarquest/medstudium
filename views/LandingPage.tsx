@@ -14,7 +14,8 @@ import {
     BarChart3,
     ShieldCheck,
     HelpCircle,
-    ArrowRight
+    ArrowRight,
+    ChevronLeft
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -29,6 +30,24 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         setScrolled(e.currentTarget.scrollTop > 20);
     };
+
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const slides = [
+        '/images/1.png',
+        '/images/2.png',
+        '/images/3.png',
+        '/images/4.png',
+        '/images/5.png',
+        '/images/6.png',
+        '/images/7.png',
+    ];
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentSlide((prev) => (prev + 1) % slides.length);
+        }, 5000);
+        return () => clearInterval(timer);
+    }, [slides.length]);
 
     const menuItems = [
         { name: 'Início', href: '#home' },
@@ -155,9 +174,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         </button>
                     </div>
 
-                    {/* Device Mockup */}
-                    <div className="mt-20 relative max-w-5xl mx-auto">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-primary to-blue-500 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                    {/* Device Mockup Carousel */}
+                    <div className="mt-20 relative max-w-5xl mx-auto group/mockup">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-primary to-blue-500 rounded-3xl blur opacity-20 group-hover/mockup:opacity-40 transition duration-1000 group-hover/mockup:duration-200"></div>
                         <div className="relative bg-white dark:bg-surface-dark rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-border-dark">
                             <div className="flex items-center gap-2 p-4 border-b dark:border-border-dark bg-slate-50 dark:bg-surface-highlight/50">
                                 <div className="flex gap-1.5">
@@ -169,14 +188,48 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                                     app.medstudium.com.br
                                 </div>
                             </div>
-                            <img
-                                src="https://images.unsplash.com/photo-1576091160550-217359f42f8c?auto=format&fit=crop&q=80&w=2070"
-                                alt="MedStudium Dashboard"
-                                className="w-full h-auto object-cover aspect-video opacity-80"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-background-dark/80 via-transparent to-transparent flex items-center justify-center">
-                                <div className="size-20 rounded-full bg-primary/90 text-white flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-2xl">
-                                    <span className="material-symbols-outlined text-4xl filled">play_arrow</span>
+
+                            <div className="relative aspect-video overflow-hidden">
+                                {slides.map((slide, index) => (
+                                    <div
+                                        key={index}
+                                        className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'
+                                            }`}
+                                    >
+                                        <img
+                                            src={slide}
+                                            alt={`MedStudium Screenshot ${index + 1}`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                ))}
+
+                                {/* Navigation Arrows */}
+                                <button
+                                    onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 size-12 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover/mockup:opacity-100 transition-opacity z-10"
+                                >
+                                    <ChevronLeft size={24} />
+                                </button>
+                                <button
+                                    onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 size-12 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover/mockup:opacity-100 transition-opacity z-10"
+                                >
+                                    <ChevronRight size={24} />
+                                </button>
+
+                                {/* Slide Indicators */}
+                                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                                    {slides.map((_, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => setCurrentSlide(index)}
+                                            className={`size-2 rounded-full transition-all ${index === currentSlide
+                                                ? 'w-6 bg-primary'
+                                                : 'bg-white/50 hover:bg-white/80'
+                                                }`}
+                                        />
+                                    ))}
                                 </div>
                             </div>
                         </div>
