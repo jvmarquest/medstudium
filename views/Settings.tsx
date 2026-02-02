@@ -427,6 +427,7 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme, onHi
 
                   console.log('[profile] onboarding_completed set to false');
                   await refreshProfile();
+                  onNavigate(View.ONBOARDING);
 
                 }
               }}
