@@ -41,7 +41,7 @@ const FocusModeWrapper: React.FC<{ onNavigate: any }> = (props) => {
 
 // --- AUTH GUARD ---
 const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { session, loading } = useUser();
+  const { session, loading, profile } = useUser();
   const location = useLocation();
 
   if (loading) return (
@@ -52,6 +52,26 @@ const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   if (!session) {
     return <Navigate to="/entrar" state={{ from: location }} replace />;
+  }
+
+  // CRITICAL: Wait for profile to load before checking onboarding status
+  // This prevents race conditions where session exists but profile is still fetching
+  if (!profile) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Force Onboarding for new users
+  if (!profile.onboarding_completed && location.pathname !== '/boas-vindas') {
+    return <Navigate to="/boas-vindas" replace />;
+  }
+
+  // Prevent authenticated users from accessing onboarding if already completed
+  if (profile.onboarding_completed && location.pathname === '/boas-vindas') {
+    return <Navigate to="/inicio" replace />;
   }
 
   return <>{children}</>;

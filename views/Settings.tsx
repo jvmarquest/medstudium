@@ -255,8 +255,8 @@ const Settings: React.FC<Props> = ({ onNavigate, isDarkMode, onToggleTheme, onHi
         const { error: prefsError } = await supabase
           .from('user_preferences')
           .update({
-            onboarding_completed: false,
-            especialidades: []
+            onboarding_completed: false
+            // especialidades preserved
           })
           .eq('user_id', user.id);
 
