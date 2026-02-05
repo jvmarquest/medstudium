@@ -17,6 +17,7 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
   const { canAccess } = useAccess();
   // removed isPremium from destructuring above since we use canAccess now
   const [effortByArea, setEffortByArea] = useState<{ area: string; percentage: number }[]>([]);
+  const [accuracyByArea, setAccuracyByArea] = useState<{ area: string; percentage: number; totalQuestions: number }[]>([]);
   const [generalAccuracy, setGeneralAccuracy] = useState<number | null>(null);
   const [totalQuestionsAnswered, setTotalQuestionsAnswered] = useState<number>(0);
   const [showInfoModal, setShowInfoModal] = useState(false);
@@ -90,32 +91,41 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
         }
 
         // --- Effort by Area (Based on Total Questions) ---
+        // --- Accuracy by Area ---
 
         // 1. Initialize with user profile specialties
         const areaEffort: Record<string, number> = {};
+        const areaAccuracyStats: Record<string, { correct: number; total: number }> = {};
         let totalEffort = 0;
 
         const userAreas = profile?.especialidades || [];
         userAreas.forEach(area => {
           if (!areaEffort[area]) areaEffort[area] = 0;
+          if (!areaAccuracyStats[area]) areaAccuracyStats[area] = { correct: 0, total: 0 };
         });
 
-        // 2. Sum Total Questions per Area from Themes
+        // 2. Sum Total Questions & Correct per Area from Themes
         // (themes.total_questoes includes Initial + Reviews updates)
         if (themesData) {
           themesData.forEach((theme: any) => {
             const questions = theme.total_questoes || 0;
+            const correct = theme.acertos || 0;
             const area = theme.grande_area; // Don't default to 'Outros' yet, check exact match first
 
             // Strict Filter: Only count if area is in user's current list
             if (area && areaEffort[area] !== undefined) {
+              // Effort
               areaEffort[area] += questions;
               totalEffort += questions;
+
+              // Accuracy Stats
+              areaAccuracyStats[area].correct += correct;
+              areaAccuracyStats[area].total += questions;
             }
           });
         }
 
-        // 3. Transform to Chart Data
+        // 3. Transform to Chart Data (Effort)
         const chartData = Object.keys(areaEffort)
           .map(area => ({
             area,
@@ -124,6 +134,25 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
           .sort((a, b) => b.percentage - a.percentage);
 
         setEffortByArea(chartData);
+
+        // 4. Transform to Chart Data (Accuracy)
+        const accuracyData = Object.keys(areaAccuracyStats)
+          .map(area => {
+            const stats = areaAccuracyStats[area];
+            return {
+              area,
+              percentage: stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0,
+              totalQuestions: stats.total
+            };
+          })
+          // Sort by percentage desc, but put areas with 0 questions at the end
+          .sort((a, b) => {
+            if (a.totalQuestions === 0 && b.totalQuestions > 0) return 1;
+            if (b.totalQuestions === 0 && a.totalQuestions > 0) return -1;
+            return b.percentage - a.percentage;
+          });
+
+        setAccuracyByArea(accuracyData);
 
         // --- Focus Themes Logic ---
         const criticalThemes = themesData.filter((theme: any) => {
@@ -293,6 +322,50 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
                 </div>
               </section>
             </div>
+
+            {/* Accuracy by Area (New Section) */}
+            <section className="mb-2">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">Desempenho por Grande Área</h3>
+              </div>
+              <div className="rounded-2xl bg-white dark:bg-card-dark p-6 shadow-sm border border-slate-100 dark:border-slate-800 space-y-6">
+                {accuracyByArea.length > 0 ? (
+                  accuracyByArea.map(item => (
+                    <div key={item.area} className="group">
+                      <div className="flex justify-between items-end mb-2">
+                        <div className='flex flex-col'>
+                          <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{item.area}</span>
+                          <span className="text-[10px] text-slate-500 font-medium">
+                            {item.totalQuestions} questões
+                          </span>
+                        </div>
+                        <span className={`text-sm font-bold ${item.totalQuestions > 0
+                            ? item.percentage >= 80 ? 'text-green-600 dark:text-green-400'
+                              : item.percentage >= 60 ? 'text-amber-600 dark:text-amber-400'
+                                : 'text-red-500 dark:text-red-400'
+                            : 'text-slate-400'
+                          }`}>
+                          {item.totalQuestions > 0 ? `${item.percentage}%` : '---'}
+                        </span>
+                      </div>
+                      <div className="relative h-2.5 w-full rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
+                        <div
+                          className={`absolute h-full rounded-full transition-all duration-700 ${item.totalQuestions > 0
+                              ? item.percentage >= 80 ? 'bg-green-500'
+                                : item.percentage >= 60 ? 'bg-amber-500'
+                                  : 'bg-red-500'
+                              : 'bg-slate-300 dark:bg-slate-600'
+                            }`}
+                          style={{ width: `${item.percentage}%` }}>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-500 text-center py-4">Estude para ver seu desempenho por área.</p>
+                )}
+              </div>
+            </section>
 
             {/* Desktop: 2-column grid for Esforço/Focus. Mobile: stacked */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
