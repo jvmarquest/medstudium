@@ -18,6 +18,7 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
   // removed isPremium from destructuring above since we use canAccess now
   const [effortByArea, setEffortByArea] = useState<{ area: string; percentage: number }[]>([]);
   const [generalAccuracy, setGeneralAccuracy] = useState<number | null>(null);
+  const [totalQuestionsAnswered, setTotalQuestionsAnswered] = useState<number>(0);
   const [showInfoModal, setShowInfoModal] = useState(false);
 
   // CHANGED: State now holds Themes instead of Area summaries
@@ -78,6 +79,8 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
 
         const totalCorrect = themesData.reduce((acc, curr) => acc + (curr.acertos || 0), 0);
         const totalQuestions = themesData.reduce((acc, curr) => acc + (curr.total_questoes || 0), 0);
+
+        setTotalQuestionsAnswered(totalQuestions);
 
         if (totalQuestions > 0) {
           const acc = Math.round((totalCorrect / totalQuestions) * 100);
@@ -158,6 +161,7 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
         setFocusThemes(criticalThemes.slice(0, 5));
       } else {
         setGeneralAccuracy(null);
+        setTotalQuestionsAnswered(0);
         setEffortByArea([]);
         setFocusThemes([]);
       }
@@ -230,45 +234,65 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
           </div>
         ) : (
           <>
-            {/* General Accuracy Section */}
-            <section className="rounded-2xl bg-white dark:bg-card-dark p-6 shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden">
-              <div className="relative z-10">
-                <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">Precisão Geral</p>
-                <div className="flex items-baseline gap-3">
-                  <h2 className="text-4xl font-extrabold tracking-tight">{generalAccuracy !== null ? `${generalAccuracy}%` : '---'}</h2>
-                  {generalAccuracy !== null && (
-                    <div className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${generalAccuracy >= 80
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                      : generalAccuracy >= 60
-                        ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                        : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                      }`}>
-                      <span className="material-symbols-outlined text-sm font-bold">
-                        {generalAccuracy >= 80 ? 'trending_up' : generalAccuracy >= 60 ? 'remove' : 'trending_down'}
-                      </span>
-                      <span>
-                        {generalAccuracy >= 80 ? 'Excelente' : generalAccuracy >= 60 ? 'Bom' : 'Atenção'}
-                      </span>
-                    </div>
-                  )}
+            {/* Top Stats Grid: Questions + Accuracy */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              {/* Total Questions Section */}
+              <section className="rounded-2xl bg-white dark:bg-card-dark p-6 shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="material-symbols-outlined text-primary text-xl">format_list_numbered</span>
+                    <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Questões Realizadas</p>
+                  </div>
+                  <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    {totalQuestionsAnswered}
+                  </h2>
                 </div>
-                <p className="mt-2 text-sm text-slate-500">
-                  {generalAccuracy !== null
-                    ? <><span className="text-slate-700 dark:text-slate-300 font-bold">
-                      {generalAccuracy >= 80 ? 'Ótimo trabalho!' : generalAccuracy >= 60 ? 'Continue praticando.' : 'Foque mais nos erros.'}
-                    </span> Mantenha a constância.</>
-                    : <>Comece a estudar para ver suas <span className="text-slate-700 dark:text-slate-300 font-bold">estatísticas</span>.</>
-                  }
+                <p className="mt-4 text-sm text-slate-500">
+                  Total acumulado de questões resolvidas em todos os temas.
                 </p>
-              </div>
-              <div className="mt-6 h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-1000 ${generalAccuracy && generalAccuracy >= 80 ? 'bg-green-500' : generalAccuracy && generalAccuracy >= 60 ? 'bg-amber-500' : 'bg-red-500'
-                    }`}
-                  style={{ width: `${generalAccuracy || 0}%` }}>
+              </section>
+
+              {/* General Accuracy Section */}
+              <section className="rounded-2xl bg-white dark:bg-card-dark p-6 shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+                <div className="relative z-10">
+                  <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">Precisão Geral</p>
+                  <div className="flex items-baseline gap-3">
+                    <h2 className="text-4xl font-extrabold tracking-tight">{generalAccuracy !== null ? `${generalAccuracy}%` : '---'}</h2>
+                    {generalAccuracy !== null && (
+                      <div className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${generalAccuracy >= 80
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                        : generalAccuracy >= 60
+                          ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                          : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                        }`}>
+                        <span className="material-symbols-outlined text-sm font-bold">
+                          {generalAccuracy >= 80 ? 'trending_up' : generalAccuracy >= 60 ? 'remove' : 'trending_down'}
+                        </span>
+                        <span>
+                          {generalAccuracy >= 80 ? 'Excelente' : generalAccuracy >= 60 ? 'Bom' : 'Atenção'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-2 text-sm text-slate-500">
+                    {generalAccuracy !== null
+                      ? <><span className="text-slate-700 dark:text-slate-300 font-bold">
+                        {generalAccuracy >= 80 ? 'Ótimo trabalho!' : generalAccuracy >= 60 ? 'Continue praticando.' : 'Foque mais nos erros.'}
+                      </span> Mantenha a constância.</>
+                      : <>Comece a estudar para ver suas <span className="text-slate-700 dark:text-slate-300 font-bold">estatísticas</span>.</>
+                    }
+                  </p>
                 </div>
-              </div>
-            </section>
+                <div className="mt-6 h-1.5 w-full rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-1000 ${generalAccuracy && generalAccuracy >= 80 ? 'bg-green-500' : generalAccuracy && generalAccuracy >= 60 ? 'bg-amber-500' : 'bg-red-500'
+                      }`}
+                    style={{ width: `${generalAccuracy || 0}%` }}>
+                  </div>
+                </div>
+              </section>
+            </div>
 
             {/* Desktop: 2-column grid for Esforço/Focus. Mobile: stacked */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
