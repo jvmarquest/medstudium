@@ -266,22 +266,6 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
             {/* Top Stats Grid: Questions + Accuracy */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-              {/* Total Questions Section */}
-              <section className="rounded-2xl bg-white dark:bg-card-dark p-6 shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="material-symbols-outlined text-primary text-xl">format_list_numbered</span>
-                    <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Questões Realizadas</p>
-                  </div>
-                  <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                    {totalQuestionsAnswered}
-                  </h2>
-                </div>
-                <p className="mt-4 text-sm text-slate-500">
-                  Total acumulado de questões resolvidas em todos os temas.
-                </p>
-              </section>
-
               {/* General Accuracy Section */}
               <section className="rounded-2xl bg-white dark:bg-card-dark p-6 shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden">
                 <div className="relative z-10">
@@ -321,6 +305,23 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
                   </div>
                 </div>
               </section>
+
+              {/* Total Questions Section */}
+              <section className="rounded-2xl bg-white dark:bg-card-dark p-6 shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="material-symbols-outlined text-primary text-xl">format_list_numbered</span>
+                    <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Questões Realizadas</p>
+                  </div>
+                  <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    {totalQuestionsAnswered}
+                  </h2>
+                </div>
+                <p className="mt-4 text-sm text-slate-500">
+                  Total acumulado de questões resolvidas em todos os temas.
+                </p>
+              </section>
+
             </div>
 
             {/* Accuracy by Area (New Section) */}
@@ -340,10 +341,10 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
                           </span>
                         </div>
                         <span className={`text-sm font-bold ${item.totalQuestions > 0
-                            ? item.percentage >= 80 ? 'text-green-600 dark:text-green-400'
-                              : item.percentage >= 60 ? 'text-amber-600 dark:text-amber-400'
-                                : 'text-red-500 dark:text-red-400'
-                            : 'text-slate-400'
+                          ? item.percentage >= 80 ? 'text-green-600 dark:text-green-400'
+                            : item.percentage >= 60 ? 'text-amber-600 dark:text-amber-400'
+                              : 'text-red-500 dark:text-red-400'
+                          : 'text-slate-400'
                           }`}>
                           {item.totalQuestions > 0 ? `${item.percentage}%` : '---'}
                         </span>
@@ -351,10 +352,10 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
                       <div className="relative h-2.5 w-full rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
                         <div
                           className={`absolute h-full rounded-full transition-all duration-700 ${item.totalQuestions > 0
-                              ? item.percentage >= 80 ? 'bg-green-500'
-                                : item.percentage >= 60 ? 'bg-amber-500'
-                                  : 'bg-red-500'
-                              : 'bg-slate-300 dark:bg-slate-600'
+                            ? item.percentage >= 80 ? 'bg-green-500'
+                              : item.percentage >= 60 ? 'bg-amber-500'
+                                : 'bg-red-500'
+                            : 'bg-slate-300 dark:bg-slate-600'
                             }`}
                           style={{ width: `${item.percentage}%` }}>
                         </div>
