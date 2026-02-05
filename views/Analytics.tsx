@@ -269,7 +269,7 @@ const Analytics: React.FC<Props> = ({ onNavigate, onHistory }) => {
               {/* General Accuracy Section */}
               <section className="rounded-2xl bg-white dark:bg-card-dark p-6 shadow-sm border border-slate-100 dark:border-slate-800 relative overflow-hidden">
                 <div className="relative z-10">
-                  <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">Precisão Geral</p>
+                  <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2">Desempenho Geral</p>
                   <div className="flex items-baseline gap-3">
                     <h2 className="text-4xl font-extrabold tracking-tight">{generalAccuracy !== null ? `${generalAccuracy}%` : '---'}</h2>
                     {generalAccuracy !== null && (
