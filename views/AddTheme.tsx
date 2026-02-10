@@ -26,6 +26,8 @@ const AddTheme: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
   const [studyDate, setStudyDate] = useState(new Date().toISOString().split('T')[0]);
   const [total, setTotal] = useState<string>('');
   const [correct, setCorrect] = useState<string>('');
+  const [studyMode, setStudyMode] = useState<'questions' | 'free'>('questions');
+  const [selfEvaluation, setSelfEvaluation] = useState<'confiante' | 'razoavel' | 'revisar' | ''>('');
   const [availableAreas, setAvailableAreas] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -43,22 +45,48 @@ const AddTheme: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
   const [status, setStatus] = useState('Estudo Inicial');
 
   useEffect(() => {
-    const t = parseInt(total) || 0;
-    const c = parseInt(correct) || 0;
-    const acc = t > 0 ? Math.round((c / t) * 100) : 0;
-    setAccuracy(acc);
+    if (studyMode === 'questions') {
+      const t = parseInt(total) || 0;
+      const c = parseInt(correct) || 0;
+      const acc = t > 0 ? Math.round((c / t) * 100) : 0;
+      setAccuracy(acc);
 
-    if (acc >= 80) setDifficulty('Fácil');
-    else if (acc >= 50) setDifficulty('Médio');
-    else setDifficulty('Difícil');
-  }, [total, correct]);
+      if (acc >= 80) setDifficulty('Fácil');
+      else if (acc >= 50) setDifficulty('Médio');
+      else setDifficulty('Difícil');
+    } else {
+      // Free Mode Logic
+      if (selfEvaluation === 'confiante') {
+        setAccuracy(100);
+        setDifficulty('Fácil');
+      } else if (selfEvaluation === 'razoavel') {
+        setAccuracy(70);
+        setDifficulty('Médio');
+      } else if (selfEvaluation === 'revisar') {
+        setAccuracy(30);
+        setDifficulty('Difícil');
+      } else {
+        setAccuracy(0);
+        setDifficulty('Difícil');
+      }
+    }
+  }, [total, correct, studyMode, selfEvaluation]);
 
   // Calculate Next Review Date Live for UI
   const getNextReviewDate = () => {
     // Basic Classification first (duplicate logic for preview)
-    const t = parseInt(total) || 0;
-    const c = parseInt(correct) || 0;
-    const acc = t > 0 ? Math.round((c / t) * 100) : 0;
+    // Basic Classification first (duplicate logic for preview)
+    let acc = 0;
+
+    if (studyMode === 'questions') {
+      const t = parseInt(total) || 0;
+      const c = parseInt(correct) || 0;
+      acc = t > 0 ? Math.round((c / t) * 100) : 0;
+    } else {
+      if (selfEvaluation === 'confiante') acc = 100;
+      else if (selfEvaluation === 'razoavel') acc = 70;
+      else if (selfEvaluation === 'revisar') acc = 30;
+    }
 
     let diff = 'Difícil';
     if (acc >= 80) diff = 'Fácil';
@@ -100,6 +128,7 @@ const AddTheme: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
 
   const handleSubmit = async () => {
     if (!name || !specialty || !area) return;
+    if (studyMode === 'free' && !selfEvaluation) return; // Validate evaluation
 
     // --- PREMIUM GUARD: UNLIMITED TOPICS ---
     if (!canAccess(Feature.UNLIMITED_TOPICS)) {
@@ -120,12 +149,25 @@ const AddTheme: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
     const c = parseInt(correct) || 0;
 
     // 1. Calculate Accuracy
-    const calculatedAccuracy = t > 0 ? Math.round((c / t) * 100) : 0;
-
-    // 2. Classify Difficulty
+    let calculatedAccuracy = 0;
     let calculatedDifficulty = 'Difícil';
-    if (calculatedAccuracy >= 80) calculatedDifficulty = 'Fácil';
-    else if (calculatedAccuracy >= 50) calculatedDifficulty = 'Médio';
+
+    if (studyMode === 'questions') {
+      calculatedAccuracy = t > 0 ? Math.round((c / t) * 100) : 0;
+      if (calculatedAccuracy >= 80) calculatedDifficulty = 'Fácil';
+      else if (calculatedAccuracy >= 50) calculatedDifficulty = 'Médio';
+    } else {
+      if (selfEvaluation === 'confiante') {
+        calculatedAccuracy = 100;
+        calculatedDifficulty = 'Fácil';
+      } else if (selfEvaluation === 'razoavel') {
+        calculatedAccuracy = 70;
+        calculatedDifficulty = 'Médio';
+      } else if (selfEvaluation === 'revisar') {
+        calculatedAccuracy = 30;
+        calculatedDifficulty = 'Difícil';
+      }
+    }
 
     // 3. Calculate Review Dates
     const intervals: Record<string, number[]> = {
@@ -207,7 +249,9 @@ const AddTheme: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
         taxa_acerto: calculatedAccuracy,
         dificuldade: calculatedDifficulty,
         proxima_revisao: nextReviewDate,
-        srs_level: 1
+        srs_level: 1,
+        study_mode: studyMode,
+        self_evaluation: selfEvaluation || null
       };
 
       const { data: themeData, error: themeError } = await supabase
@@ -295,7 +339,9 @@ const AddTheme: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
           difficulty: themeData.dificuldade as 'Fácil' | 'Médio' | 'Difícil',
           retentionRate: themeData.taxa_acerto,
           questionsTotal: themeData.total_questoes,
-          questionsCorrect: themeData.acertos
+          questionsCorrect: themeData.acertos,
+          studyMode: themeData.study_mode,
+          selfEvaluation: themeData.self_evaluation
         };
 
         // onSave(newTheme);
@@ -369,6 +415,26 @@ const AddTheme: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
 
             <div className="h-px bg-slate-200 dark:bg-slate-800 w-full"></div>
 
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold">Modo de Estudo</label>
+              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                <button
+                  onClick={() => setStudyMode('questions')}
+                  className={`py-2 rounded-lg text-sm font-bold transition-all ${studyMode === 'questions' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500'}`}
+                >
+                  Por Questões
+                </button>
+                <button
+                  onClick={() => setStudyMode('free')}
+                  className={`py-2 rounded-lg text-sm font-bold transition-all ${studyMode === 'free' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500'}`}
+                >
+                  Estudo Livre
+                </button>
+              </div>
+            </div>
+
+            <div className="h-px bg-slate-200 dark:bg-slate-800 w-full"></div>
+
             <div className="space-y-5">
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">Dados de Desempenho</h3>
               <div className="space-y-2">
@@ -384,28 +450,56 @@ const AddTheme: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold">Total de Questões</label>
-                  <input
-                    className="w-full h-14 px-4 text-center text-lg font-medium rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-                    inputMode="numeric"
-                    placeholder="0"
-                    type="number"
-                    value={total}
-                    onChange={(e) => setTotal(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-green-600 dark:text-green-400">Acertos</label>
-                  <input
-                    className="w-full h-14 px-4 text-center text-lg font-medium rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 focus:border-green-500 focus:ring-1 focus:ring-green-500 text-green-600 dark:text-green-400 outline-none"
-                    inputMode="numeric"
-                    placeholder="0"
-                    type="number"
-                    value={correct}
-                    onChange={(e) => setCorrect(e.target.value)}
-                  />
-                </div>
+                {studyMode === 'questions' ? (
+                  <>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold">Total de Questões</label>
+                      <input
+                        className="w-full h-14 px-4 text-center text-lg font-medium rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                        inputMode="numeric"
+                        placeholder="0"
+                        type="number"
+                        value={total}
+                        onChange={(e) => setTotal(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-green-600 dark:text-green-400">Acertos</label>
+                      <input
+                        className="w-full h-14 px-4 text-center text-lg font-medium rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-700 focus:border-green-500 focus:ring-1 focus:ring-green-500 text-green-600 dark:text-green-400 outline-none"
+                        inputMode="numeric"
+                        placeholder="0"
+                        type="number"
+                        value={correct}
+                        onChange={(e) => setCorrect(e.target.value)}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="col-span-2 space-y-2">
+                    <label className="block text-sm font-semibold">Como você se sentiu?</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        onClick={() => setSelfEvaluation('revisar')}
+                        className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${selfEvaluation === 'revisar' ? 'bg-red-50 dark:bg-red-900/20 border-red-500 text-red-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
+                      >
+                        Preciso Revisar
+                      </button>
+                      <button
+                        onClick={() => setSelfEvaluation('razoavel')}
+                        className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${selfEvaluation === 'razoavel' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-500 text-orange-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
+                      >
+                        Razoável
+                      </button>
+                      <button
+                        onClick={() => setSelfEvaluation('confiante')}
+                        className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${selfEvaluation === 'confiante' ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
+                      >
+                        Confiante
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

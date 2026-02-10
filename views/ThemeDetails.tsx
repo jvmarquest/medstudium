@@ -22,6 +22,7 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
   const [isReviewing, setIsReviewing] = React.useState(false);
   const [newQuestions, setNewQuestions] = React.useState('');
   const [newCorrect, setNewCorrect] = React.useState('');
+  const [newSelfEvaluation, setNewSelfEvaluation] = React.useState<'confiante' | 'razoavel' | 'revisar' | ''>('');
   const [reviewHistory, setReviewHistory] = React.useState<any[]>([]); // New State
   const [confirmDominadoOpen, setConfirmDominadoOpen] = React.useState(false);
 
@@ -86,15 +87,34 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
 
   const handleLogReview = async () => {
     try {
-      if (!newQuestions || !newCorrect || !theme) return;
+      if (!theme) return;
+      if (theme.studyMode === 'free' && !newSelfEvaluation) return;
+      if (theme.studyMode !== 'free' && (!newQuestions || !newCorrect)) return;
 
-      const q = parseInt(newQuestions) || 0;
-      const c = parseInt(newCorrect) || 0;
-      const sessionAccuracy = q > 0 ? (c / q) * 100 : 0;
-
+      let q = 0;
+      let c = 0;
+      let sessionAccuracy = 0;
       let sessionDifficulty = 'Difícil';
-      if (sessionAccuracy >= 80) sessionDifficulty = 'Fácil';
-      else if (sessionAccuracy >= 50) sessionDifficulty = 'Médio';
+
+      if (theme.studyMode === 'free') {
+        if (newSelfEvaluation === 'confiante') {
+          sessionAccuracy = 100;
+          sessionDifficulty = 'Fácil';
+        } else if (newSelfEvaluation === 'razoavel') {
+          sessionAccuracy = 70;
+          sessionDifficulty = 'Médio';
+        } else {
+          sessionAccuracy = 30;
+          sessionDifficulty = 'Difícil';
+        }
+      } else {
+        q = parseInt(newQuestions) || 0;
+        c = parseInt(newCorrect) || 0;
+        sessionAccuracy = q > 0 ? (c / q) * 100 : 0;
+
+        if (sessionAccuracy >= 80) sessionDifficulty = 'Fácil';
+        else if (sessionAccuracy >= 50) sessionDifficulty = 'Médio';
+      }
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -181,9 +201,11 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
       // 4. Update Theme Stats
       const newTotal = (theme.questionsTotal || 0) + q;
       const newCorrectTotal = (theme.questionsCorrect || 0) + c;
-      const newRate = newTotal > 0 ? Math.round((newCorrectTotal / newTotal) * 100) : 0;
+      const newRate = (theme.studyMode === 'free')
+        ? sessionAccuracy
+        : (newTotal > 0 ? Math.round((newCorrectTotal / newTotal) * 100) : 0);
 
-      await supabase.from('themes').update({
+      const updatePayload: any = {
         total_questoes: newTotal,
         acertos: newCorrectTotal,
         taxa_acerto: newRate,
@@ -191,7 +213,13 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
         proxima_revisao: calculatedNextReview,
         dificuldade: sessionDifficulty,
         srs_level: newSrsLevel
-      }).eq('id', theme.id);
+      };
+
+      if (theme.studyMode === 'free') {
+        updatePayload.self_evaluation = newSelfEvaluation;
+      }
+
+      await supabase.from('themes').update(updatePayload).eq('id', theme.id);
 
       // Update Sync Status
       await supabase
@@ -357,23 +385,45 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
 
         <div className="rounded-xl bg-white dark:bg-surface-highlight p-5 shadow-sm border border-gray-100 dark:border-gray-800">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-text-secondary text-sm font-medium">Taxa de Retenção</p>
-            {retentionDelta !== null && retentionDelta !== 0 && (
-              <div className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${retentionDelta > 0
-                ? 'text-green-500 bg-green-500/10'
-                : 'text-red-500 bg-red-500/10'
-                }`}>
-                <span className="material-symbols-outlined text-xs">
-                  {retentionDelta > 0 ? 'trending_up' : 'trending_down'}
-                </span>
-                <span>{retentionDelta > 0 ? '+' : ''}{retentionDelta}%</span>
-              </div>
+            <p className="text-text-secondary text-sm font-medium">
+              {theme.studyMode === 'free' ? 'Autoavaliação' : 'Taxa de Retenção'}
+            </p>
+            {theme.studyMode === 'free' ? (
+              <span className="inline-flex items-center rounded-full bg-indigo-100 dark:bg-indigo-900/30 px-2.5 py-0.5 text-xs font-bold text-indigo-800 dark:text-indigo-300">
+                Estudo Livre
+              </span>
+            ) : (
+              retentionDelta !== null && retentionDelta !== 0 && (
+                <div className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${retentionDelta > 0
+                  ? 'text-green-500 bg-green-500/10'
+                  : 'text-red-500 bg-red-500/10'
+                  }`}>
+                  <span className="material-symbols-outlined text-xs">
+                    {retentionDelta > 0 ? 'trending_up' : 'trending_down'}
+                  </span>
+                  <span>{retentionDelta > 0 ? '+' : ''}{retentionDelta}%</span>
+                </div>
+              )
             )}
           </div>
-          <p className="text-3xl font-bold leading-tight mb-4">{theme.retentionRate}%</p>
-          <div className="h-2 w-full bg-slate-100 dark:bg-slate-700 rounded-full">
-            <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${theme.retentionRate}%` }}></div>
-          </div>
+
+          {theme.studyMode === 'free' ? (
+            <div className="flex flex-col gap-2">
+              <p className="text-lg font-medium text-slate-700 dark:text-slate-300 capitalize">
+                {theme.selfEvaluation || 'Não avaliado'}
+              </p>
+              <div className="h-2 w-full bg-slate-100 dark:bg-slate-700 rounded-full">
+                <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${theme.retentionRate}%` }}></div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-3xl font-bold leading-tight mb-4">{theme.retentionRate}%</p>
+              <div className="h-2 w-full bg-slate-100 dark:bg-slate-700 rounded-full">
+                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${theme.retentionRate}%` }}></div>
+              </div>
+            </>
+          )}
         </div>
 
 
@@ -397,26 +447,54 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Como foi a revisão?</h3>
 
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Questões Feitas</label>
-                    <input
-                      type="number"
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none focus:border-primary font-bold"
-                      value={newQuestions}
-                      onChange={e => setNewQuestions(e.target.value)}
-                      placeholder="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Acertos</label>
-                    <input
-                      type="number"
-                      className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none focus:border-green-500 font-bold text-green-600"
-                      value={newCorrect}
-                      onChange={e => setNewCorrect(e.target.value)}
-                      placeholder="0"
-                    />
-                  </div>
+                  {theme.studyMode === 'free' ? (
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Como você se sentiu?</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          onClick={() => setNewSelfEvaluation('revisar')}
+                          className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${newSelfEvaluation === 'revisar' ? 'bg-red-50 dark:bg-red-900/20 border-red-500 text-red-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
+                        >
+                          Preciso Revisar
+                        </button>
+                        <button
+                          onClick={() => setNewSelfEvaluation('razoavel')}
+                          className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${newSelfEvaluation === 'razoavel' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-500 text-orange-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
+                        >
+                          Razoável
+                        </button>
+                        <button
+                          onClick={() => setNewSelfEvaluation('confiante')}
+                          className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${newSelfEvaluation === 'confiante' ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
+                        >
+                          Confiante
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Questões Feitas</label>
+                        <input
+                          type="number"
+                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none focus:border-primary font-bold"
+                          value={newQuestions}
+                          onChange={e => setNewQuestions(e.target.value)}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Acertos</label>
+                        <input
+                          type="number"
+                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none focus:border-green-500 font-bold text-green-600"
+                          value={newCorrect}
+                          onChange={e => setNewCorrect(e.target.value)}
+                          placeholder="0"
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="flex gap-3 mt-6">

@@ -45,6 +45,8 @@ export interface Theme {
   questionsTotal: number;
   questionsCorrect: number;
   imageUrl?: string;
+  studyMode?: 'questions' | 'free';
+  selfEvaluation?: 'confiante' | 'razoavel' | 'revisar';
 }
 
 export interface Task {
