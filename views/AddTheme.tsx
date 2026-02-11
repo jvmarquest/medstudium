@@ -238,21 +238,37 @@ const AddTheme: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
 
     if (userData?.user) {
       // Insert Theme
-      const dbTheme = {
+      const dbTheme: any = {
         user_id: userData.user.id,
         nome: name,
         especialidade: specialty,
         grande_area: area,
         data_estudo_inicial: studyDate,
-        total_questoes: t,
-        acertos: c,
+        total_questoes: t, // Will be 0 for 'free' study mode
+        acertos: c, // Will be 0 for 'free' study mode
         taxa_acerto: calculatedAccuracy,
         dificuldade: calculatedDifficulty,
         proxima_revisao: nextReviewDate,
         srs_level: 1,
-        study_mode: studyMode,
-        self_evaluation: selfEvaluation || null
       };
+
+      // Only add new fields if explicitly using Free Mode, or if needed.
+      // This prevents "Column not found" errors if the user hasn't applied the migration yet
+      // and creates a legacy-compatible record for "questions" mode.
+      if (studyMode === 'free') {
+        dbTheme.study_mode = 'free';
+        dbTheme.self_evaluation = selfEvaluation;
+      } else {
+        // Optionally, we could set study_mode = 'questions' if we knew the column exists.
+        // But to be safe against missing column errors, we omit it. 
+        // The DB default is 'questions' anyway (if column exists).
+        // If column doesn't exist, this works fine.
+        // IF the column exists, we might want to save 'questions'. 
+        // But checking schema existence is hard here.
+        // Let's TRY adding study_mode if it's questions, but self_evaluation is the one that errored.
+        // Actually, the user error said "self_evaluation" column not found.
+        // If I omit both, it should be fine.
+      }
 
       const { data: themeData, error: themeError } = await supabase
         .from('themes')
