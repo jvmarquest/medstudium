@@ -22,6 +22,7 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [activeTheme, setActiveTheme] = useState<Theme | null>(null);
   const [reviewForm, setReviewForm] = useState({ questions: '', correct: '' });
+  const [selfEvaluation, setSelfEvaluation] = useState<'confiante' | 'razoavel' | 'revisar' | ''>('');
   const [saving, setSaving] = useState(false);
 
   const updateGreeting = () => {
@@ -95,7 +96,9 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
       retentionRate: t.taxa_acerto,
       questionsTotal: t.total_questoes,
       questionsCorrect: t.acertos,
-      imageUrl: t.image_url
+      imageUrl: t.image_url,
+      studyMode: t.study_mode,
+      selfEvaluation: t.self_evaluation
     });
 
     let remainingThemes: Theme[] = [];
@@ -152,27 +155,53 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
   const openReviewModal = (theme: Theme) => {
     setActiveTheme(theme);
     setReviewForm({ questions: '', correct: '' });
+    setSelfEvaluation('');
     setReviewModalOpen(true);
   };
 
   const handleSaveReview = async () => {
-    if (!activeTheme || !reviewForm.questions || !reviewForm.correct) return;
+    if (!activeTheme) return;
+
+    // Validate based on mode
+    if (activeTheme.studyMode === 'free') {
+      if (!selfEvaluation) return;
+    } else {
+      if (!reviewForm.questions || !reviewForm.correct) return;
+    }
+
     setSaving(true);
 
     try {
-      const q = parseInt(reviewForm.questions);
-      const c = parseInt(reviewForm.correct);
-
-      if (isNaN(q) || isNaN(c) || q <= 0 || c < 0 || c > q) {
-        alert("Por favor, insira valores válidos.");
-        setSaving(false);
-        return;
-      }
-
-      const accuracy = (c / q) * 100;
+      let q = 0;
+      let c = 0;
+      let accuracy = 0;
       let difficulty = 'Médio';
-      if (accuracy >= 80) difficulty = 'Fácil';
-      if (accuracy < 50) difficulty = 'Difícil';
+
+      if (activeTheme.studyMode === 'free') {
+        if (selfEvaluation === 'confiante') {
+          accuracy = 100;
+          difficulty = 'Fácil';
+        } else if (selfEvaluation === 'razoavel') {
+          accuracy = 70;
+          difficulty = 'Médio';
+        } else {
+          accuracy = 30;
+          difficulty = 'Difícil';
+        }
+      } else {
+        q = parseInt(reviewForm.questions);
+        c = parseInt(reviewForm.correct);
+
+        if (isNaN(q) || isNaN(c) || q <= 0 || c < 0 || c > q) {
+          alert("Por favor, insira valores válidos.");
+          setSaving(false);
+          return;
+        }
+
+        accuracy = (c / q) * 100;
+        if (accuracy >= 80) difficulty = 'Fácil';
+        else if (accuracy < 50) difficulty = 'Difícil';
+      }
 
       // --- SRS Logic (User Defined) ---
       // Rule 2 & 3: Level increases after review. First interval was 1d (Level 1).
@@ -228,9 +257,11 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
       // Update Theme Stats
       const newTotal = (activeTheme.questionsTotal || 0) + q;
       const newCorrect = (activeTheme.questionsCorrect || 0) + c;
-      const newAccuracy = newTotal > 0 ? Math.round((newCorrect / newTotal) * 100) : 0;
+      const newAccuracy = (activeTheme.studyMode === 'free')
+        ? accuracy
+        : (newTotal > 0 ? Math.round((newCorrect / newTotal) * 100) : 0);
 
-      await supabase.from('themes').update({
+      const updatePayload: any = {
         ultima_revisao: todayStr,
         proxima_revisao: nextReviewStr,
         srs_level: newLevel,
@@ -238,7 +269,13 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
         total_questoes: newTotal,
         acertos: newCorrect,
         dificuldade: difficulty // Update current difficulty status
-      }).eq('id', activeTheme.id);
+      };
+
+      if (activeTheme.studyMode === 'free') {
+        updatePayload.self_evaluation = selfEvaluation;
+      }
+
+      await supabase.from('themes').update(updatePayload).eq('id', activeTheme.id);
 
       // Refresh
       setReviewModalOpen(false);
@@ -431,27 +468,55 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Questões Realizadas</label>
-                  <input
-                    type="number"
-                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none focus:border-primary font-bold text-lg"
-                    value={reviewForm.questions}
-                    onChange={e => setReviewForm({ ...reviewForm, questions: e.target.value })}
-                    placeholder="Ex: 10"
-                    autoFocus
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Acertos</label>
-                  <input
-                    type="number"
-                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none focus:border-green-500 font-bold text-lg text-green-600"
-                    value={reviewForm.correct}
-                    onChange={e => setReviewForm({ ...reviewForm, correct: e.target.value })}
-                    placeholder="Ex: 8"
-                  />
-                </div>
+                {activeTheme.studyMode === 'free' ? (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Como você se sentiu?</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        onClick={() => setSelfEvaluation('revisar')}
+                        className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${selfEvaluation === 'revisar' ? 'bg-red-50 dark:bg-red-900/20 border-red-500 text-red-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
+                      >
+                        Preciso Revisar
+                      </button>
+                      <button
+                        onClick={() => setSelfEvaluation('razoavel')}
+                        className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${selfEvaluation === 'razoavel' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-500 text-orange-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
+                      >
+                        Razoável
+                      </button>
+                      <button
+                        onClick={() => setSelfEvaluation('confiante')}
+                        className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${selfEvaluation === 'confiante' ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
+                      >
+                        Confiante
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Questões Realizadas</label>
+                      <input
+                        type="number"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none focus:border-primary font-bold text-lg"
+                        value={reviewForm.questions}
+                        onChange={e => setReviewForm({ ...reviewForm, questions: e.target.value })}
+                        placeholder="Ex: 10"
+                        autoFocus
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Acertos</label>
+                      <input
+                        type="number"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none focus:border-green-500 font-bold text-lg text-green-600"
+                        value={reviewForm.correct}
+                        onChange={e => setReviewForm({ ...reviewForm, correct: e.target.value })}
+                        placeholder="Ex: 8"
+                      />
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="flex gap-3 mt-6">
@@ -470,9 +535,8 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
                 </button>
               </div>
             </div>
-          </div>
         )}
-      </div>
+          </div>
     </PageLayout>
   );
 };
