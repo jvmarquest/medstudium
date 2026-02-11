@@ -364,7 +364,13 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
               <p className="text-[10px] font-bold uppercase tracking-wider">Próxima Revisão</p>
             </div>
             <div>
-              <p className="text-primary text-lg font-bold leading-tight">{theme.nextReview ? new Date(theme.nextReview).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) : 'Concluído'}</p>
+              <p className="text-primary text-lg font-bold leading-tight">
+                {theme.nextReview ? (() => {
+                  const date = new Date(theme.nextReview);
+                  date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+                  return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
+                })() : 'Concluído'}
+              </p>
               <p className="text-slate-500 text-xs font-medium">{theme.nextReview ? '' : 'Sem data'}</p>
             </div>
           </div>
