@@ -535,8 +535,9 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
                 </button>
               </div>
             </div>
-        )}
           </div>
+        )}
+      </div>
     </PageLayout>
   );
 };
