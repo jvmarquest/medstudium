@@ -491,8 +491,16 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
             </div>
 
             {/* Undo Button - Only if last review was today */}
-            {reviewHistory.length > 0 &&
-              new Date(reviewHistory[0].created_at).getDate() === new Date().getDate() && (
+            {reviewHistory.length > 0 && (() => {
+              const reviewDate = new Date(reviewHistory[0].created_at);
+              // Adjust for timezone offset to get "local" date from the UTC string if needed, 
+              // BUT supabase timestamp string might be ISO. 
+              // Simplest is to trust the day/month/year match after conversion.
+              const now = new Date();
+              return reviewDate.getDate() === now.getDate() &&
+                reviewDate.getMonth() === now.getMonth() &&
+                reviewDate.getFullYear() === now.getFullYear();
+            })() && (
                 <button
                   onClick={handleUndoReview}
                   className="flex items-center gap-1 px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-xs font-bold transition-all"
