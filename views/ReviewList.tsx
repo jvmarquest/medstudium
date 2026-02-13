@@ -104,7 +104,9 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
 
     let remainingThemes: Theme[] = [];
     if (themesData) {
-      remainingThemes = themesData.map(mapTheme);
+      remainingThemes = themesData
+        .filter((t: any) => !reviewedThemeIds.includes(t.id))
+        .map(mapTheme);
     }
 
     let reviewedThemesList: Theme[] = [];
