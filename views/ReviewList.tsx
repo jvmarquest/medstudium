@@ -23,6 +23,7 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
   const [activeTheme, setActiveTheme] = useState<Theme | null>(null);
   const [reviewForm, setReviewForm] = useState({ questions: '', correct: '' });
   const [selfEvaluation, setSelfEvaluation] = useState<'confiante' | 'razoavel' | 'revisar' | ''>('');
+  const [reviewMode, setReviewMode] = useState<'questions' | 'free'>('questions');
   const [saving, setSaving] = useState(false);
 
   const updateGreeting = () => {
@@ -156,6 +157,7 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
     setActiveTheme(theme);
     setReviewForm({ questions: '', correct: '' });
     setSelfEvaluation('');
+    setReviewMode(theme.studyMode || 'questions');
     setReviewModalOpen(true);
   };
 
@@ -163,7 +165,7 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
     if (!activeTheme) return;
 
     // Validate based on mode
-    if (activeTheme.studyMode === 'free') {
+    if (reviewMode === 'free') {
       if (!selfEvaluation) return;
     } else {
       if (!reviewForm.questions || !reviewForm.correct) return;
@@ -177,7 +179,7 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
       let accuracy = 0;
       let difficulty = 'Médio';
 
-      if (activeTheme.studyMode === 'free') {
+      if (reviewMode === 'free') {
         if (selfEvaluation === 'confiante') {
           accuracy = 100;
           difficulty = 'Fácil';
@@ -257,7 +259,7 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
       // Update Theme Stats
       const newTotal = (activeTheme.questionsTotal || 0) + q;
       const newCorrect = (activeTheme.questionsCorrect || 0) + c;
-      const newAccuracy = (activeTheme.studyMode === 'free')
+      const newAccuracy = (reviewMode === 'free')
         ? accuracy
         : (newTotal > 0 ? Math.round((newCorrect / newTotal) * 100) : 0);
 
@@ -268,10 +270,11 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
         taxa_acerto: newAccuracy,
         total_questoes: newTotal,
         acertos: newCorrect,
-        dificuldade: difficulty // Update current difficulty status
+        dificuldade: difficulty, // Update current difficulty status
+        study_mode: reviewMode // Update preference for next time
       };
 
-      if (activeTheme.studyMode === 'free') {
+      if (reviewMode === 'free') {
         updatePayload.self_evaluation = selfEvaluation;
       }
 
@@ -468,7 +471,23 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
               </div>
 
               <div className="space-y-4">
-                {activeTheme.studyMode === 'free' ? (
+                {/* Study Mode Toggle */}
+                <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-4">
+                  <button
+                    onClick={() => setReviewMode('questions')}
+                    className={`py-2 rounded-lg text-xs font-bold transition-all ${reviewMode === 'questions' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                  >
+                    Por Questões
+                  </button>
+                  <button
+                    onClick={() => setReviewMode('free')}
+                    className={`py-2 rounded-lg text-xs font-bold transition-all ${reviewMode === 'free' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                  >
+                    Estudo Livre
+                  </button>
+                </div>
+
+                {reviewMode === 'free' ? (
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Como você se sentiu?</label>
                     <div className="grid grid-cols-3 gap-2">

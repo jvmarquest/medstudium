@@ -24,6 +24,7 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
   const [newCorrect, setNewCorrect] = React.useState('');
   const [newSelfEvaluation, setNewSelfEvaluation] = React.useState<'confiante' | 'razoavel' | 'revisar' | ''>('');
   const [reviewHistory, setReviewHistory] = React.useState<any[]>([]); // New State
+  const [reviewMode, setReviewMode] = React.useState<'questions' | 'free'>('questions');
   const [confirmDominadoOpen, setConfirmDominadoOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -88,15 +89,15 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
   const handleLogReview = async () => {
     try {
       if (!theme) return;
-      if (theme.studyMode === 'free' && !newSelfEvaluation) return;
-      if (theme.studyMode !== 'free' && (!newQuestions || !newCorrect)) return;
+      if (reviewMode === 'free' && !newSelfEvaluation) return;
+      if (reviewMode !== 'free' && (!newQuestions || !newCorrect)) return;
 
       let q = 0;
       let c = 0;
       let sessionAccuracy = 0;
       let sessionDifficulty = 'Difícil';
 
-      if (theme.studyMode === 'free') {
+      if (reviewMode === 'free') {
         if (newSelfEvaluation === 'confiante') {
           sessionAccuracy = 100;
           sessionDifficulty = 'Fácil';
@@ -201,7 +202,7 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
       // 4. Update Theme Stats
       const newTotal = (theme.questionsTotal || 0) + q;
       const newCorrectTotal = (theme.questionsCorrect || 0) + c;
-      const newRate = (theme.studyMode === 'free')
+      const newRate = (reviewMode === 'free')
         ? sessionAccuracy
         : (newTotal > 0 ? Math.round((newCorrectTotal / newTotal) * 100) : 0);
 
@@ -212,10 +213,11 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
         ultima_revisao: todayStr,
         proxima_revisao: calculatedNextReview,
         dificuldade: sessionDifficulty,
-        srs_level: newSrsLevel
+        srs_level: newSrsLevel,
+        study_mode: reviewMode // Update preference
       };
 
-      if (theme.studyMode === 'free') {
+      if (reviewMode === 'free') {
         updatePayload.self_evaluation = newSelfEvaluation;
       }
 
@@ -440,6 +442,7 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
                 alert("Conecte-se à internet para realizar revisões.");
                 return;
               }
+              setReviewMode(theme?.studyMode || 'questions');
               setIsReviewing(true);
             }}
             className={`flex items-center justify-center rounded-xl h-12 transition-colors text-white font-bold text-sm shadow-lg shadow-blue-900/20 active:scale-95 ${!isOnline ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark'}`}>
@@ -453,7 +456,23 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Como foi a revisão?</h3>
 
                 <div className="space-y-4">
-                  {theme.studyMode === 'free' ? (
+                  {/* Study Mode Toggle */}
+                  <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-4">
+                    <button
+                      onClick={() => setReviewMode('questions')}
+                      className={`py-2 rounded-lg text-xs font-bold transition-all ${reviewMode === 'questions' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                    >
+                      Por Questões
+                    </button>
+                    <button
+                      onClick={() => setReviewMode('free')}
+                      className={`py-2 rounded-lg text-xs font-bold transition-all ${reviewMode === 'free' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                    >
+                      Estudo Livre
+                    </button>
+                  </div>
+
+                  {reviewMode === 'free' ? (
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Como você se sentiu?</label>
                       <div className="grid grid-cols-3 gap-2">
