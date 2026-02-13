@@ -484,14 +484,12 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
           {/* Undo Button */}
           {reviewHistory.length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-slate-400 font-mono hidden md:block">
-                debug: {reviewHistory.length}
-              </span>
               <button
                 onClick={handleUndoReview}
-                className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-bold shadow-sm transition-all"
+                className="flex items-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg text-xs font-bold transition-all"
+                title="Desfazer a última revisão"
               >
-                <span className="material-symbols-outlined text-lg">undo</span>
+                <span className="material-symbols-outlined text-sm">undo</span>
                 Desfazer Revisão
               </button>
             </div>
