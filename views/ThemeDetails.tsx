@@ -221,7 +221,18 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
         updatePayload.self_evaluation = newSelfEvaluation;
       }
 
-      await supabase.from('themes').update(updatePayload).eq('id', theme.id);
+      const { error: updateError } = await supabase.from('themes').update(updatePayload).eq('id', theme.id);
+
+      if (updateError) {
+        console.warn('Initial update failed, trying fallback without new columns...', updateError);
+        // Fallback: Try updating without the new columns (migrations might be missing)
+        const fallbackPayload = { ...updatePayload };
+        delete fallbackPayload.study_mode;
+        delete fallbackPayload.self_evaluation;
+
+        const { error: fallbackError } = await supabase.from('themes').update(fallbackPayload).eq('id', theme.id);
+        if (fallbackError) throw fallbackError;
+      }
 
       // Update Sync Status
       await supabase

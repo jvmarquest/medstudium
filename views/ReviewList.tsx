@@ -280,7 +280,18 @@ const ReviewList: React.FC<Props> = ({ onNavigate, onHistory }) => {
         updatePayload.self_evaluation = selfEvaluation;
       }
 
-      await supabase.from('themes').update(updatePayload).eq('id', activeTheme.id);
+      const { error: updateError } = await supabase.from('themes').update(updatePayload).eq('id', activeTheme.id);
+
+      if (updateError) {
+        console.warn('Initial update failed, trying fallback without new columns...', updateError);
+        // Fallback: Try updating without the new columns (migrations might be missing)
+        const fallbackPayload = { ...updatePayload };
+        delete fallbackPayload.study_mode;
+        delete fallbackPayload.self_evaluation;
+
+        const { error: fallbackError } = await supabase.from('themes').update(fallbackPayload).eq('id', activeTheme.id);
+        if (fallbackError) throw fallbackError;
+      }
 
       // Refresh
       setReviewModalOpen(false);
