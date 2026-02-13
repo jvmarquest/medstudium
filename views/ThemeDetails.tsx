@@ -468,276 +468,279 @@ const ThemeDetails: React.FC<Props> = ({ themeId, onNavigate, onHistory }) => {
     >
 
       <main className="flex flex-col gap-6 p-4 px-6 w-full mx-auto">
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/30 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
-                  {theme.specialty}
-                </span>
-                <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:text-gray-400">
-                  {theme.area}
-                </span>
-              </div>
-              <h1 className="text-3xl font-extrabold tracking-tight leading-tight">{theme.name}</h1>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/30 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-300">
+                {theme.specialty}
+              </span>
+              <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:text-gray-400">
+                {theme.area}
+              </span>
             </div>
+            <h1 className="text-3xl font-extrabold tracking-tight leading-tight">{theme.name}</h1>
+          </div>
 
-            {/* Undo Button - Only if last review was today */}
-            {reviewHistory.length > 0 && (
+          {/* Undo Button */}
+          {reviewHistory.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-slate-400 font-mono hidden md:block">
+                debug: {reviewHistory.length}
+              </span>
               <button
                 onClick={handleUndoReview}
-                className="flex items-center gap-1 px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-xs font-bold transition-all"
-                title="Desfazer a última revisão"
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-bold shadow-sm transition-all"
               >
-                <span className="material-symbols-outlined text-sm">undo</span>
-                Refazer Última
+                <span className="material-symbols-outlined text-lg">undo</span>
+                Desfazer Revisão
               </button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-3 rounded-xl p-5 bg-white dark:bg-surface-highlight shadow-sm border border-gray-100 dark:border-gray-800">
-              <div className="flex items-center gap-2 text-text-secondary">
-                <span className="material-symbols-outlined text-xl">calendar_clock</span>
-                <p className="text-[10px] font-bold uppercase tracking-wider">Próxima Revisão</p>
-              </div>
-              <div>
-                <p className="text-primary text-lg font-bold leading-tight">
-                  {theme.nextReview ? (() => {
-                    const date = new Date(theme.nextReview);
-                    date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
-                    return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
-                  })() : 'Concluído'}
-                </p>
-                <p className="text-slate-500 text-xs font-medium">{theme.nextReview ? '' : 'Sem data'}</p>
-              </div>
             </div>
-            <div className="flex flex-col gap-3 rounded-xl p-5 bg-white dark:bg-surface-highlight shadow-sm border border-gray-100 dark:border-gray-800">
-              <div className="flex items-center gap-2 text-text-secondary">
-                <span className="material-symbols-outlined text-xl">psychology</span>
-                <p className="text-[10px] font-bold uppercase tracking-wider">Nível SRS</p>
-              </div>
-              <div>
-                <p className="text-lg font-bold leading-tight">Nível {theme.srsLevel}</p>
-                <div className="flex items-center gap-1 mt-1">
-                  <span className={`size-2 rounded-full ${theme.accuracy > 70 ? 'bg-green-500' : 'bg-orange-500'}`}></span>
-                  <p className="text-xs font-medium">{theme.difficulty}</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
+        </div>
 
-          <div className="rounded-xl bg-white dark:bg-surface-highlight p-5 shadow-sm border border-gray-100 dark:border-gray-800">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-text-secondary text-sm font-medium">
-                {theme.studyMode === 'free' ? 'Autoavaliação' : 'Taxa de Retenção'}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-3 rounded-xl p-5 bg-white dark:bg-surface-highlight shadow-sm border border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-2 text-text-secondary">
+              <span className="material-symbols-outlined text-xl">calendar_clock</span>
+              <p className="text-[10px] font-bold uppercase tracking-wider">Próxima Revisão</p>
+            </div>
+            <div>
+              <p className="text-primary text-lg font-bold leading-tight">
+                {theme.nextReview ? (() => {
+                  const date = new Date(theme.nextReview);
+                  date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+                  return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
+                })() : 'Concluído'}
               </p>
-              {theme.studyMode === 'free' ? (
-                <span className="inline-flex items-center rounded-full bg-indigo-100 dark:bg-indigo-900/30 px-2.5 py-0.5 text-xs font-bold text-indigo-800 dark:text-indigo-300">
-                  Estudo Livre
-                </span>
-              ) : (
-                retentionDelta !== null && retentionDelta !== 0 && (
-                  <div className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${retentionDelta > 0
-                    ? 'text-green-500 bg-green-500/10'
-                    : 'text-red-500 bg-red-500/10'
-                    }`}>
-                    <span className="material-symbols-outlined text-xs">
-                      {retentionDelta > 0 ? 'trending_up' : 'trending_down'}
-                    </span>
-                    <span>{retentionDelta > 0 ? '+' : ''}{retentionDelta}%</span>
-                  </div>
-                )
-              )}
+              <p className="text-slate-500 text-xs font-medium">{theme.nextReview ? '' : 'Sem data'}</p>
             </div>
+          </div>
+          <div className="flex flex-col gap-3 rounded-xl p-5 bg-white dark:bg-surface-highlight shadow-sm border border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-2 text-text-secondary">
+              <span className="material-symbols-outlined text-xl">psychology</span>
+              <p className="text-[10px] font-bold uppercase tracking-wider">Nível SRS</p>
+            </div>
+            <div>
+              <p className="text-lg font-bold leading-tight">Nível {theme.srsLevel}</p>
+              <div className="flex items-center gap-1 mt-1">
+                <span className={`size-2 rounded-full ${theme.accuracy > 70 ? 'bg-green-500' : 'bg-orange-500'}`}></span>
+                <p className="text-xs font-medium">{theme.difficulty}</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
+        <div className="rounded-xl bg-white dark:bg-surface-highlight p-5 shadow-sm border border-gray-100 dark:border-gray-800">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-text-secondary text-sm font-medium">
+              {theme.studyMode === 'free' ? 'Autoavaliação' : 'Taxa de Retenção'}
+            </p>
             {theme.studyMode === 'free' ? (
-              <div className="flex flex-col gap-2">
-                <p className="text-lg font-medium text-slate-700 dark:text-slate-300 capitalize">
-                  {theme.selfEvaluation || 'Não avaliado'}
-                </p>
-                <div className="h-2 w-full bg-slate-100 dark:bg-slate-700 rounded-full">
-                  <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${theme.retentionRate}%` }}></div>
-                </div>
-              </div>
+              <span className="inline-flex items-center rounded-full bg-indigo-100 dark:bg-indigo-900/30 px-2.5 py-0.5 text-xs font-bold text-indigo-800 dark:text-indigo-300">
+                Estudo Livre
+              </span>
             ) : (
-              <>
-                <p className="text-3xl font-bold leading-tight mb-4">{theme.retentionRate}%</p>
-                <div className="h-2 w-full bg-slate-100 dark:bg-slate-700 rounded-full">
-                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${theme.retentionRate}%` }}></div>
+              retentionDelta !== null && retentionDelta !== 0 && (
+                <div className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${retentionDelta > 0
+                  ? 'text-green-500 bg-green-500/10'
+                  : 'text-red-500 bg-red-500/10'
+                  }`}>
+                  <span className="material-symbols-outlined text-xs">
+                    {retentionDelta > 0 ? 'trending_up' : 'trending_down'}
+                  </span>
+                  <span>{retentionDelta > 0 ? '+' : ''}{retentionDelta}%</span>
                 </div>
-              </>
+              )
             )}
           </div>
 
+          {theme.studyMode === 'free' ? (
+            <div className="flex flex-col gap-2">
+              <p className="text-lg font-medium text-slate-700 dark:text-slate-300 capitalize">
+                {theme.selfEvaluation || 'Não avaliado'}
+              </p>
+              <div className="h-2 w-full bg-slate-100 dark:bg-slate-700 rounded-full">
+                <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${theme.retentionRate}%` }}></div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-3xl font-bold leading-tight mb-4">{theme.retentionRate}%</p>
+              <div className="h-2 w-full bg-slate-100 dark:bg-slate-700 rounded-full">
+                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${theme.retentionRate}%` }}></div>
+              </div>
+            </>
+          )}
+        </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => {
-                if (!isOnline) {
-                  alert("Conecte-se à internet para realizar revisões.");
-                  return;
-                }
-                setReviewMode(theme?.studyMode || 'questions');
-                setIsReviewing(true);
-              }}
-              className={`flex items-center justify-center rounded-xl h-12 transition-colors text-white font-bold text-sm shadow-lg shadow-blue-900/20 active:scale-95 ${!isOnline ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark'}`}>
-              <span className="mr-2 material-symbols-outlined text-[20px]">play_circle</span>
-              Revisar Agora
-            </button>
 
-            {isReviewing && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
-                <div className="bg-white dark:bg-surface-dark w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-200 dark:border-slate-700">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Como foi a revisão?</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => {
+              if (!isOnline) {
+                alert("Conecte-se à internet para realizar revisões.");
+                return;
+              }
+              setReviewMode(theme?.studyMode || 'questions');
+              setIsReviewing(true);
+            }}
+            className={`flex items-center justify-center rounded-xl h-12 transition-colors text-white font-bold text-sm shadow-lg shadow-blue-900/20 active:scale-95 ${!isOnline ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark'}`}>
+            <span className="mr-2 material-symbols-outlined text-[20px]">play_circle</span>
+            Revisar Agora
+          </button>
 
-                  <div className="space-y-4">
-                    {/* Study Mode Toggle */}
-                    <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-4">
-                      <button
-                        onClick={() => setReviewMode('questions')}
-                        className={`py-2 rounded-lg text-xs font-bold transition-all ${reviewMode === 'questions' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-                      >
-                        Por Questões
-                      </button>
-                      <button
-                        onClick={() => setReviewMode('free')}
-                        className={`py-2 rounded-lg text-xs font-bold transition-all ${reviewMode === 'free' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-                      >
-                        Estudo Livre
-                      </button>
-                    </div>
+          {isReviewing && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
+              <div className="bg-white dark:bg-surface-dark w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-200 dark:border-slate-700">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Como foi a revisão?</h3>
 
-                    {reviewMode === 'free' ? (
-                      <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Como você se sentiu?</label>
-                        <div className="grid grid-cols-3 gap-2">
-                          <button
-                            onClick={() => setNewSelfEvaluation('revisar')}
-                            className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${newSelfEvaluation === 'revisar' ? 'bg-red-50 dark:bg-red-900/20 border-red-500 text-red-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
-                          >
-                            Preciso Revisar
-                          </button>
-                          <button
-                            onClick={() => setNewSelfEvaluation('razoavel')}
-                            className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${newSelfEvaluation === 'razoavel' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-500 text-orange-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
-                          >
-                            Razoável
-                          </button>
-                          <button
-                            onClick={() => setNewSelfEvaluation('confiante')}
-                            className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${newSelfEvaluation === 'confiante' ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
-                          >
-                            Confiante
-                          </button>
-                        </div>
+                <div className="space-y-4">
+                  {/* Study Mode Toggle */}
+                  <div className="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-4">
+                    <button
+                      onClick={() => setReviewMode('questions')}
+                      className={`py-2 rounded-lg text-xs font-bold transition-all ${reviewMode === 'questions' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                    >
+                      Por Questões
+                    </button>
+                    <button
+                      onClick={() => setReviewMode('free')}
+                      className={`py-2 rounded-lg text-xs font-bold transition-all ${reviewMode === 'free' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                    >
+                      Estudo Livre
+                    </button>
+                  </div>
+
+                  {reviewMode === 'free' ? (
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Como você se sentiu?</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          onClick={() => setNewSelfEvaluation('revisar')}
+                          className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${newSelfEvaluation === 'revisar' ? 'bg-red-50 dark:bg-red-900/20 border-red-500 text-red-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
+                        >
+                          Preciso Revisar
+                        </button>
+                        <button
+                          onClick={() => setNewSelfEvaluation('razoavel')}
+                          className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${newSelfEvaluation === 'razoavel' ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-500 text-orange-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
+                        >
+                          Razoável
+                        </button>
+                        <button
+                          onClick={() => setNewSelfEvaluation('confiante')}
+                          className={`h-14 rounded-xl font-bold text-sm transition-all border-2 ${newSelfEvaluation === 'confiante' ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-500' : 'bg-white dark:bg-surface-dark border-transparent text-slate-500 hover:bg-slate-50'}`}
+                        >
+                          Confiante
+                        </button>
                       </div>
-                    ) : (
-                      <>
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Questões Feitas</label>
-                          <input
-                            type="number"
-                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none focus:border-primary font-bold"
-                            value={newQuestions}
-                            onChange={e => setNewQuestions(e.target.value)}
-                            placeholder="0"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Acertos</label>
-                          <input
-                            type="number"
-                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none focus:border-green-500 font-bold text-green-600"
-                            value={newCorrect}
-                            onChange={e => setNewCorrect(e.target.value)}
-                            placeholder="0"
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="flex gap-3 mt-6">
-                    <button onClick={() => setIsReviewing(false)} className="flex-1 py-3 text-slate-500 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancelar</button>
-                    <button onClick={handleLogReview} className="flex-1 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-dark transition-colors">Salvar</button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <button onClick={handleDominateClick} className="flex items-center justify-center rounded-xl h-12 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm active:scale-95">
-              <span className="mr-2 material-symbols-outlined text-[20px]">check_circle</span>
-              Dominado
-            </button>
-
-
-            {/* Dominate Confirmation Modal */}
-            {confirmDominadoOpen && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
-                <div className="bg-white dark:bg-surface-dark w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-200 dark:border-slate-700">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Dominar Tema?</h3>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm mb-6">
-                    Tem certeza que deseja marcar este tema como <span className="font-bold text-primary">Dominado</span>?
-                    <br /><br />
-                    Ele só aparecerá novamente para revisão daqui a 6 meses.
-                  </p>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setConfirmDominadoOpen(false)}
-                      className="flex-1 py-3 text-slate-500 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={confirmDominate}
-                      className="flex-1 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-dark transition-colors"
-                    >
-                      Sim, Dominado
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-2">
-            <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Sessões Anteriores</h3>
-            {reviewHistory.length > 0 ? (
-              <div className="flex flex-col gap-3">
-                {reviewHistory.map((review, index) => (
-                  <div key={review.id || index} className="flex items-center justify-between p-4 bg-white dark:bg-surface-highlight rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <div className={`flex items-center justify-center w-10 h-10 rounded-full ${review.accuracy_percent >= 80 ? 'bg-green-100 text-green-600' : review.accuracy_percent >= 50 ? 'bg-orange-100 text-orange-600' : 'bg-red-100 text-red-600'}`}>
-                        <span className="material-symbols-outlined text-xl">
-                          {review.accuracy_percent >= 80 ? 'check_circle' : review.accuracy_percent >= 50 ? 'remove_circle' : 'cancel'}
-                        </span>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Questões Feitas</label>
+                        <input
+                          type="number"
+                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none focus:border-primary font-bold"
+                          value={newQuestions}
+                          onChange={e => setNewQuestions(e.target.value)}
+                          placeholder="0"
+                        />
                       </div>
                       <div>
-                        <p className="text-slate-900 dark:text-white font-bold text-sm">
-                          {new Date(review.created_at).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }).replace('.', '')}
-                        </p>
-                        <p className="text-slate-500 text-xs font-medium capitalize">
-                          {review.difficulty.toLowerCase()}
-                        </p>
+                        <label className="block text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Acertos</label>
+                        <input
+                          type="number"
+                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 outline-none focus:border-green-500 font-bold text-green-600"
+                          value={newCorrect}
+                          onChange={e => setNewCorrect(e.target.value)}
+                          placeholder="0"
+                        />
                       </div>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex gap-3 mt-6">
+                  <button onClick={() => setIsReviewing(false)} className="flex-1 py-3 text-slate-500 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancelar</button>
+                  <button onClick={handleLogReview} className="flex-1 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-dark transition-colors">Salvar</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <button onClick={handleDominateClick} className="flex items-center justify-center rounded-xl h-12 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm active:scale-95">
+            <span className="mr-2 material-symbols-outlined text-[20px]">check_circle</span>
+            Dominado
+          </button>
+
+
+          {/* Dominate Confirmation Modal */}
+          {confirmDominadoOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
+              <div className="bg-white dark:bg-surface-dark w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-slate-200 dark:border-slate-700">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Dominar Tema?</h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm mb-6">
+                  Tem certeza que deseja marcar este tema como <span className="font-bold text-primary">Dominado</span>?
+                  <br /><br />
+                  Ele só aparecerá novamente para revisão daqui a 6 meses.
+                </p>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setConfirmDominadoOpen(false)}
+                    className="flex-1 py-3 text-slate-500 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={confirmDominate}
+                    className="flex-1 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-dark transition-colors"
+                  >
+                    Sim, Dominado
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-2">
+          <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Sessões Anteriores</h3>
+          {reviewHistory.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {reviewHistory.map((review, index) => (
+                <div key={review.id || index} className="flex items-center justify-between p-4 bg-white dark:bg-surface-highlight rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full ${review.accuracy_percent >= 80 ? 'bg-green-100 text-green-600' : review.accuracy_percent >= 50 ? 'bg-orange-100 text-orange-600' : 'bg-red-100 text-red-600'}`}>
+                      <span className="material-symbols-outlined text-xl">
+                        {review.accuracy_percent >= 80 ? 'check_circle' : review.accuracy_percent >= 50 ? 'remove_circle' : 'cancel'}
+                      </span>
                     </div>
-                    <div className="text-right">
-                      <p className={`text-lg font-extrabold ${review.accuracy_percent >= 80 ? 'text-green-600' : review.accuracy_percent >= 50 ? 'text-orange-600' : 'text-red-500'}`}>
-                        {Math.round(review.accuracy_percent)}%
+                    <div>
+                      <p className="text-slate-900 dark:text-white font-bold text-sm">
+                        {new Date(review.created_at).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }).replace('.', '')}
                       </p>
-                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Acertos</p>
+                      <p className="text-slate-500 text-xs font-medium capitalize">
+                        {review.difficulty.toLowerCase()}
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-slate-500 text-sm italic bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-                Nenhuma revisão registrada ainda.
-              </div>
-            )}
-          </div>
+                  <div className="text-right">
+                    <p className={`text-lg font-extrabold ${review.accuracy_percent >= 80 ? 'text-green-600' : review.accuracy_percent >= 50 ? 'text-orange-600' : 'text-red-500'}`}>
+                      {Math.round(review.accuracy_percent)}%
+                    </p>
+                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Acertos</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-slate-500 text-sm italic bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+              Nenhuma revisão registrada ainda.
+            </div>
+          )}
+        </div>
       </main >
 
 
