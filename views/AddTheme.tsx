@@ -279,6 +279,68 @@ const AddTheme: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
       if (themeError) {
         console.error('Error saving theme to DB:', themeError);
 
+        // 0. Column Missing Error (Fallback)
+        // If the error is about missing columns (e.g. "Could not find the 'self_evaluation' column..."),
+        // try saving again WITHOUT those columns.
+        if (themeError.message && (themeError.message.includes('self_evaluation') || themeError.message.includes('study_mode'))) {
+          console.warn("New columns missing in DB. Retrying without them...");
+          const fallbackTheme = { ...dbTheme };
+          delete fallbackTheme.study_mode;
+          delete fallbackTheme.self_evaluation;
+
+          const { data: themeDataFallback, error: themeErrorFallback } = await supabase
+            .from('themes')
+            .insert(fallbackTheme)
+            .select()
+            .single();
+
+          if (themeErrorFallback) {
+            alert(`Erro ao salvar (Fallback falhou): ${themeErrorFallback.message}`);
+            return;
+          }
+          // Success on fallback! Update local variable so the rest of the function works
+          // We need to re-assign themeData to let the flow continue
+          // But 'const' prevents re-assignment. We should refactor or just copy the success logic here.
+          // Refactoring is cleaner. Let's restart the flow with a mutable variable or handle success here.
+
+          // To avoid huge code duplication, let's just reload the page or navigate away? 
+          // No, consistent UX.
+          // We will handle the "Success" part in a unified way if we can get the data.
+
+          // Hack: We can't reassign `themeData`.
+          // Let's change the structure above to use `let`.
+          // For now, let's just recursively call a helper or duplicate the success logic? 
+          // Duplicating the success logic for the fallback is safest to avoid breaking `const` contracts elsewhere.
+
+          if (themeDataFallback) {
+            // --- DUPLICATED SUCCESS LOGIC FOR FALLBACK ---
+            // Insert Scheduled Reviews
+            const others = futureReviews.filter(d => d !== nextReviewDate);
+            const scheduledReviews = [nextReviewDate, ...others];
+
+            if (scheduledReviews.length > 0) {
+              const reviewsToInsert = scheduledReviews.map(date => ({
+                theme_id: themeDataFallback.id,
+                data_prevista: date,
+                taxa_acerto: null,
+                dificuldade_resultante: null
+              }));
+
+              await supabase.from('reviews').insert(reviewsToInsert);
+            }
+
+            generateTopicIllustration(name, themeDataFallback.id);
+
+            await supabase
+              .from('user_preferences')
+              .update({ last_sync_at: new Date().toISOString() })
+              .eq('user_id', userData.user.id);
+
+            onNavigate(View.DASHBOARD);
+            return; // Exit after successful fallback
+          }
+        }
+
         // 1. Plan Limit Error (Trigger Exception)
         if (themeError.message && themeError.message.includes('Limite do plano gratuito')) {
           setShowUpgradeModal(true);
