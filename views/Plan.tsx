@@ -141,6 +141,21 @@ const Plan: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
     if (!deletingThemeId || !session) return;
 
     try {
+      // Delete dependencies first to avoid foreign key constraints
+      const { error: historyError } = await supabase
+        .from('theme_reviews')
+        .delete()
+        .eq('theme_id', deletingThemeId);
+
+      if (historyError) throw historyError;
+
+      const { error: reviewsError } = await supabase
+        .from('reviews')
+        .delete()
+        .eq('theme_id', deletingThemeId);
+
+      if (reviewsError) throw reviewsError;
+
       const { error } = await supabase
         .from('themes')
         .delete()
@@ -150,6 +165,7 @@ const Plan: React.FC<Props> = ({ onNavigate, onBack, onHistory }) => {
       if (error) throw error;
       fetchThemes();
     } catch (err) {
+      console.error('Error deleting theme:', err);
       alert('Erro ao apagar tema.');
     } finally {
       setDeletingThemeId(null);
