@@ -439,22 +439,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         </div>
 
                         {/* Monthly Plan */}
-                        <div className="p-8 bg-white dark:bg-surface-dark border-2 border-primary rounded-3xl flex flex-col relative shadow-2xl shadow-primary/10 scale-105 z-10">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full animate-pulse">
-                                30% OFF LIMITADO
-                            </div>
+                        <div className="p-8 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-3xl flex flex-col hover:shadow-xl transition-all">
                             <h3 className="text-xl font-bold mb-2">Premium Mensal</h3>
                             <div className="mb-6">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-sm line-through text-slate-400 font-medium">R$ 17,90</span>
-                                </div>
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-slate-500 text-lg font-bold">R$</span>
-                                    <span className="text-5xl font-black text-slate-900 dark:text-white">12</span>
-                                    <span className="text-slate-500 font-bold">,49/mês</span>
-                                </div>
-                                <div className="mt-2 text-[10px] font-bold text-red-600 uppercase tracking-tighter">
-                                    Oferta encerra em 28/02/2026
+                                    <span className="text-5xl font-black text-slate-900 dark:text-white">17</span>
+                                    <span className="text-slate-500 font-bold">,90/mês</span>
                                 </div>
                             </div>
                             <p className="text-slate-500 text-sm mb-8">O poder total para sua aprovação com flexibilidade.</p>
@@ -476,22 +467,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                         </div>
 
                         {/* Lifetime Plan */}
-                        <div className="p-8 bg-slate-900 text-white rounded-3xl flex flex-col hover:shadow-xl transition-all border-2 border-primary relative">
-                            <div className="absolute top-0 right-4 -translate-y-1/2 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full animate-pulse z-20">
-                                40% OFF HOJE
-                            </div>
+                        <div className="p-8 bg-slate-900 text-white rounded-3xl flex flex-col hover:shadow-xl transition-all border border-slate-700 relative">
                             <h3 className="text-xl font-bold mb-2">Lifetime Access</h3>
                             <div className="mb-6">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-sm line-through text-slate-500 font-medium">R$ 237,90</span>
-                                </div>
                                 <div className="flex items-baseline gap-1 text-white">
                                     <span className="text-slate-400 text-lg font-bold">R$</span>
-                                    <span className="text-5xl font-black">142</span>
-                                    <span className="text-slate-400 font-bold">,74</span>
-                                </div>
-                                <div className="mt-2 text-[10px] font-bold text-red-500 uppercase tracking-tighter">
-                                    Oferta exclusiva até 28/02/2026
+                                    <span className="text-5xl font-black">237</span>
+                                    <span className="text-slate-400 font-bold">,90</span>
                                 </div>
                             </div>
                             <p className="text-slate-400 text-sm mb-8 text-balance">Pagamento único para acesso vitalício a todas as atualizações.</p>
